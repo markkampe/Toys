@@ -1,0 +1,135 @@
+Data Explorer design notes
+
+	In terms of primary function, there are three main parts:
+
+	    1) a data visualizer
+
+	       forward channel:
+
+		input:	a parametrized html file that shows how 
+			to embed data in html display widgetry 
+			for attractive presentation.
+
+		input	an object worth of annotated data in an
+			XML representation.
+
+		output	html which displays the data, and contains
+			URLs to all related items.
+
+	      back channel:
+		receives:
+			HTTP fetches of the form
+				format?object description
+
+			the browser should be capable of highlighting
+			any piece of data and treating it as any type
+			of reference, or or interpreting any piece of
+			data in any format.
+
+		generates:
+			data fetches from accessor
+			interpretations from the interpreter
+
+		receives:
+			HTTP put-backs
+		generates
+			encode calls to the interpreter
+			data stores to the accessor
+
+	     big questions:
+
+		what kind of meta-HTML is already supported?
+
+		how much smarts can I put in DHTML for editing?
+
+
+	    2) a data interpreter
+
+	      forward channel:
+
+		input:	an XML description of the format of an
+			object
+
+		input:	a segment of binary data to be interpreted
+			according to the format
+
+		output:	an XML annotation representation of the
+			object resulting from applying the format
+			to the segment.
+			
+	      back channel:
+
+		input:	references to be followed
+		output:	byte offsets and lengths (with recommended formats)
+
+			perhaps functions like I#(block), name(I#),
+			block(I#,blockno), parent(I#), etc can also
+			be implemented by the interpreter and somehow
+			made accessable to the front end.
+
+		input:	data to be reencoded
+		output:	a segment of updated bits
+	
+
+	    3) a data accessor
+
+		input:	an offset and length to read
+		output:	a segment containing that data
+
+		input:	an offset, length, and segment to write
+		output:	stored in cache so it appears to be changed
+
+		true write commands to really put back
+
+		eventual features:
+			authenticated sessions and setuids
+			multiple concurrent input sessions
+
+	They may all be bound together into a single program.
+
+	Both the Meta-HTML and the XML format descriptions are
+	probably produced by another tool that accepts C input
+	(with handy comments).
+
+	The generated HTML has field headings, pop-up help, and
+	perhaps even help URLs in it (which came from the commented
+	C).  
+
+	We will automatically generate HTML for any data structure
+	(including structure nesting, pointers, and refs) but the
+	intent is that it can be edited.  The XML will be automatically
+	generated, but so dry that nobody would want to mess with it.
+
+	The XML does not include help, tags, and how to follow links
+	because the XML is meant for people who understand the data.
+
+Misc thoughts:
+
+	URLs should be reusable, so one can book-mark a data item
+	and get back (same file, same offset, same view) to it.
+
+	not clear if analyzer deciphers references, or if there is
+	merely java in the HTML that does it so that all fetches
+	are of a form like:
+		format?name=x,offset=y,length=z
+		
+	the latter might be more browserlike
+
+Suggested Prototype Implementation Plan:
+
+	1. study parametrized HTML
+	2. produce HTML for typical data and see how it looks
+	3. add data links, help links, and spot help to the HTML
+	--- this becomes my target HTML
+	4. study XML XDRs to see what already exists
+	5. produce XML XDRs for standard objects
+	6. produce HTML templates and generate HTML from template & XDR
+	--- this becomes my target template language and data represetation
+	7. define XML data format language
+	8. produce data format definitions for standard objects
+	9. write interpreter to produce XDR from format and segment
+	--- 
+	10. write the trivial file and disk accessor functions with caching
+	    copy-on-write, and write-back.
+	------ this is my prototype tool ---
+	11. make list issues to be addressed in real product
