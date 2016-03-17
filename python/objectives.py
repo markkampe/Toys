@@ -178,6 +178,7 @@ def interpolate(file, indent=0):
 
 
 from optparse import OptionParser
+import datetime
 if __name__ == '__main__':
     """ process specified input files, or test data """
 
@@ -227,6 +228,11 @@ if __name__ == '__main__':
     obj.table(True)
 
     if opts.epilog is not None:
+        print ""
+        print "<P>"
+        now = datetime.date.today()
+        print "Last updated: %d/%d/%d" % (now.month, now.day, now.year)
+        print "</P>"
         interpolate(opts.epilog)
 
     sys.exit(0)
