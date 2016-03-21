@@ -160,11 +160,13 @@ class csvReader:
                     sys.stderr.write("Objectives: Priority column unknown\n")
                     sys.exit(-1)
             else:
-                err = obj.addObjective(int(cols[self.cLect]),
-                                       cols[self.cObj], cols[self.cCat],
-                                       int(cols[self.cPri]))
-                if err is not None:
-                    sys.stderr.write("%d: %s\n" % (line, err))
+                l = cols[self.cLect]
+                p = cols[self.cPri]
+                if l != '' and p != '':
+                    err = obj.addObjective(int(l), cols[self.cObj],
+                                           cols[self.cCat], int(p))
+                    if err is not None:
+                        sys.stderr.write("%d: %s\n" % (line, err))
             line = line + 1
 
 
