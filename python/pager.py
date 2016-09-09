@@ -140,6 +140,9 @@ class pager:
         if force:
             self.force()
 
+        # and tell them how large this line was
+        return Qlen
+
     #
     # force out the current page
     #

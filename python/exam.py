@@ -105,13 +105,21 @@ if __name__ == '__main__':
 
         # print out the information for this question
         q = question(qname, role, qnum, opts.qdir)
+        sum = q.summary()
+
         if not heading:
-            print q.heading(False)
-            print q.heading(True)
+            print "## " + q.heading(False)
+            print "-- " + q.heading(True)
             heading = True
-        print q.summary()
+
+        # prefixed number may be line count or question number
+        prefix = "   "
         if outX:
-            q.printExam(pager)
+            prefix = "%2d " % (q.printExam(pager))
+        elif qnum != "":
+            prefix = "%2s " % (qnum)
+        print prefix + sum
+
         if outS:
             q.printSolution(outS)
         if outR:

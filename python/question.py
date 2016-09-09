@@ -37,9 +37,9 @@ class question:
         self.priority = 0
         self.lines = 1
         self.time = 0
-        self.head = "   #  sts Q-ID  P,DN Description                Reading         Lecture"
-        self.dash = "  --  --- ----  ---- ------------               -------         -------"
-        self.format = "%3s %-5s %d,%s %-23.23s\t%-14.14s\t%s"
+        self.head = "sts Q-ID  P,DN Description                Lecture      Reading"
+        self.dash = "--- ----  ---- ------------               -------      -------"
+        self.format = "%3s %-5s %d,%s %-23.23s    %-10.10s   %s"
 
 
     def close(self):
@@ -58,11 +58,9 @@ class question:
         self.input.seek(0)
         for line in self.input:
             if "===QUESTION===" in line:
-                prefix = ("  %2s: " %
-                         (self.number)) if self.number else "      "
                 args = (self.status, self.name, self.priority, self.difficulty,
-                        self.descr, self.text, self.lect)
-                return prefix + (self.format % args)
+                        self.descr, self.lect, self.text)
+                return self.format % args
             else:
                 name, var = line.partition("=")[::2]
                 if name == "descr":
@@ -115,7 +113,9 @@ class question:
         while l > 0:
             pager.addLine('\n')
             l -= 1
-        pager.flush()
+
+        # flush the output and note the line count
+        return pager.flush()
 
     def printSolution(self, output):
         """ print out problem solution  """
