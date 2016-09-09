@@ -48,6 +48,7 @@ class LogDump:
     def __init__(self, file):
         tree = ET.parse(file)
         self.root = tree.getroot()
+        self.sitemap = {}
 
     def dumpDive(self, dive):
         """
@@ -118,9 +119,12 @@ class LogDump:
             rate = "  "
 
         # get the location name
-        diveLoc = dive.find('location')
+        diveLoc = dive.get('location')
+        uuid = dive.get('divesiteid')
         if diveLoc is not None:
             loc = diveLoc.text
+        elif uuid is not None:
+            loc = self.sitemap[uuid]
         else:
             loc = "???"
 
@@ -154,13 +158,22 @@ class LogDump:
             enumerate and list all the dives in this log
         """
 
-        dives = self.root.find('dives')
+
+        # build up a divesite map
+        sites = self.root.find('divesites')
+        for child in sites:
+            if child.tag == 'site':
+                sitename = child.get('name')
+                uuid = child.get('uuid')
+                if sitename is not None and uuid is not None:
+                    self.sitemap[uuid] = sitename
 
         # print header, initialize counters
         numTrips = 0
         numDives = 0
 
         # find and dump each contained dive (stand-alone or in a trip)
+        dives = self.root.find('dives')
         for child in dives:
             if child.tag == 'dive':
                 self.dumpDive(child)
