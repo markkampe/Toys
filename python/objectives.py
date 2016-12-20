@@ -17,6 +17,7 @@ class objectives:
         """ initialize the instance variables """
         self.lectures = 0    # number of initialized lectures
         self.titles = []    # title of each lecture
+        self.topicMap = {}  # mapp from topics to lectures
         self.prefix = {}    # per priority typeface start
         self.suffix = {}    # per priority typeface end
         self.lists = []     # one entry per category
@@ -63,6 +64,10 @@ class objectives:
             catlist[lecture].append((title, priority, difficulty))
             return None
 
+    def addTopic(self, lecture, topic):
+        """ note what lecture a topic is in """
+        self.topicMap[topic] = lecture;
+
     def table(self, breaks=False, indent=4):
         """ called after all registrations to print the table """
 
@@ -106,14 +111,16 @@ class csvReader:
         input = open(infile, 'rb')
         self.instream = reader(input, skipinitialspace=True)
 
-    def analyze(self, cols):
+    def analyze(self, cols, lectHead=None):
         """ figure out which column contains what information """
         for c in range(len(cols)):
             s = cols[c]
             if s in ["Lecture", "lecture"]:
                 self.cLect = c
             elif s in ["Topic", "topic", "Title", "title"]:
-                self.cTopic = c
+                self.cTop = c
+            elif s in ["Subject", "Sub", "sub"]:
+                self.cSub = c
             elif s in ["Objective", "objective"]:
                 self.cObj = c
             elif s in ["Category", "category", "Type", "type"]:
@@ -122,6 +129,8 @@ class csvReader:
                 self.cPri = c
             elif s in ["Difficulty", "difficulty"]:
                 self.cDif = c
+            elif s == lectHead:
+                self.cLec = c;
 
     def readLectures(self, obj):
         line = 1
@@ -131,14 +140,32 @@ class csvReader:
             if line == 1:
                 self.analyze(cols)
                 if not hasattr(self, 'cLect'):
-                    sys.tderr.write("Lectures: Lecture column unknown\n")
+                    sys.stderr.write("Lectures: Lecture column unknown\n")
                     sys.exit(-1)
-                elif not hasattr(self, 'cTopic'):
-                    sys.stderr.write("Lectures: Topic column unknown\n")
+                if not hasattr(self, 'cTop'):
+                    sys.stderr.write("Lectures: Title column unknown\n")
                     sys.exit(-1)
-            else:
-                obj.addLecture(int(cols[self.cLect]), cols[self.cTopic])
+            elif cols[self.cLect] != "":
+                obj.addLecture(int(cols[self.cLect]), cols[self.cTop])
             line = line + 1
+
+    def readTopics(self, obj, lectHead):
+        line = 1
+        for cols in self.instream:
+            for c in range(len(cols)):
+                cols[c] = cols[c].strip()
+            if line == 1:
+                self.analyze(cols, lectHead)
+                if not hasattr(self, 'cTop'):
+                    sys.stderr.write("Topics: Topic column unknown\n")
+                    sys.exit(-1)
+                if not hasattr(self, 'cLec'):
+                    sys.stderr.write("Topics: Lecture column unknown\n")
+                    sys.exit(-1)
+            elif cols[self.cLec] != "":
+                obj.addTopic(int(cols[self.cLec]), cols[self.cTop])
+            line = line + 1
+
 
     def readObjectives(self, obj):
         line = 1
@@ -147,7 +174,7 @@ class csvReader:
                 cols[c] = cols[c].strip()
             if line == 1:
                 self.analyze(cols)
-                if not hasattr(self, 'cLect'):
+                if not hasattr(self, 'cTop'):
                     sys.stderr.write("Objectives: Lecture column unknown\n")
                     sys.exit(-1)
                 elif not hasattr(self, 'cObj'):
@@ -160,10 +187,11 @@ class csvReader:
                     sys.stderr.write("Objectives: Priority column unknown\n")
                     sys.exit(-1)
             else:
-                l = cols[self.cLect]
+                t = cols[self.cTop]
                 p = cols[self.cPri]
-                if l != '' and p != '':
-                    err = obj.addObjective(int(l), cols[self.cObj],
+                if t in obj.topicMap.keys() and p != '':
+                    l = obj.topicMap[t]
+                    err = obj.addObjective(l, cols[self.cObj],
                                            cols[self.cCat], int(p))
                     if err is not None:
                         sys.stderr.write("%d: %s\n" % (line, err))
@@ -189,12 +217,16 @@ if __name__ == '__main__':
     parser = OptionParser(usage=umsg)
     parser.add_option("-l", "--lectures", dest="lectures", metavar="FILE",
                       default=None)
+    parser.add_option("-t", "--topics", dest="topics", metavar="FILE",
+                      default=None)
     parser.add_option("-p", "--prolog", dest="prolog", metavar="FILE",
                       default=None)
     parser.add_option("-d", "--describe", dest="describe",
                       default=False, action="store_true")
     parser.add_option("-e", "--epilog", dest="epilog", metavar="FILE",
                       default=None)
+    parser.add_option("-c", "--col", dest="column", metavar="Quarter/Semester",
+                      default="Semester")
     (opts, files) = parser.parse_args()
 
     # count the file names to decide what to do
@@ -211,13 +243,17 @@ if __name__ == '__main__':
     obj.priority(1, "strong")
     obj.priority(3, "em")
 
-    if opts.lectures is not None:
-        csvReader(opts.lectures).readLectures(obj)   # build lectures list
-    csvReader(files[0]).readObjectives(obj)     # process objectives
+    if opts.lectures is not None:   # build lectures list
+        csvReader(opts.lectures).readLectures(obj)
+    if opts.topics is not None:     # build topics->lectures map
+        csvReader(opts.topics).readTopics(obj, opts.column)
+    csvReader(files[0]).readObjectives(obj)         # process objectives
 
     # print the table
     if opts.prolog is not None:
         interpolate(opts.prolog)
+    else:
+        print "<HTML>"
 
     if opts.describe:
         print "<UL>"
@@ -236,5 +272,7 @@ if __name__ == '__main__':
         print "Last updated: %d/%d/%d" % (now.month, now.day, now.year)
         print "</P>"
         interpolate(opts.epilog)
+    else:
+        print "</HTML>"
 
     sys.exit(0)
