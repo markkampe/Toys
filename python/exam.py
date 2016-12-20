@@ -9,9 +9,11 @@ import os
 import sys
 from question import question
 from pager import pager
+from optparse import OptionParser
 
-#TODO
+# TODO
 #   ?default output files based on exam name?
+#
 
 
 #
@@ -31,7 +33,6 @@ def interpolate(infile, output):
     input.close()
 
 
-from optparse import OptionParser
 if __name__ == '__main__':
     """ process the arguments and input files """
 

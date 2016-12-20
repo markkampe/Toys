@@ -6,6 +6,9 @@
 #
 import sys
 import os.path
+from csv import reader
+from optparse import OptionParser
+import datetime
 
 
 class objectives:
@@ -20,9 +23,7 @@ class objectives:
         self.topicMap = {}  # mapp from topics to lectures
         self.prefix = {}    # per priority typeface start
         self.suffix = {}    # per priority typeface end
-        self.lists = []     # one entry per category
-                            # each entry is a list w/one entry per lecture
-                            # which has one entry per objective
+        self.lists = []     # lecture lists of objectives
 
         # create a list for each category
         self.names = categories
@@ -66,7 +67,7 @@ class objectives:
 
     def addTopic(self, lecture, topic):
         """ note what lecture a topic is in """
-        self.topicMap[topic] = lecture;
+        self.topicMap[topic] = lecture
 
     def table(self, breaks=False, indent=4):
         """ called after all registrations to print the table """
@@ -100,9 +101,6 @@ class objectives:
         print "</TABLE>"
 
 
-from csv import reader
-
-
 class csvReader:
     """ This class reads CSV files for lectures and learning objectives
         and uses the objectives class to record them
@@ -130,7 +128,7 @@ class csvReader:
             elif s in ["Difficulty", "difficulty"]:
                 self.cDif = c
             elif s == lectHead:
-                self.cLec = c;
+                self.cLec = c
 
     def readLectures(self, obj):
         line = 1
@@ -165,7 +163,6 @@ class csvReader:
             elif cols[self.cLec] != "":
                 obj.addTopic(int(cols[self.cLec]), cols[self.cTop])
             line = line + 1
-
 
     def readObjectives(self, obj):
         line = 1
@@ -207,8 +204,6 @@ def interpolate(file, indent=0):
         input.close()
 
 
-from optparse import OptionParser
-import datetime
 if __name__ == '__main__':
     """ process specified input files, or test data """
 

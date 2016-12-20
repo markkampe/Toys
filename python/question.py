@@ -41,7 +41,6 @@ class question:
         self.dash = "--- ----  ---- ------------               -------      -------"
         self.format = "%3s %-5s %d,%s %-23.23s    %-10.10s   %s"
 
-
     def close(self):
         self.input.close()
 
