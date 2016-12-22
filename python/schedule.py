@@ -45,6 +45,10 @@ class objectives:
 
     def addReading(self, topic, url, pp):
         """ register a reading for a topic->lecture """
+        # make sure the associated topic is being taught
+        if not topic in self.topicMap:
+            return
+
         l = self.topicMap[topic]
         # print "READING %d(%s): %s(%dpp)" % (l, topic, url, pp)
         if l not in self.readings:
@@ -106,13 +110,13 @@ class objectives:
         if self.trial:
             s = self.minutes[lecture] if lecture in self.minutes else 0
         else:
-            s = "<a href=\"FIXME\">Quiz %d</a>"
+            s = "<a href=\"FIXME\">Quiz %d</a>" % (lecture)
         print "%s<TD> %s </TD>" % (' ' * 2 * self.indent, s)
 
         if self.trial:
             s = self.pages[lecture] if lecture in self.pages else 0
         else:
-            s = "<a href=\"%slecture_%d.pdf\">Slides</a>" % \
+            s = "%s<a href=\"%slecture_%d.pdf\">Slides</a>" % \
                 (' ' * 2 * self.indent, self.slides, lecture)
         print "%s<TD> %s </TD>" % (' ' * 2 * self.indent, s)
         print "%s</TR>" % (' ' * self.indent)
