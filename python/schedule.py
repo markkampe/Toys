@@ -11,15 +11,16 @@ from optparse import OptionParser
 import datetime
 
 
-class objectives:
-    """ This class accepts lectures and learning objectives
-        and outputs them as an HTML table per lecture/category
+class schedule:
+    """ This class accepts lectures, topics and readings
+        and outputs them as an HTML schedule per session
     """
 
-    def __init__(self, slidepath="slides/", trial=False, indent=4):
+    def __init__(self, slidepath="slides/", quizpath="quizzes/", trial=False, indent=4):
         """ initialize the instance variables """
         self.indent = indent
         self.slides = slidepath
+        self.quizzes = quizpath
         self.trial = trial
 
         self.topicMap = {}      # map from topics to lectures
@@ -107,18 +108,24 @@ class objectives:
                 print "%s%s<br>" % (' ' * 3 * self.indent, r)
         print "%s</TD>" % (' ' * 2 * self.indent)
 
-        if self.trial:
-            s = self.minutes[lecture] if lecture in self.minutes else 0
-        else:
-            s = "<a href=\"FIXME\">Quiz %d</a>" % (lecture)
-        print "%s<TD> %s </TD>" % (' ' * 2 * self.indent, s)
+        try:
+            # numbered lectures have quizzes and slides
+            int(lecture)
+            if self.trial:
+                s = self.minutes[lecture] if lecture in self.minutes else 0
+            else:
+                s = "<a href=\"%squiz_%s\">quiz %s</a>" % (self.quizzes, lecture, lecture)
+            print "%s<TD> %s </TD>" % (' ' * 2 * self.indent, s)
 
-        if self.trial:
-            s = self.pages[lecture] if lecture in self.pages else 0
-        else:
-            s = "%s<a href=\"%slecture_%d.pdf\">Slides</a>" % \
-                (' ' * 2 * self.indent, self.slides, lecture)
-        print "%s<TD> %s </TD>" % (' ' * 2 * self.indent, s)
+            if self.trial:
+                s = self.pages[lecture] if lecture in self.pages else 0
+            else:
+                s = "%s<a href=\"%slecture_%s.pdf\">lecture %s</a>" % \
+                    (' ' * 2 * self.indent, self.slides, lecture, lecture)
+            print "%s<TD> %s </TD>" % (' ' * 2 * self.indent, s)
+        except ValueError:
+            pass
+
         print "%s</TR>" % (' ' * self.indent)
 
     def tableFin(self):
@@ -126,8 +133,8 @@ class objectives:
 
 
 class csvReader:
-    """ This class reads CSV files for lectures and learning objectives
-        and uses the objectives class to record them
+    """ This class reads CSV files for lectures, topics and readings
+        and uses the schedule class to record them
     """
     def __init__(self, infile):
         input = open(infile, 'rb')
@@ -186,7 +193,7 @@ class csvReader:
                     sys.exit(-1)
             elif cols[self.cDate] != "":
                 c = cols[self.cLect]
-                l = 0 if (c == "") else int(c)
+                l = 0 if (c == "") else c
                 obj.addLecture(l, cols[self.cDay], cols[self.cDate],
                                cols[self.cTop])
             line = line + 1
@@ -212,8 +219,8 @@ class csvReader:
                     sys.stderr.write("Topics: Minutes column unknown\n")
                     sys.exit(-1)
             elif cols[self.cLec] != "":
-                l = int(cols[self.cLec])
-                m = int(cols[self.cMin])
+                l = cols[self.cLec]
+                m = int(cols[self.cMin]) if cols[self.cMin] != "" else 0
                 obj.addTopic(l, cols[self.cTop], cols[self.cSub], m)
             line = line + 1
 
@@ -235,7 +242,7 @@ class csvReader:
                     sys.stderr.write("Reading: Pages column unknown\n")
                     sys.exit(-1)
             elif cols[self.cTop] != "" and cols[self.cURL] != "":
-                p = int(cols[self.cPage])
+                p = 0 if cols[self.cPage] == "" else int(cols[self.cPage])
                 obj.addReading(cols[self.cTop], cols[self.cURL], p)
             line = line + 1
 
@@ -267,6 +274,8 @@ if __name__ == '__main__':
                       default="28")
     parser.add_option("-s", "--slides", dest="slidepfx", metavar="PATH",
                       default="slides/")
+    parser.add_option("-q", "--quizzes", dest="quizpfx", metavar="PATH",
+                      default="quizzes/")
     parser.add_option("-x", "--trial", dest="trial", action="store_true",
                       default=False)
     (opts, files) = parser.parse_args()
@@ -276,7 +285,7 @@ if __name__ == '__main__':
         sys.stderr.write("usage: %s" + umsg + "\n")
         sys.exit(-1)
 
-    obj = objectives(opts.slidepfx, opts.trial)
+    obj = schedule(opts.slidepfx, opts.quizpfx, opts.trial)
 
     if opts.topics is not None:     # build topics->lectures map
         csvReader(opts.topics).readTopics(obj, opts.column)

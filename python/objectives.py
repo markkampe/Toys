@@ -128,7 +128,7 @@ class csvReader:
             elif s in ["Difficulty", "difficulty"]:
                 self.cDif = c
             elif s == lectHead:
-                self.cLec = c
+                self.cLect = c
 
     def readLectures(self, obj):
         line = 1
@@ -144,7 +144,11 @@ class csvReader:
                     sys.stderr.write("Lectures: Title column unknown\n")
                     sys.exit(-1)
             elif cols[self.cLect] != "":
-                obj.addLecture(int(cols[self.cLect]), cols[self.cTop])
+                try:
+                    l = int(cols[self.cLect])
+                    obj.addLecture(l, cols[self.cTop])
+                except ValueError:
+                    pass
             line = line + 1
 
     def readTopics(self, obj, lectHead):
@@ -157,11 +161,15 @@ class csvReader:
                 if not hasattr(self, 'cTop'):
                     sys.stderr.write("Topics: Topic column unknown\n")
                     sys.exit(-1)
-                if not hasattr(self, 'cLec'):
+                if not hasattr(self, 'cLect'):
                     sys.stderr.write("Topics: Lecture column unknown\n")
                     sys.exit(-1)
-            elif cols[self.cLec] != "":
-                obj.addTopic(int(cols[self.cLec]), cols[self.cTop])
+            elif cols[self.cLect] != "":
+                try:
+                    l = int(cols[self.cLect])
+                    obj.addTopic(l, cols[self.cTop])
+                except ValueError:
+                    pass
             line = line + 1
 
     def readObjectives(self, obj):
@@ -220,8 +228,8 @@ if __name__ == '__main__':
                       default=False, action="store_true")
     parser.add_option("-e", "--epilog", dest="epilog", metavar="FILE",
                       default=None)
-    parser.add_option("-c", "--col", dest="column", metavar="Quarter/Semester",
-                      default="Semester")
+    parser.add_option("-c", "--col", dest="column", metavar="#lectures",
+                      default="10")
     (opts, files) = parser.parse_args()
 
     # count the file names to decide what to do
