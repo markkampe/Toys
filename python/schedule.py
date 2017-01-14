@@ -16,7 +16,8 @@ class schedule:
         and outputs them as an HTML schedule per session
     """
 
-    def __init__(self, slidepath="slides/", quizpath="quizzes/", trial=False, indent=4):
+    def __init__(self, slidepath="slides/", quizpath="quizzes/",
+                 trial=False, indent=4):
         """ initialize the instance variables """
         self.indent = indent
         self.slides = slidepath
@@ -47,7 +48,7 @@ class schedule:
     def addReading(self, topic, url, pp):
         """ register a reading for a topic->lecture """
         # make sure the associated topic is being taught
-        if not topic in self.topicMap:
+        if topic not in self.topicMap:
             return
 
         l = self.topicMap[topic]
@@ -114,7 +115,8 @@ class schedule:
             if self.trial:
                 s = self.minutes[lecture] if lecture in self.minutes else 0
             else:
-                s = "<a href=\"%squiz_%s\">quiz %s</a>" % (self.quizzes, lecture, lecture)
+                s = "<a href=\"%squiz_%s\">quiz %s</a>" % \
+                    (self.quizzes, lecture, lecture)
             print "%s<TD> %s </TD>" % (' ' * 2 * self.indent, s)
 
             if self.trial:
