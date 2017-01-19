@@ -61,18 +61,19 @@ class schedule:
         else:
             self.pages[l] += pp
 
-    def addLecture(self, number, day, date, title):
+    def addLecture(self, number, day, date, title, quiz):
         """ register a new lecture by its number and title
                 number: integer lecture #, 0-> no lecture
                 day: excel 3 letter day
                 date: m/d/yyyy
                 title: topic for this lecture/day
+                quiz: what to put in quiz field
         """
         when = self.dayMap[day] + ' ' + date[0:-5]
         if number == 0:
             self.printActivity(when, title)
         else:
-            self.printLecture(when, number)
+            self.printLecture(when, number, quiz)
 
     def tableHead(self):
         """ called to produce the start of the table definition """
@@ -94,7 +95,7 @@ class schedule:
               (' ' * self.indent, date, subject)
         print "%s</TR>" % (' ' * self.indent)
 
-    def printLecture(self, date, lecture):
+    def printLecture(self, date, lecture, quiz):
         print "%s<TR>" % (' ' * self.indent)
         print "%s<TD> %s </TD>" % (' ' * 2 * self.indent, date)
 
@@ -115,8 +116,7 @@ class schedule:
             if self.trial:
                 s = self.minutes[lecture] if lecture in self.minutes else 0
             else:
-                s = "<a href=\"%squiz_%s\">quiz %s</a>" % \
-                    (self.quizzes, lecture, lecture)
+                s = quiz % (lecture) if "%s" in quiz else quiz
             print "%s<TD> %s </TD>" % (' ' * 2 * self.indent, s)
 
             if self.trial:
@@ -170,6 +170,8 @@ class csvReader:
                 self.cPage = c
             elif s in ["Minutes", "minutes"]:
                 self.cMin = c
+            elif s in ["Quiz", "quiz"]:
+                self.cQuiz = c
             elif s == lectHead:
                 self.cLec = c
 
@@ -193,11 +195,14 @@ class csvReader:
                 if not hasattr(self, 'cDate'):
                     sys.stderr.write("Lectures: Date column unknown\n")
                     sys.exit(-1)
+                if not hasattr(self, 'cQuiz'):
+                    sys.stderr.write("Lectures: Quiz column unknown\n")
+                    sys.exit(-1)
             elif cols[self.cDate] != "":
                 c = cols[self.cLect]
                 l = 0 if (c == "") else c
                 obj.addLecture(l, cols[self.cDay], cols[self.cDate],
-                               cols[self.cTop])
+                               cols[self.cTop], cols[self.cQuiz])
             line = line + 1
 
     # note a topic
