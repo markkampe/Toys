@@ -37,9 +37,9 @@ class question:
         self.priority = 0
         self.lines = 1
         self.time = 0
-        self.head = "sts Q-ID  P,DN Description                Lecture      Reading"
-        self.dash = "--- ----  ---- ------------               -------      -------"
-        self.format = "%3s %-5s %d,%s %-23.23s    %-10.10s   %s"
+        self.head = "sts Q-ID  P,DN Description                        Lecture      Reading"
+        self.dash = "--- ----  ---- ------------                       -------      -------"
+        self.format = "%3s %-5s %d,%s %-31.31s    %-10.10s   %s"
 
     def close(self):
         self.input.close()
