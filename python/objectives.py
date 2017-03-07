@@ -4,6 +4,7 @@
 #   Maybe someday I should make it autoconfig categories list from
 #   the input.
 #
+
 import sys
 import os.path
 from csv import reader
@@ -18,37 +19,40 @@ class objectives:
 
     def __init__(self, categories):
         """ initialize the instance variables """
-        self.lectures = 0    # number of initialized lectures
-        self.titles = []    # title of each lecture
-        self.topicMap = {}  # mapp from topics to lectures
         self.prefix = {}    # per priority typeface start
         self.suffix = {}    # per priority typeface end
-        self.lists = []     # lecture lists of objectives
+
+        self.lectures = 0   # number of initialized lectures
+        self.tags = []      # lecture/lab# for each day
+        self.titles = {}    # title of each day
+        self.topicMap = {}  # map from topics to lectures
+        self.lists = {}     # there is a dict of categories
+                            # each entry is a dict of per-lecture entries
+                            # each element is [title, priority, difficulty]
 
         # create a list for each category
         self.names = categories
         for c in categories:
-            self.lists.append([])
+            self.lists[c] = {}
 
     def priority(self, priority, typeface):
         """ set the typeface to use for a priority """
         self.prefix[priority] = "<%s>" % (typeface)
         self.suffix[priority] = "</%s>" % (typeface)
 
-    def needLecture(self, number, havename=False):
-        """ make sure we have data structures for required lecture """
-        while self.lectures <= number:
-            if havename:
-                self.titles.append(None)
-            for l in self.lists:
-                l.append([])
-            self.lectures += 1
-
-    def addLecture(self, number, title):
+    def addLecture(self, lecture, title):
         """ register a new lecture by its number and title """
-        self.needLecture(number, True)
-        self.titles[number] = title
+        self.tags.append(lecture)
+        self.titles[lecture] = title
+        for c in categories:
+            catdict = self.lists[c]
+            catdict[lecture] = []
+        self.lectures += 1
         return None
+
+    def addTopic(self, lecture, topic):
+        """ note what lecture a topic is in """
+        self.topicMap[topic] = lecture
 
     def addObjective(self, lecture, title, category, priority=2, difficulty=1):
         """ register a new learning objective, add to appropriate lists """
@@ -60,21 +64,16 @@ class objectives:
             return("Unrecognized category: " + category)
         else:
             # add this to the per lecture sub-list for that category
-            self.needLecture(lecture)
-            catlist = self.lists[x]
-            catlist[lecture].append((title, priority, difficulty))
+            catdict = self.lists[category]
+            catdict[lecture].append((title, priority, difficulty))
             return None
-
-    def addTopic(self, lecture, topic):
-        """ note what lecture a topic is in """
-        self.topicMap[topic] = lecture
 
     def table(self, breaks=False, indent=4):
         """ called after all registrations to print the table """
 
         print "<TABLE align=center border cellspacing=0 cellpadding=5>"
         print "%s<TR>" % (' ' * indent)
-        print "%s<TH>Lecture</TH>" % (' ' * (2 * indent))
+        print "%s<TH>Lect/Lab</TH>" % (' ' * (2 * indent))
         if len(self.titles) > 0:
             print "%s<TH>Subject</TH>" % (' ' * (2 * indent))
         for list in self.names:
@@ -82,16 +81,20 @@ class objectives:
         print "%s</TR>" % (' ' * indent)
 
         eol = "<BR>" if breaks else ","
-        for lect in range(1, len(self.lists[0])):
+        for x in range(0, self.lectures):
+            lect = self.tags[x]
             print "%s<TR>" % (' ' * indent)
-            print "%s<TD>%d</TD>" % (' ' * (2 * indent), lect)
+            print "%s<TD>%s</TD>" % (' ' * (2 * indent), self.tags[x])
             if len(self.titles) > 0:
                 print "%s<TD>%s</TD>" % \
                       (' ' * (2 * indent), self.titles[lect])
 
-            for list in self.lists:
+            for c in categories:
+                catlist = self.lists[c]
+                # for each category
                 print "%s<TD>" % (' ' * (2 * indent))
-                for (t, p, d) in list[lect]:
+                leclist = catlist[lect]
+                for (t, p, d) in leclist:
                     pfx = self.prefix[p] if p in self.prefix else ""
                     sfx = self.suffix[p] if p in self.suffix else ""
                     print "%s%s%s%s%s" % \
@@ -144,11 +147,7 @@ class csvReader:
                     sys.stderr.write("Lectures: Title column unknown\n")
                     sys.exit(-1)
             elif cols[self.cLect] != "":
-                try:
-                    l = int(cols[self.cLect])
-                    obj.addLecture(l, cols[self.cTop])
-                except ValueError:
-                    pass
+                obj.addLecture(cols[self.cLect], cols[self.cTop])
             line = line + 1
 
     def readTopics(self, obj, lectHead):
@@ -166,7 +165,7 @@ class csvReader:
                     sys.exit(-1)
             elif cols[self.cLect] != "":
                 try:
-                    l = int(cols[self.cLect])
+                    l = cols[self.cLect]
                     obj.addTopic(l, cols[self.cTop])
                 except ValueError:
                     pass
@@ -246,11 +245,14 @@ if __name__ == '__main__':
     obj.priority(1, "strong")
     obj.priority(3, "em")
 
-    if opts.lectures is not None:   # build lectures list
+    # build up a list of lectures
+    if opts.lectures is not None:
         csvReader(opts.lectures).readLectures(obj)
+    # build up a topics->lectures map
     if opts.topics is not None:     # build topics->lectures map
         csvReader(opts.topics).readTopics(obj, opts.column)
-    csvReader(files[0]).readObjectives(obj)         # process objectives
+    # process the objectives
+    csvReader(files[0]).readObjectives(obj)
 
     # print the table
     if opts.prolog is not None:
