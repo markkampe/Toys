@@ -113,7 +113,7 @@ int main( int argc, char **argv )
 		v = (r%(1+max-min))+min;
 
 		if (debug)
-			fprintf(stderr,"random(%d-%d) = %d\n", min, max, v);
+			fprintf(stderr,"random(%d-%d) = %ld\n", min, max, v);
 
 		if (choices)
 			printf("%s\n", makechoice(v));
