@@ -72,9 +72,11 @@ def score(line):
 
     # find the end of the number
     end = start + 1
-    while line[start:end+1].isdigit():
+    if line[start:end] == ".":
         end += 1
-    num = int(line[start:end])
+    while line[end:end+1].isdigit():
+        end += 1
+    num = float(line[start:end])
 
     # calculate the updated score
     cur = itemScore[item]
@@ -143,7 +145,7 @@ def interpolate():
                     id = l[start:end]
                     if id in itemScore.keys():
                         sys.stdout.write(l[0:start-1])
-                        sys.stdout.write("%d/%d" %
+                        sys.stdout.write("%.1f/%.1f" %
                                          (itemScore[id], maxScore[id]))
                         sys.stdout.write(l[end:])
                         if id in itemComments.keys():
