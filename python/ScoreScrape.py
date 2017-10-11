@@ -128,8 +128,9 @@ def total():
     for k in itemScore.keys():
         sumtotal += itemScore[k]
         maxtotal += maxScore[k]
-    itemScore["total"] = sumtotal
-    maxScore["total"] = maxtotal
+    # FIX find some way to exclude extra credit
+    itemScore["TOTAL"] = sumtotal
+    maxScore["TOTAL"] = maxtotal
 
 
 def interpolate(comments = False):
