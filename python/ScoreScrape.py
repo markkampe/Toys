@@ -8,8 +8,6 @@ import sys
 import os.path
 from optparse import OptionParser
 
-tag = "SCORE"
-
 template = []       # standard score output
 
 itemDefault = {}    # per item, default value
@@ -17,9 +15,9 @@ itemScore = {}      # per item, score
 minScore = {}       # per item, min possible
 maxScore = {}       # per item, max possible
 itemComments = {}   # per item, comments
+studentName = ""
 
-
-def digest(rubric):
+def digest(rubric, tag):
     """ read rubric file and accumulate a score model """
     if os.path.exists(rubric):
         input = open(rubric, 'rb')
@@ -44,9 +42,10 @@ def score_reset():
     for k in itemDefault.keys():
         itemScore[k] = itemDefault[k]
         itemComments[k] = []
+    studentName = ""
 
 
-def score(line):
+def score(line, tag):
     """ parse a score out of a SCORE comment """
     # lex off the score item name
     start = line.index(tag) + len(tag)
@@ -70,7 +69,6 @@ def score(line):
     if sign == "+" or sign == "-":
         start += 1
 
-    # FIX handle 1.5 (embedded decimal point)
     # find the end of the number
     end = start + 1
     while line[end:end+1].isdigit() or line[end:end+1] == ".":
@@ -106,14 +104,18 @@ def score(line):
     return
 
 
-def process(file):
+def process(file, tag, nametag):
     """ process a file of scraped comments """
     if os.path.exists(file):
         # find and process all of the SCORE comments
         input = open(file, 'rb')
         for line in input:
             if tag in line:
-                score(line)
+                score(line, tag)
+            elif nametag in line:
+                global studentName
+                studentName = line
+
         input.close()
     else:
         sys.stderr.write("unable to open input file " + file)
@@ -150,6 +152,8 @@ def interpolate(comments = False):
                         if comments and id in itemComments.keys():
                             for l in itemComments[id]:
                                 sys.stdout.write("\t" + l)
+                    elif id == "STUDENTNAME":
+                        sys.stdout.write(studentName + "\n")
                     else:
                         sys.stderr.write("unknown %s item: %s\n" % (tag, id))
         else:
@@ -160,10 +164,15 @@ if __name__ == '__main__':
     """ process specified input files, or test data """
 
     # process arguments to get input file names
-    umsg = " [--rubric=file] scrapedinput ..."
-    parser = OptionParser(usage=umsg)
+    umsg = "usage: %prog [options] inputfile ..."
+    descr = "extract/accumulate score information from file annotations"
+    parser = OptionParser(prog='ScoreScrape.py', usage=umsg, description=descr)
     parser.add_option("-r", "--rubric", dest="rubric", metavar="FILE",
                       default=None)
+    parser.add_option("-t", "--tag", dest="tag", metavar="STRING",
+                      default="SCORE")
+    parser.add_option("-n", "--name", dest="name", metavar="STRING",
+                      default="@author")
     parser.add_option("-v", "--verbose", dest="verbose", action="store_true",
                       default=False)
     parser.add_option("-c", "--comments", dest="comments", action="store_true",
@@ -172,7 +181,7 @@ if __name__ == '__main__':
 
     # digest the rubric
     if opts.rubric is not None:
-        digest(opts.rubric)
+        digest(opts.rubric, opts.tag)
 
     # dump out the known rubric items
     if opts.verbose:
@@ -183,11 +192,11 @@ if __name__ == '__main__':
 
     # process the specified input files
     if len(files) < 1:
-        sys.stderr.write("usage: %s" + umsg + "\n")
+        parser.print_help()
     else:
         for f in files:
             score_reset()
-            process(f)
+            process(f, opts.tag, opts.name)
             total()
             interpolate(opts.comments)
 
