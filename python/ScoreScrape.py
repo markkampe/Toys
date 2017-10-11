@@ -70,11 +70,10 @@ def score(line):
     if sign == "+" or sign == "-":
         start += 1
 
+    # FIX handle 1.5 (embedded decimal point)
     # find the end of the number
     end = start + 1
-    if line[start:end] == ".":
-        end += 1
-    while line[end:end+1].isdigit():
+    while line[end:end+1].isdigit() or line[end:end+1] == ".":
         end += 1
     num = float(line[start:end])
 
@@ -131,7 +130,7 @@ def total():
     maxScore["total"] = maxtotal
 
 
-def interpolate():
+def interpolate(comments = False):
     """ produce the standard template output, interpolating scores """
     for l in template:
         if "$" in l:
@@ -148,7 +147,7 @@ def interpolate():
                         sys.stdout.write("%.1f/%.1f" %
                                          (itemScore[id], maxScore[id]))
                         sys.stdout.write(l[end:])
-                        if id in itemComments.keys():
+                        if comments and id in itemComments.keys():
                             for l in itemComments[id]:
                                 sys.stdout.write("\t" + l)
                     else:
@@ -166,6 +165,8 @@ if __name__ == '__main__':
     parser.add_option("-r", "--rubric", dest="rubric", metavar="FILE",
                       default=None)
     parser.add_option("-v", "--verbose", dest="verbose", action="store_true",
+                      default=False)
+    parser.add_option("-c", "--comments", dest="comments", action="store_true",
                       default=False)
     (opts, files) = parser.parse_args()
 
@@ -188,6 +189,6 @@ if __name__ == '__main__':
             score_reset()
             process(f)
             total()
-            interpolate()
+            interpolate(opts.comments)
 
     sys.exit(0)
