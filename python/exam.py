@@ -51,9 +51,9 @@ if __name__ == '__main__':
     parser.add_option("-e", "--epilog", dest="soln_epilog", metavar="FILE",
                       default="soln_epilog.html")
     parser.add_option("-l", "--length", dest="page_length", metavar="LINES",
-                      default="65")
+                      default="63")
     parser.add_option("-w", "--width", dest="line_width", metavar="CHARS",
-                      default="90")
+                      default="80")
     (opts, files) = parser.parse_args()
 
     # make sure we got a valid exam file
