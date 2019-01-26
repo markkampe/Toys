@@ -1,0 +1,10 @@
+teaching tools:
+	ScoreScrape.py ... (brief) CS51J grading tool
+		process comments scraped out of a pdf, looking
+		for SCORE comments, and process those against rubric
+		to see what score updates they describe.
+
+    quizsort.py ... tool to help organize (UCLA) moodle quizzes
+
+Diving tools:
+	LogDump.py ... create one line/dive summary from XML dive log
