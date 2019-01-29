@@ -1,0 +1,9 @@
+#!/bin/bash
+
+MONTH=`date "+%b%y"`
+PATH="$HOME/Dropbox/Diary"
+EDITOR=/usr/bin/gvim
+
+FILE="$MONTH.txt"
+echo using $FILE in $PATH
+( cd $PATH; $EDITOR $MONTH.txt ) &

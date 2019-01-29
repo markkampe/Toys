@@ -1,0 +1,124 @@
+#!/bin/bash
+#
+#	This script creates an runnable applet jar from an OBJECTDRAW project 
+#	in eclipse.  I use it to package up demo versions of lab projects.
+#
+#	It expects to find everything it needs for the applet in the
+#	project bin directory, and objectdraw.jar either from an
+#	environment variable or in the user's Downloads.
+# 
+# usage:
+#	jarup <project directory> [<applet-class>]
+# 
+
+if [ -z "$1" ]
+then
+	echo "Usage: jarup project-directory [applet-class]"
+	exit -1
+fi
+
+if [ "$1" = "TEST" ]
+then
+	echo "RUNNING IN TEST MODE"
+	UNJAR="echo : jar"
+	CREATE="echo : jar"
+	COPY="echo : cp"
+	TESTING="true"
+	shift
+else
+	UNJAR="jar"
+	CREATE="jar"
+	COPY="cp"
+	TESTING="false"
+fi
+
+if [ -z "$OBJECTDRAW" ]
+then
+	OBJECTDRAW=~/Downloads/objectdraw.jar
+fi
+
+if [ ! -f $OBJECTDRAW ]
+then
+	echo "Unable to find OBJECTDRAW jar: $OBJECTDRAW"
+	exit -1
+fi
+
+if [ ! -d $1 ]
+then
+	echo "Unable to find project directory: $1"
+	exit -1
+fi
+
+PROJ=`basename $1`
+JAR=`pwd`/$PROJ.jar
+HTML=`pwd`/$PROJ.html
+
+# create a temporary working directory
+TEMP=/tmp/jarup.$$
+mkdir $TEMP
+cd $TEMP
+
+# assemble all the pieces
+echo	"... extracting objectdraw from $OBJECTDRAW"
+$UNJAR xf $OBJECTDRAW
+
+BIN=$1/bin
+if [ -d $BIN ]
+then
+	echo	"... copying project binaries from $BIN"
+	$COPY $BIN/* .
+else
+	echo	"... copying class files from $1"
+	$COPY $1/*.class .
+fi
+
+# create the JAR
+echo	"... creating applet jar: $JAR"
+$CREATE cf $JAR *
+if [ $? -ne 0 ]
+then
+	echo	"!!! error creating jar ... files left in $TEMP"
+	exit -1
+else
+	echo	"... deleting temp directory: $TEMP"
+	cd
+	rm -rf $TEMP
+fi
+
+# see if we are supposed to create an HTML wrapper
+if [ -z "$2" ]
+then
+	exit 0
+fi
+
+# see if we can find recommended window size
+if [ -d "$1/src" ]
+then
+	SRC="$1/src/$2.java"
+else
+	SRC="$1/$2.java"
+fi
+size=`grep -o -e "[0-9]\+x[0-9]\+" $SRC`
+if [ -n "$size" ]
+then
+	WIDTH=`echo $size | cut -f1 -dx`
+	HEIGHT=`echo $size | cut -f2 -dx`
+else
+	WIDTH="600"
+	HEIGHT="600"
+fi
+
+CLASS="$2.class"
+echo	"... creating HTML wrapper: $HTML($CLASS), window=$WIDTH"x"$HEIGHT"
+if [ $TESTING = "true" ]
+then
+	exit 0
+fi
+cat > $HTML <<- EOF
+<html>
+<title>$PROJ Applet</title>
+<body>
+<applet code="$CLASS" archive="$PROJ.jar" width="$WIDTH" height="$HEIGHT" border="2"></applet>
+</body>
+</html>
+EOF
