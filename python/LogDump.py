@@ -2,7 +2,6 @@
 
 import xml.etree.ElementTree as ET
 
-
 def toFeet(meters):
     """ utility function to convert meters to feet """
     return int((meters * 3.28084) + .5)
@@ -28,6 +27,8 @@ class LogDump:
         to the way I encode info in my own log (e.g. how I encode viz)
     """
 
+    buddyDives = 0  # if we are counting buddy's dives rather than mine
+
     # output columns
     FORMAT = "%6s  %8s %5s  %4s  %4s  %4s  %4s  %4s   %s"
     f_title = \
@@ -50,13 +51,22 @@ class LogDump:
         self.root = tree.getroot()
         self.sitemap = {}
 
-    def dumpDive(self, dive):
+    def dumpDive(self, dive, buddy):
         """
             print a record for a single dive
 
             args:
-                dive:           XML Element for the dive
+                dive:   XML Element for the dive
+                buddy:  only print if buddy matches
+                        (to enble me to track Lynnette's dives)
+
         """
+
+        # see if we have to match a buddy
+        if buddy is not None:
+            thisBuddy = dive.find('buddy')
+            if thisBuddy is None or thisBuddy.text != buddy:
+                return
 
         # see if we need to output a page footer
         if self.page_len > 0:
@@ -77,13 +87,19 @@ class LogDump:
             print self.FORMAT % self.f_lines
             self.linecount += 2
 
-        # get the basic info
-        diveNum = dive.get('number')
+        # dive number may be mine or buddy's
+        if buddy is not None:
+            global buddyDives
+            buddyDives = buddyDives + 1
+            diveNum = buddyDives
+        else:
+            diveNum = dive.get('number')
         if diveNum is not None:
             num = "%5d" % int(diveNum)
         else:
             num = "  ???"
 
+        # get the basic info
         diveDate = dive.get('date')
         if diveDate is not None:
             (year, mon, day) = diveDate.split('-')
@@ -153,9 +169,10 @@ class LogDump:
         print self.FORMAT % (num, date, time, feet, dur, temp, viz, rate, loc)
         self.linecount += 1
 
-    def dumpLog(self):
+    def dumpLog(self, buddy):
         """
             enumerate and list all the dives in this log
+            args buddy name (optional), only list matching dives
         """
 
 
@@ -176,12 +193,12 @@ class LogDump:
         dives = self.root.find('dives')
         for child in dives:
             if child.tag == 'dive':
-                self.dumpDive(child)
+                self.dumpDive(child, buddy)
                 numDives += 1
             elif child.tag == 'trip':
                 for subchild in child:
                     if subchild.tag == 'dive':
-                        self.dumpDive(subchild)
+                        self.dumpDive(subchild, buddy)
                         numDives += 1
                 numTrips += 1
 
@@ -196,6 +213,8 @@ if __name__ == '__main__':
     parser.add_argument("filename", help="log-file-name")
     parser.add_argument("--page", type=int, default='0', help="lines/page")
     parser.add_argument("--pad", type=int, default='0', help="top/bot margins")
+    parser.add_argument("--buddy", type=str, default=None, help="buddy name")
+    parser.add_argument("--dives", type=int, default='0', help="buddy's previous dives")
     args = parser.parse_args()
 
     # instantiate the dumper
@@ -205,4 +224,5 @@ if __name__ == '__main__':
         dumper.page_pad = 1 if args.pad == 0 else args.pad
 
     # generate the output
-    (trips, dives) = dumper.dumpLog()
+    buddyDives = args.dives
+    (trips, dives) = dumper.dumpLog(args.buddy)
