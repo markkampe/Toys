@@ -69,13 +69,12 @@ assignments and loops) to complete all of the methods so that they work correctl
 cd Desktop
 mkdir CS062_Workspace
 ```
-
-   An icon for the new folder should appear on your Desktop.
+   after which an icon for the new folder should appear on your Desktop.
 
 2. If you do not already have a github account, go to github.com and
    [register a new personal user account](https://help.github.com/en/articles/signing-up-for-a-new-github-account).
 
-3. You should have, in your email, an invitation to join the github group
+3. You should have received an email invitation to join the github group
    for this course.  If you follow the link in that message, it will take
    you to a screen that gives you the opportunity to accept that inviation.
    Once you are a member of the course github group you will be able to
@@ -83,23 +82,25 @@ mkdir CS062_Workspace
 
 4. Start Eclipse on your local machine.  It will ask you to choose
    a workspace.   You should browse to the workspace folder that you 
-   created in step 1 above.  Eclipse will remember this selection
+   created above.  Eclipse will remember this selection
    and prompt it as a default (or in the list of Recent Workspaces)
    when you start Eclipse in the future.
 
 5. From the `File` item on the top menu bar, select `Import`.
-   Scroll down to the `Git` sub-items, select `Projects from Git`, and
-   press the `Next` buggon.
+   Scroll down to the `Git` sub-items, select the `Projects from Git`
+   sub-item, and press the `Next` button.
+
+   FIX THIS STEP IS WRONG - WE WANT TO OPERATE IN A CLONED COPY
 
    Select the `Clone URI` option, and *paste* the URL for the master
-   copy of this assignment.  You will also have to add your Github user
+   repo (for this assignment).  You will also have to add your Github user
    name and password (which you have the option of telling Eclipse to
    remember).
 
    Select `master` as the branch to be imported.
 
    As a Destination, browse to the workspace directory that you 
-   created in step 1 above, and click the `Next` button.
+   created in above, and click the `Next` button.
 
    Select `Import existing Eclipse projects` and click the `Next` button.
 
@@ -107,7 +108,7 @@ mkdir CS062_Workspace
    able to click the `Finish` button.
    Eclipse will make a clone of the selected project into your
    current workspace, after which you should be able to view,
-   edit, and build the included software.
+   edit, build and run the included software.
 
 6. Edit the `Token.java` and `Bag.java` files to add the missing code (which
    is indicated by **// TODO** comments).  If you are not yet sure how to code
@@ -134,10 +135,10 @@ mkdir CS062_Workspace
    (changes you have made but not yet *committed*).  
    If you highlight one (or more) of those files you can
    add a commit message (describing the changes you have made) and then
-   click the `Commit` button.  You can make as many *commits* as you like
-   (it is common to do different *commits* for different sets of changes),
+   click the `Commit` button.  You can make as many *commits* as you like.
+   It is common to do different *commits* for different sets of changes,
    but they will only be on your local machine until you do a *Push* back
-   to the *origin*.
+   to the [origin](https://www.git-tower.com/learn/git/glossary/origin).
 
    When you click the `Push` (or `Commit and Push`) button, all committed
    changes will be pushed back to Github ... at which they will be saved
@@ -145,10 +146,10 @@ mkdir CS062_Workspace
 
 ## Helpful Considerations
 
-* Saving your work - Make sure to commit and push your work to GitHub MULTIPLE TIMES throughout the process! Not only does this help us see your unique progress, but it ensures that you have frequent backups of your work.
+\* Saving your work - Make sure to commit and push your work to GitHub MULTIPLE TIMES throughout the process! Not only does this help us see your unique progress, but it ensures that you have frequent backups of your work.
 
 ## Grading
-You will be graded based on the following criteria:
+Your submission will be graded based on the following criteria:
 
 | Criterion                                         | Points |
 | :------------------------------------------------ | :----- |
