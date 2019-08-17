@@ -25,7 +25,7 @@
 The goals  of this assignment are to:
    1. learn to run a few basic commands in a Linux/OSX terminal window.
    2. bring up Eclipse as an Integrated Development Environment.
-   3. establish (if you do not already have one) a 
+   3. establish (if you do not already have one) a free personal
       [github account](https://help.github.com/en/articles/signing-up-for-a-new-github-account).
    4. import a cloned of the master-copy for this project into Eclipse.
    5. fill in the missing code in a simple Java program.
@@ -53,6 +53,8 @@ methods:
    - `addChips` ... the sum of the values of all `Tokens` in the `Bag`.
    - `chipHighValue` ... the number of high-value `Tokens` in the `Bag`.
    - `firstGreen` ... the index of the first `green` `Token` in the `Bag`.
+   - This class also has a `main` method that can be used to exercise
+     the functionality of the other methods.
 
 As provided, several of these methods are incomplete (and have **// TODO** comments explaining
 what needs to be done).  You are to fill in the missing code (mostly a few simple
@@ -63,15 +65,15 @@ assignments and loops) to complete all of the methods so that they work correctl
 1. Click the terminal window icon on the Desktop menu bar.  A new window
    with a shell prompt will appear.  Create a new workspace directory
    on your desktop, by typing the following commands:
-"""
+```
 cd Desktop
 mkdir CS062_Workspace
-"""
+```
 
    An icon for the new folder should appear on your Desktop.
 
 2. If you do not already have a github account, go to github.com and
-   [register a new one](https://help.github.com/en/articles/signing-up-for-a-new-github-account).
+   [register a new personal user account](https://help.github.com/en/articles/signing-up-for-a-new-github-account).
 
 3. You should have, in your email, an invitation to join the github group
    for this course.  If you follow the link in that message, it will take
