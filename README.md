@@ -128,6 +128,8 @@ mkdir CS062_Workspace
       - the output from your program should appear in the `Console` tab
         of the bottom part of the Eclipse window.
 
+## Submitting your work
+
 7. *Commit* your changes and *Push* them back to Github.
    
    If you select the `Git Staging` tab for the bottom part of the
@@ -138,7 +140,7 @@ mkdir CS062_Workspace
    click the `Commit` button.  You can make as many *commits* as you like.
    It is common to do different *commits* for different sets of changes,
    but they will only be on your local machine until you do a *Push* back
-   to the [origin](https://www.git-tower.com/learn/git/glossary/origin).
+   to the [origin](https://www.git-tower.com/learn/git/glossary/origin) on github.
 
    When you click the `Push` (or `Commit and Push`) button, all committed
    changes will be pushed back to Github ... at which they will be saved
@@ -146,7 +148,7 @@ mkdir CS062_Workspace
 
 ## Helpful Considerations
 
-\* Saving your work - Make sure to commit and push your work to GitHub MULTIPLE TIMES throughout the process! Not only does this help us see your unique progress, but it ensures that you have frequent backups of your work.
+* Saving your work - Make sure to commit and push your work to GitHub MULTIPLE TIMES throughout the process! Not only does this help us see your unique progress, but it ensures that you have frequent backups of your work.
 
 ## Grading
 Your submission will be graded based on the following criteria:
@@ -160,11 +162,10 @@ Your submission will be graded based on the following criteria:
 | [Style and formatting*](https://github.com/pomonacs622018f/Handouts/blob/master/style_guide.md)                               | 1      |
 | **Total**                                         | **10** |
 
-* Code Style and Formatting refers to the correct use of Java constructs including booleans, loop constructs, etc. Think of it as good writing style for programs.
+\* Code Style and Formatting refers to the correct use of Java constructs including booleans, loop constructs, etc. Think of it as good writing style for programs.
 
 NOTE: Code that does not compile will not be accepted! Make sure that your code compiles and runs before submitting it.
 
-## Submitting your work
 You must comment your code. We will be using the JavaDoc commenting style. To be compliant with JavaDoc, you must have the following:
 
    Each comment on a method or class should start with `/**` and end with `**/`. 
