@@ -1,6 +1,4 @@
 from GameObject import GameObject
-from GameAction import GameAction
-from GameContext import GameContext
 
 
 class GameActor(GameObject):
@@ -59,50 +57,3 @@ class GameActor(GameObject):
         """
         result = action.act(self, target, self.context)
         return result
-
-
-if __name__ == "__main__":
-    """
-    GameActor/GameAction test
-        create a context and two (combat capable) actors
-        create a gizmo with a harmless action
-        use the gizmo to perform that action on a target
-        create a weapon which can do damage
-        use the weapon to attack until the target hp->0
-    """
-
-    # create a context
-    village = GameContext("Snaefelness", "village on north side of island")
-    local = GameContext("town square", "center of village", village)
-
-    # create an initiator actor
-    actor = GameActor("Actor", "test initiator")
-    actor.set_context(local)
-    actor.set("thac0", 10)
-
-    # create a target actor
-    target = GameActor("Target", "test target")
-    target.set_context(local)
-    target.set("ac", 1)
-    target.set("hp", 16)
-
-    # start with a non-action that will be punted by the base class
-    gizmo = GameObject("Gizmo", "test non-weapon")
-    non_action = GameAction(gizmo, "DO SOMETHING")
-    result = actor.take_action(non_action, target)
-    print("{} uses {} to {} to {}\n    {}"
-          .format(actor.name, gizmo.name,
-                  non_action.verb, target.name, result))
-    print()
-
-    # do attacks, that will be handled by the ATTACK action
-    weapon = GameObject("Weapon", "test weapon")
-    weapon.set("damage", 8)
-    weapon.set("bonus", 2)
-    attack = GameAction(weapon, "ATTACK")
-    while target.get("hp") >= 1:
-        result = actor.take_action(attack, target)
-        print("{} uses {} to {} to {}\n    {}"
-              .format(actor.name, weapon.name, attack.verb,
-                      target.name, result))
-        print()

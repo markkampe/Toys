@@ -4,10 +4,6 @@ class GameObject:
     All it has is a name, description, and attributes.
     """
 
-    name = None
-    description = None
-    attributes = {}
-
     def __init__(self, name, descr=None):
         """
         create a new GameObject
@@ -16,6 +12,7 @@ class GameObject:
         """
         self.name = name
         self.description = descr
+        self.attributes = {}
 
     def get(self, attribute):
         """
