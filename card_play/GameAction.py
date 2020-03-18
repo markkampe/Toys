@@ -1,3 +1,7 @@
+from random import seed
+from random import randint
+
+
 class GameAction:
     """
     A GameAction is an action possibility that is available to a GameActor.
@@ -46,4 +50,30 @@ class GameAction:
         @param context (GameContext): most local context
         @return (string): result of the action
         """
+        # generic attack
+        if self.verb == "ATTACK":
+            # get and validate the basic combat parameters
+            thac0 = initiator.get("thac0")
+            if thac0 is None:
+                return initiator.name + " is not capable of attacks"
+            ac = target.get("ac")
+            if ac is None:
+                return target.name + " has no armor class"
+            damage = self.source.get("damage")
+            if damage is None:
+                return self.source.name + " is not capable of doing damage"
+            bonus = self.source.get("bonus")
+            if bonus is None:
+                bonus = 0
+
+            # roll and see if we hit
+            roll = randint(1, 20)
+            if roll + bonus + ac < thac0:
+                return "miss! {}+{} does not hit AC{}".format(roll, bonus, ac)
+
+            # compute the damage
+            self.set("damage", randint(1, damage) + bonus)
+            return target.accept_action(self, initiator, context)
+
+        # catch-all ... just pass it on to the target
         return target.accept_action(self, initiator, context)
