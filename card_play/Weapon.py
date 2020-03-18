@@ -1,6 +1,7 @@
 from GameObject import GameObject
 from GameAction import GameAction
 
+
 class Weapon(GameObject):
     """
     This is the base class for simple weapons

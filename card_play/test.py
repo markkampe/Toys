@@ -59,7 +59,6 @@ if __name__ == "__main__":
         print("\t{} ... {}".format(thing.name, thing.description))
     print()
 
-
     # create a gizmo and use it to perform an unsupported action
     #  (to test pass through to the base class)
     gizmo = GameObject("gizmo", "non-weapon")

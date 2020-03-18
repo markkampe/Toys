@@ -1,5 +1,6 @@
 from GameObject import GameObject
 
+
 class GameContext(GameObject):
 
     def __init__(self, name, descr=None, parent=None):
