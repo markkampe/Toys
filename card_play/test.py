@@ -3,6 +3,7 @@ from GameActor import GameActor
 from GameAction import GameAction
 from GameContext import GameContext
 from Weapon import Weapon
+from Skills import Skills
 from random import randint
 
 
@@ -23,15 +24,19 @@ if __name__ == "__main__":
 
     # create a (single-actor) party
     actor = GameActor("Hero", "initiator")
+    actor.set("perception", 25)
     actor.set_context(local)
     local.add_member(actor)
+
+    skills = Skills(actor.name)
+    skills.set("actions", "SEARCH")
 
     # create obvious and hidden objects in the local context
     bench = GameObject("bench", "obvious object")
     local.add_object(bench)
 
     trap_door = GameObject("trap-door", "hidden object")
-    trap_door.set("hidden", True)
+    trap_door.set("concealment", 50)
     local.add_object(trap_door)
 
     # see what is in the local context
@@ -53,7 +58,8 @@ if __name__ == "__main__":
     print()
 
     # do a search and see if we turn up anything
-    search = GameAction(actor, "SEARCH")
+    actions = skills.possible_actions(actor, local)
+    search = actions[0]
     result = actor.take_action(search, local)
     print("{} searches {}\n    {}".format(actor.name, local.name, result))
     stuff = local.get_objects()

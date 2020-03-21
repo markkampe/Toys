@@ -1,4 +1,5 @@
 from GameObject import GameObject
+from random import randint
 
 
 class GameContext(GameObject):
@@ -37,8 +38,8 @@ class GameContext(GameObject):
         """
         visible = []
         for thing in self.objects:
-            hidden = thing.get("hidden")
-            if hidden is None or hidden is not True:
+            concealed = thing.get("concealment")
+            if concealed is None or concealed == 0:
                 visible.append(thing)
         return visible
 
@@ -56,14 +57,20 @@ class GameContext(GameObject):
         @return (string): description of the effect
         """
         if action.verb == "SEARCH":
+            ability = action.get("skill")
+            if ability is None:
+                ablilty = 0
             found = None
             for thing in self.objects:
-                if thing.get("hidden") is True:
-                    if found is None:
-                        found = thing.name
-                    else:
-                        found += ", " + thing.name
-                    thing.set("hidden", None)
+                concealment = thing.get("concealment")
+                if concealment is not None and concealment > 0:
+                    roll = randint(1, 100)
+                    if roll + ability > concealment:
+                        if found is None:
+                            found = thing.name
+                        else:
+                            found += ", " + thing.name
+                        thing.set("concealment", 0)
 
             if found is None:
                 result = "You found nothing"
