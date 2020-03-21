@@ -1,3 +1,6 @@
+from GameAction import GameAction
+
+
 class GameObject:
     """
     This is the base class for all objects and actors.
@@ -51,6 +54,21 @@ class GameObject:
                + " using {}".format(action.source.name) \
                + "\n\tin {} of {}".format(context.name, context.parent.name)
 
+    def possible_actions(self, actor, context):
+        """
+        return a list of (all) possible actions
+
+        @param actor (GameActor): the actor initiating the action (ignored)
+        @param context(GameContext): the most local context (ignored)
+        @return (GameActions[]): list of possible actions
+        """
+        actions = []
+        value = self.get("actions")
+        if value is not None:
+            for action in value.split(','):
+                actions.append(GameAction(self, action))
+        return actions
+
 
 # basic GameObject test cases
 if __name__ == "__main__":
@@ -92,5 +110,24 @@ if __name__ == "__main__":
         "New object does not have assigned name"
     assert (go2.description is None), \
         "New description does not default to None"
+
+    # defaults to no actions
+    actions = go1.possible_actions(None, None)
+    assert (len(actions) == 0), \
+        "New object returns non-empty action list"
+
+    # added actions are returned
+    test_actions="ACTION,SECOND ACTION"
+    go1.set("actions", test_actions)
+    print("Set actions='{}', possible_actions returns:".format(test_actions))
+    actions = go1.possible_actions(None, None)
+    for action in actions:
+        print("    {}".format(action.verb))
+    assert (len(actions) == 2), \
+        "possible_actions returns wrong number of actions"
+    assert (actions[0].verb == "ACTION"), \
+        "first action not correctly returned"
+    assert (actions[1].verb == "SECOND ACTION"), \
+        "second action not correctly returned"
 
     print("\nAll test cases passed")
