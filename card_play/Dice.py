@@ -10,6 +10,7 @@ class Dice:
     diceType = None
     minValue = None
     maxValue = None
+    plus = 0
 
     def __init__(self, formula):
         """
@@ -48,7 +49,17 @@ class Dice:
         if delimiter == 'D' or delimiter == 'd':
             try:
                 self.numDice = 1 if values[0] == '' else int(values[0])
+
+                # there might be a plus after the dice type
+                if '+' in values[1]:
+                    parts = values[1].split('+')
+                    values[1] = parts[0]
+                    values.append(parts[1])
+                else:
+                    values.append('0')
+
                 self.diceType = 100 if values[1] == '%' else int(values[1])
+                self.plus = int(values[2])
             except ValueError:
                 sys.stderr.write("ERROR - " +
                                  "non-numeric value in dice-expression: " +
@@ -79,7 +90,7 @@ class Dice:
         elif self.minValue is not None and self.maxValue is not None:
             sum = randint(self.minValue, self.maxValue)
 
-        return sum
+        return sum + self.plus
 
 
 if __name__ == "__main__":
@@ -93,26 +104,33 @@ if __name__ == "__main__":
     print("Rolling (3D4) " + str(dice.numDice) + "D" + str(dice.diceType))
     for i in range(rolls):
         print("\t{}".format(dice.roll()))
-    print()
+    print
 
     dice = Dice("d20")
     print("Rolling (d20) " + str(dice.numDice) + "D" + str(dice.diceType))
     for i in range(rolls):
         print("\t{}".format(dice.roll()))
-    print()
+    print
 
     dice = Dice("D%")
     print("Rolling (D%) " + str(dice.numDice) + "D" + str(dice.diceType))
     for i in range(rolls):
         print("\t{}".format(dice.roll()))
-    print()
+    print
+
+    dice = Dice("2D2+3")
+    print("Rolling (2D2+3) " + str(dice.numDice) + "D" + str(dice.diceType)
+          + " + " + str(dice.plus))
+    for i in range(rolls):
+        print("\t{}".format(dice.roll()))
+    print
 
     # test a valid range expression
     dice = Dice("3-9")
     print("Rolling (3-9) " + str(dice.minValue) + "-" + str(dice.maxValue))
     for i in range(rolls):
         print("\t{}".format(dice.roll()))
-    print()
+    print
 
     # test invalid expressions
     bad = Dice("2D")
