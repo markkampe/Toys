@@ -7,7 +7,7 @@ class Weapon(GameObject):
     This is the base class for simple weapons
     with a single attack, bonus and damage
     """
-    def __init__(self, name, descr=None, damage=8, bonus=0):
+    def __init__(self, name, descr=None, damage="D8", bonus=None):
         """
         create a new GameObject
         @param name(string): display name of this object
@@ -29,7 +29,25 @@ class Weapon(GameObject):
         @param context(GameContext): the most local context
         @return (GameActions[]): list of possible actions
         """
-        actions = []
-        attack = GameAction(self, "ATTACK")
-        actions.append(attack)
+
+        # get a list of possible actions with this weapon
+        actions = super().possible_actions(actor, context)
+
+        # figure out what damage we do for each attack
+        base_damage = self.get("damage")
+        for action in actions:
+            # we only care about attacks
+            if 'ATTACK' not in action.verb:
+                continue
+
+            # check for sub-type specific damage
+            if 'ATTACK.' in action.verb:
+                sub_type = action.verb.split('.')[1]
+                sub_type_damage = self.get("damage." + sub_type)
+                action.set("damage",
+                           base_damage if sub_type_damage is None
+                           else sub_type_damage)
+            else:
+                action.set("damage", base_damage)
+
         return actions

@@ -3,6 +3,7 @@ from GameActor import GameActor
 from GameAction import GameAction
 from GameContext import GameContext
 from Weapon import Weapon
+from random import randint
 
 
 if __name__ == "__main__":
@@ -13,13 +14,15 @@ if __name__ == "__main__":
     # create a single NPC
     guard = GameActor("Guard", "test target")
     guard.set_context(local)
-    guard.set("ac", 1)
-    guard.set("hp", 16)
+    guard.set("life", 16)
+    guard.set("evasion", 50)
+    guard.set("evasion.slash", 20)  # harder to dodge
+    guard.set("protection", 2)
+    guard.set("protection.pierce", 4)  # chainmail
     local.add_npc(guard)
 
     # create a (single-actor) party
-    actor = GameActor("Actor", "initiator")
-    actor.set("thac0", 10)
+    actor = GameActor("Hero", "initiator")
     actor.set_context(local)
     local.add_member(actor)
 
@@ -62,24 +65,30 @@ if __name__ == "__main__":
     # create a gizmo and use it to perform an unsupported action
     #  (to test pass through to the base class)
     gizmo = GameObject("gizmo", "non-weapon")
-    non_action = GameAction(gizmo, "CONFUSE")
-    result = actor.take_action(non_action, guard)
+    gizmo.set("actions", "CONFUSE")
+    non_actions = gizmo.possible_actions(actor, local)
+    result = actor.take_action(non_actions[0], guard)
     print("{} uses {} to {} to {}\n    {}"
           .format(actor.name, gizmo.name,
-                  non_action.verb, guard.name, result))
+                  non_actions[0].verb, guard.name, result))
     print()
 
-    # create a weapon
-    weapon = Weapon("sword", damage=8, bonus=2)
-    actions = weapon.possible_actions(actor, local)
+    # create a sword for the hero to use
+    weapon = Weapon("sword")
+    weapon.set("actions", "ATTACK.slash,ATTACK.chop,ATTACK.pierce")
+    weapon.set("damage.slash", "D10")
+    weapon.set("damage.chop", "2D6")
+    weapon.set("damage.pierce", "D8")
+    weapon.set("bonus", 8)
 
     # use it to kill the guard
-    attack = actions[0]
     target = npcs[0]
-
-    while target.get("hp") >= 1:
+    actions = weapon.possible_actions(actor, local)
+    while target.get("life") >= 1:
+        # choose a random attack
+        attack = actions[randint(0, len(actions)-1)]
         result = actor.take_action(attack, target)
-        print("{} uses {} to {} to {}\n    {}"
+        print("{} uses {} to {} {}\n    {}"
               .format(actor.name, weapon.name, attack.verb,
                       target.name, result))
         print()

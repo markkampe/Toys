@@ -117,7 +117,7 @@ if __name__ == "__main__":
         "New object returns non-empty action list"
 
     # added actions are returned
-    test_actions="ACTION,SECOND ACTION"
+    test_actions = "ACTION,SECOND ACTION"
     go1.set("actions", test_actions)
     print("Set actions='{}', possible_actions returns:".format(test_actions))
     actions = go1.possible_actions(None, None)
