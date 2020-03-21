@@ -7,19 +7,15 @@ class Weapon(GameObject):
     This is the base class for simple weapons
     with a single attack, bonus and damage
     """
-    def __init__(self, name, descr=None, damage="D8", bonus=None):
+    def __init__(self, name, descr=None):
         """
         create a new GameObject
         @param name(string): display name of this object
         @param descr(string): human description of this object
-        @param damage(int): max damage
-        @param bonus(int): hit/damage bonus
         """
         if descr is None:
             descr = "simple weapon"
         super().__init__(name, descr)
-        self.set("damage", damage)
-        self.set("bonus", bonus)
 
     def possible_actions(self, actor, context):
         """
@@ -49,5 +45,13 @@ class Weapon(GameObject):
                            else sub_type_damage)
             else:
                 action.set("damage", base_damage)
+
+            # include any hit and damage bonuses
+            bonus = self.get("hit_bonus")
+            if bonus is not None:
+                action.set("hit_bonus", bonus)
+            bonus = self.get("damage_bonus")
+            if bonus is not None:
+                action.set("damage_bonus", bonus)
 
         return actions

@@ -79,7 +79,8 @@ if __name__ == "__main__":
     weapon.set("damage.slash", "D10")
     weapon.set("damage.chop", "2D6")
     weapon.set("damage.pierce", "D8")
-    weapon.set("bonus", 8)
+    weapon.set("hit_bonus", 10)
+    weapon.set("damage_bonus", 2)
 
     # use it to kill the guard
     target = npcs[0]

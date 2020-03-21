@@ -59,9 +59,10 @@ class GameAction:
 
             # compute the success roll
             roll = randint(1, 100)
-            skill_bonus = self.get("skill_bonus")
+            hit_bonus = self.get("hit_bonus")
             self.set("success",
-                     roll if skill_bonus is None else roll + skill_bonus)
+                     roll if hit_bonus is None else roll + hit_bonus)
+
             # compute the damage
             hit_dice = Dice(damage_spec)
             roll = hit_dice.roll()
