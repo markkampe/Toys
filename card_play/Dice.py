@@ -15,7 +15,7 @@ class Dice:
     def __init__(self, formula):
         """
         @param (String): formula for the roll
-            expressed as dice (e.g. "D100", "3D6" or "D%")
+            expressed as dice (e.g. "D100", "3D6+2" or "D%")
             or as range of inclusive values (e.g. "3-18")
 
         """
@@ -37,6 +37,9 @@ class Dice:
         elif '-' in formula:
             delimiter = '-'
             values = formula.split(delimiter)
+        elif formula.isnumeric():
+            self.plus = int(formula)
+            return
 
         # see if it has known form and 2 values
         if delimiter is None or len(values) != 2:
@@ -101,19 +104,22 @@ if __name__ == "__main__":
 
     # test valid dice expressions
     dice = Dice("3D4")
-    print("Rolling (3D4) " + str(dice.numDice) + "D" + str(dice.diceType))
+    print("Rolling (3D4) " + str(dice.numDice) + "D" + str(dice.diceType) +
+          " + " + str(dice.plus))
     for i in range(rolls):
         print("\t{}".format(dice.roll()))
     print
 
     dice = Dice("d20")
-    print("Rolling (d20) " + str(dice.numDice) + "D" + str(dice.diceType))
+    print("Rolling (d20) " + str(dice.numDice) + "D" + str(dice.diceType) +
+          " + " + str(dice.plus))
     for i in range(rolls):
         print("\t{}".format(dice.roll()))
     print
 
     dice = Dice("D%")
-    print("Rolling (D%) " + str(dice.numDice) + "D" + str(dice.diceType))
+    print("Rolling (D%) " + str(dice.numDice) + "D" + str(dice.diceType) +
+          " + " + str(dice.plus))
     for i in range(rolls):
         print("\t{}".format(dice.roll()))
     print
@@ -128,6 +134,13 @@ if __name__ == "__main__":
     # test a valid range expression
     dice = Dice("3-9")
     print("Rolling (3-9) " + str(dice.minValue) + "-" + str(dice.maxValue))
+    for i in range(rolls):
+        print("\t{}".format(dice.roll()))
+    print
+
+    # dest a fixed damage expression
+    dice = Dice("47")
+    print("Rolling (47) " + str(dice.plus))
     for i in range(rolls):
         print("\t{}".format(dice.roll()))
     print
