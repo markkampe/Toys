@@ -6,11 +6,6 @@ class Dice:
     """
     This class implements formulae and rolls against them
     """
-    numDice = None
-    diceType = None
-    minValue = None
-    maxValue = None
-    plus = 0
 
     def __init__(self, formula):
         """
@@ -19,6 +14,12 @@ class Dice:
             or as range of inclusive values (e.g. "3-18")
 
         """
+        self.numDice = None
+        self.diceType = None
+        self.minValue = None
+        self.maxValue = None
+        self.plus = 0
+
         # make sure it is a string
         if not isinstance(formula, str):
             sys.stderr.write("ERROR - " +

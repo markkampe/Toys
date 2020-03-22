@@ -6,7 +6,6 @@ class GameActor(GameObject):
     A GameActor (typically a PC or NPC) is an agent that has a
     context and is capable of initiating and receiving actions.
     """
-    context = None
 
     def __init__(self, name, descr=None):
         """
@@ -15,6 +14,7 @@ class GameActor(GameObject):
         @param descr(string): human description of this object
         """
         super().__init__(name, descr)
+        self.context = None
 
     def accept_action(self, action, actor, context):
         """
@@ -41,7 +41,7 @@ class GameActor(GameObject):
             if evasion is None:
                 evasion = self.get("evasion")
             if evasion is not None and attack <= int(evasion):
-                return "{} evades {} {} ... {} vs {}" \
+                return "{} evades {} {} ... evasion={} vs attack={}" \
                        .format(self.name, action.source.name, action.verb,
                                evasion, attack)
 
