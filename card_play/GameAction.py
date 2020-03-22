@@ -13,6 +13,12 @@ class GameAction:
     on to the superclass.
     """
 
+    # list of actions with known saves
+    saves = {
+                "PUSH": "dexterity",
+                "CHEAT": "wisdom"
+            }
+
     def __init__(self, source, verb):
         """
         create a new GameAction
@@ -22,6 +28,10 @@ class GameAction:
         self.source = source
         self.verb = verb
         self.attributes = {}
+
+        # if this action has a know save, note it
+        if verb in self.saves.keys():
+            self.set("save", self.saves[verb])
 
     def get(self, attribute):
         """
@@ -88,7 +98,7 @@ class GameAction:
             # deliver it to the target
             self.set("delivered_damage", roll)
             return target.accept_action(self, initiator, context)
-        elif "SAVE" in self.verb:
+        elif "SAVE" in self.verb or self.get("save") is not None:
             roll = randint(1, 100)
             self.set("success", roll)
             return target.accept_action(self, initiator, context)

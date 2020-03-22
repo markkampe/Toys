@@ -18,6 +18,7 @@ if __name__ == "__main__":
     guard.set("life", 16)
     guard.set("evasion", 50)
     guard.set("dexterity", 15)
+    guard.set("wisdom", 10)
     guard.set("evasion.slash", 20)  # harder to dodge
     guard.set("protection", 2)
     guard.set("protection.pierce", 4)  # chainmail
@@ -25,13 +26,14 @@ if __name__ == "__main__":
 
     # create a (single-actor) party
     actor = GameActor("Hero", "initiator")
-    actor.set("perception", 25)
-    actor.set("actions", "SAVE.dexterity")   # just an example
     actor.set_context(local)
     local.add_member(actor)
 
     skills = Skills(actor.name)
-    skills.set("actions", "SEARCH")
+    actor.set("perception", 25)     # attribute for searching
+    actor.set("CHEAT", 25)          # specific skill ability
+    actor.set("PUSH", 40)           # sepeciic skill ability
+    skills.set("actions", "SEARCH,PUSH,CHEAT,UNKNOWN-ACTION")
 
     # create obvious and hidden objects in the local context
     bench = GameObject("bench", "obvious object")
@@ -59,34 +61,32 @@ if __name__ == "__main__":
         print("\t{} ... {}".format(thing.name, thing.description))
     print()
 
-    # do a search and see if we turn up anything
+    # (attribute-based) search and see if we turn up anything
     actions = skills.possible_actions(actor, local)
-    search = actions[0]
-    result = actor.take_action(search, local)
-    print("{} searches {}\n    {}".format(actor.name, local.name, result))
+    for action in actions:
+        if action.verb == "SEARCH":
+            result = actor.take_action(action, local)
+            print("{} searches(skill={}) {}\n    {}"
+                  .format(actor.name,
+                          action.get("skill"),
+                          local.name, result))
+
+    # now see what we can se
     stuff = local.get_objects()
     print("\n    objects:")
     for thing in stuff:
         print("\t{} ... {}".format(thing.name, thing.description))
     print()
 
-    # create a gizmo and use it to perform an unsupported action
-    #  (to test pass through to the base class)
-    gizmo = GameObject("gizmo", "non-weapon")
-    gizmo.set("actions", "CONFUSE")
-    non_actions = gizmo.possible_actions(actor, local)
-    result = actor.take_action(non_actions[0], guard)
-    print("{} uses {} to {} to {}\n    {}"
-          .format(actor.name, gizmo.name,
-                  non_actions[0].verb, guard.name, result))
-    print()
-
-    # force a dex save on the guard
-    tricks = actor.possible_actions(actor, local)
-    result = actor.take_action(tricks[0], guard)
-    print("{} forces {} to {}\n    {}"
-          .format(actor.name, guard.name, tricks[0].verb, result))
-    print()
+    # exercise the other non-combat skills against the guard
+    for action in actions:
+        if action.verb != "SEARCH":
+            result = actor.take_action(action, guard)
+            print("{} tries to {}(skill={}) {}\n    {}"
+                  .format(actor.name, action.verb,
+                          action.get("skill"),
+                          guard.name, result))
+            print()
 
     # create a sword for the hero to use
     weapon = Weapon("sword", damage="D6")

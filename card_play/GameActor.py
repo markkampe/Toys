@@ -34,7 +34,24 @@ class GameActor(GameObject):
             base_verb = action.verb
             sub_type = None
 
-        if base_verb == "ATTACK":
+        # saves or actions that require saves
+        if base_verb == "SAVE":
+            attribute = sub_type
+        else:
+            attribute = action.get("save")
+
+        if attribute is not None:
+            attack = action.get("success")
+            save = self.get(attribute)
+            if save is None:
+                save = 0
+            result = "{} {} his {} save - {} vs {}" \
+                     .format(self.name,
+                             "makes" if attack <= save else "fails",
+                             attribute, save, attack)
+
+        # standard attack handling
+        elif base_verb == "ATTACK":
             # see if we are able to evade the attack
             attack = action.get("success")
             evasion = self.get("evasion." + sub_type)
@@ -68,15 +85,6 @@ class GameActor(GameObject):
             else:
                 result = "{}'s protection absorbs all damage from {}" \
                          .format(self.name, action.verb)
-        elif base_verb == "SAVE":
-            attack = action.get("success")
-            attribute = self.get(sub_type)
-            if attack <= attribute:
-                result = "{} makes his {} save - {} vs {}" \
-                         .format(self.name, sub_type, attribute, attack)
-            else:
-                result = "{} fails his {} save" \
-                         .format(self.name, sub_type)
         else:
             # if we don't recognize this action, pass it up the chain
             result = super().accept_action(action, actor, context)

@@ -7,9 +7,17 @@ class Skills(GameObject):
     This is the base class for attribue based skills
     with a single attack, bonus and damage
     """
+
+    skill_map = {
+            "SEARCH": "perception",
+            "LOCKPICK": "dexterity",
+            "INVESTIGATE": "intelligence",
+            "PERSUADE": "charisma"
+            }
+
     def __init__(self, name, descr=None):
         """
-        create a new GameObject
+        create a new Skills GameObject
         @param name(string): display name of this object
         @param descr(string): human description of this object
         """
@@ -28,10 +36,19 @@ class Skills(GameObject):
         # get my list of allowed skill-based actions
         actions = super().possible_actions(actor, context)
 
-        # figure out what skills apply wo which actions
+        # assoicate the appropriate skill/attriute with each
         for action in actions:
-            if 'SEARCH' in action.verb:
-                perception = actor.get("perception")
-                action.set("skill", 0 if perception is None else perception)
+            # does the character have this as an explicit skill
+            skill = actor.get(action.verb)
+            if skill is not None:
+                action.set("skill", skill)
+                continue
+
+            # is this action a function of an attribute
+            if action.verb in self.skill_map.keys():
+                attribute = self.skill_map[action.verb]
+                value = actor.get(attribute)
+                if value is not None:
+                    action.set("skill", value)
 
         return actions
