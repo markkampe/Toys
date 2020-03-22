@@ -7,6 +7,23 @@ class GameActor(GameObject):
     context and is capable of initiating and receiving actions.
     """
 
+    """
+        if an action/condition pair is on the list and
+        a target fails his save, the named condition
+        will be instantiated in the target GameActor.
+        (tho giving that condition effect may still require
+        additional code somewhere else)
+    """
+    fail_conditions = {
+                "PUSH": "off-balance",
+                "CHEAT": "fooled"
+            }
+
+    make_conditions = {
+                "PUSH": "on-guard",
+                "CHEAT": "suspicious"
+            }
+
     def __init__(self, name, descr=None):
         """
         create a new GameObject
@@ -45,10 +62,22 @@ class GameActor(GameObject):
             save = self.get(attribute)
             if save is None:
                 save = 0
-            result = "{} {} his {} save - {} vs {}" \
+            saved = attack <= save
+            result = "{} {} his {} save ({} vs {})" \
                      .format(self.name,
-                             "makes" if attack <= save else "fails",
+                             "makes" if saved else "fails",
                              attribute, save, attack)
+            if base_verb in self.make_conditions.keys():
+                condition = self.make_conditions[base_verb]
+                self.set(condition, saved)
+                result += ", he is {} {}" \
+                          .format("now" if saved else "not", condition)
+
+            if base_verb in self.fail_conditions.keys():
+                condition = self.fail_conditions[base_verb]
+                self.set(condition, not saved)
+                result += ", and is {} {}" \
+                          .format("not" if saved else "now", condition)
 
         # standard attack handling
         elif base_verb == "ATTACK":

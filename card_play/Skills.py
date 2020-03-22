@@ -8,6 +8,14 @@ class Skills(GameObject):
     with a single attack, bonus and damage
     """
 
+    """
+    A GameActor's ability to execute a GameAction might be
+    based on:
+        a specific skill (who's name is the same as the verb)
+        a character attribute
+    In support of the latter case, this list associates verbs with
+    character attributes.
+    """
     skill_map = {
             "SEARCH": "perception",
             "LOCKPICK": "dexterity",
@@ -36,7 +44,7 @@ class Skills(GameObject):
         # get my list of allowed skill-based actions
         actions = super().possible_actions(actor, context)
 
-        # assoicate the appropriate skill/attriute with each
+        # if this verb has a skill associated with it, add it to the action
         for action in actions:
             # does the character have this as an explicit skill
             skill = actor.get(action.verb)

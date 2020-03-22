@@ -13,7 +13,13 @@ class GameAction:
     on to the superclass.
     """
 
-    # list of actions with known saves
+    """
+    Lists of actions with known saves and conditions they cause
+        if an action/attribute pair is on the first list, the save
+        will be recorded in the GameAction so that the recipient
+        automatically knows what save he needs to try to make
+        against it.
+    """
     saves = {
                 "PUSH": "dexterity",
                 "CHEAT": "wisdom"
@@ -29,7 +35,7 @@ class GameAction:
         self.verb = verb
         self.attributes = {}
 
-        # if this action has a know save, note it
+        # if this action has a known save, record it for use by the target
         if verb in self.saves.keys():
             self.set("save", self.saves[verb])
 
@@ -100,6 +106,8 @@ class GameAction:
             return target.accept_action(self, initiator, context)
         elif "SAVE" in self.verb or self.get("save") is not None:
             roll = randint(1, 100)
+
+            # if a skill is associated with this verb, add it to roll
             skill = self.get("skill")
             if skill is not None:
                 roll += skill
