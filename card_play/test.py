@@ -26,7 +26,7 @@ if __name__ == "__main__":
     # create a (single-actor) party
     actor = GameActor("Hero", "initiator")
     actor.set("perception", 25)
-    actor.set("actions","SAVE.dexterity")   # just an example
+    actor.set("actions", "SAVE.dexterity")   # just an example
     actor.set_context(local)
     local.add_member(actor)
 
