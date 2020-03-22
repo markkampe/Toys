@@ -7,10 +7,11 @@ class GameAction:
     A GameAction is an action possibility that is available to a GameActor.
     It has attributes that control its effects, and when its act() method
     is called, it delivers that action to the intended target.
+
+    It is not a GameObject because it does not support operations to
+    generate and receive actions, and get() operations are not passed
+    on to the superclass.
     """
-    verb = None
-    source = None
-    attributes = {}
 
     def __init__(self, source, verb):
         """
@@ -20,6 +21,7 @@ class GameAction:
         """
         self.source = source
         self.verb = verb
+        self.attributes = {}
 
     def get(self, attribute):
         """
@@ -60,17 +62,31 @@ class GameAction:
             # compute the success roll
             roll = randint(1, 100)
             hit_bonus = self.get("hit_bonus")
-            self.set("success",
-                     roll if hit_bonus is None else roll + hit_bonus)
+            if hit_bonus is not None:
+                roll += hit_bonus
+            self.set("success", roll)
 
-            # compute the damage
+            # compute the base damage
             hit_dice = Dice(damage_spec)
             roll = hit_dice.roll()
+            dbg = "roll={}". format(roll)
+
+            # compute the sub-class damage
+            special_spec = self.get("special_damage")
+            if special_spec is not None:
+                hit_dice = Dice(special_spec)
+                special = hit_dice.roll()
+                roll += special
+                dbg += ", spcl={}".format(special)
+
+            # add in any damage bonus
             damage_bonus = self.get("damage_bonus")
-            self.set("delivered_damage",
-                     roll if damage_bonus is None else roll + damage_bonus)
+            if damage_bonus is not None:
+                roll += damage_bonus
+                dbg += ", bonus={}".format(damage_bonus)
 
             # deliver it to the target
+            self.set("delivered_damage", roll)
             return target.accept_action(self, initiator, context)
 
         # catch-all ... just pass it on to the target

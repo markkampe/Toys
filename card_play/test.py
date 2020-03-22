@@ -80,11 +80,11 @@ if __name__ == "__main__":
     print()
 
     # create a sword for the hero to use
-    weapon = Weapon("sword")
+    weapon = Weapon("sword", damage="D6")
     weapon.set("actions", "ATTACK.slash,ATTACK.chop,ATTACK.pierce")
-    weapon.set("damage.slash", "D10")
-    weapon.set("damage.chop", "2D6")
-    weapon.set("damage.pierce", "D8")
+    weapon.set("damage.slash", "D6")
+    weapon.set("damage.chop", "D4")
+    weapon.set("damage.pierce", "4")
     weapon.set("hit_bonus", 10)
     weapon.set("damage_bonus", 2)
 
@@ -95,7 +95,8 @@ if __name__ == "__main__":
         # choose a random attack
         attack = actions[randint(0, len(actions)-1)]
         result = actor.take_action(attack, target)
-        print("{} uses {} to {} {}\n    {}"
-              .format(actor.name, weapon.name, attack.verb,
-                      target.name, result))
+        print("{} uses {} to {} {}, delivered={}+{}\n    {}"
+              .format(actor.name, weapon.name, attack.verb, target.name,
+                      attack.get("damage"), attack.get("special_damage"),
+                      result))
         print()
