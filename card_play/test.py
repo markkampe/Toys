@@ -26,6 +26,7 @@ if __name__ == "__main__":
     # create a (single-actor) party
     actor = GameActor("Hero", "initiator")
     actor.set("perception", 25)
+    actor.set("actions","SAVE.dexterity")   # just an example
     actor.set_context(local)
     local.add_member(actor)
 
@@ -81,10 +82,10 @@ if __name__ == "__main__":
     print()
 
     # force a dex save on the guard
-    trick = GameAction(actor, "SAVE.dexterity")
-    result = actor.take_action(trick, guard)
+    tricks = actor.possible_actions(actor, local)
+    result = actor.take_action(tricks[0], guard)
     print("{} forces {} to {}\n    {}"
-          .format(actor.name, guard.name, trick.verb, result))
+          .format(actor.name, guard.name, tricks[0].verb, result))
     print()
 
     # create a sword for the hero to use
