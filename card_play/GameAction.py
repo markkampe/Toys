@@ -100,6 +100,9 @@ class GameAction:
             return target.accept_action(self, initiator, context)
         elif "SAVE" in self.verb or self.get("save") is not None:
             roll = randint(1, 100)
+            skill = self.get("skill")
+            if skill is not None:
+                roll += skill
             self.set("success", roll)
             return target.accept_action(self, initiator, context)
 
