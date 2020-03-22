@@ -17,6 +17,7 @@ if __name__ == "__main__":
     guard.set_context(local)
     guard.set("life", 16)
     guard.set("evasion", 50)
+    guard.set("dexterity", 15)
     guard.set("evasion.slash", 20)  # harder to dodge
     guard.set("protection", 2)
     guard.set("protection.pierce", 4)  # chainmail
@@ -77,6 +78,13 @@ if __name__ == "__main__":
     print("{} uses {} to {} to {}\n    {}"
           .format(actor.name, gizmo.name,
                   non_actions[0].verb, guard.name, result))
+    print()
+
+    # force a dex save on the guard
+    trick = GameAction(actor, "SAVE.dexterity")
+    result = actor.take_action(trick, guard)
+    print("{} forces {} to {}\n    {}"
+          .format(actor.name, guard.name, trick.verb, result))
     print()
 
     # create a sword for the hero to use

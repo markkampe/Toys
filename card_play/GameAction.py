@@ -88,6 +88,10 @@ class GameAction:
             # deliver it to the target
             self.set("delivered_damage", roll)
             return target.accept_action(self, initiator, context)
+        elif "SAVE" in self.verb:
+            roll = randint(1, 100)
+            self.set("success", roll)
+            return target.accept_action(self, initiator, context)
 
         # catch-all ... just pass it on to the target
         return target.accept_action(self, initiator, context)

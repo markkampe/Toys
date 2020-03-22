@@ -68,6 +68,15 @@ class GameActor(GameObject):
             else:
                 result = "{}'s protection absorbs all damage from {}" \
                          .format(self.name, action.verb)
+        elif base_verb == "SAVE":
+            attack = action.get("success")
+            attribute = self.get(sub_type)
+            if attack <= attribute:
+                result = "{} makes his {} save - {} vs {}" \
+                         .format(self.name, sub_type, attribute, attack)
+            else:
+                result = "{} fails his {} save" \
+                         .format(self.name, sub_type)
         else:
             # if we don't recognize this action, pass it up the chain
             result = super().accept_action(action, actor, context)
