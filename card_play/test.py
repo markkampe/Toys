@@ -8,11 +8,12 @@ from random import randint
 
 
 if __name__ == "__main__":
+    # SETUP
     # create a context
     village = GameContext("Snaefelness", "village on north side of island")
     local = GameContext("town square", "center of village", village)
 
-    # create a single NPC
+    # create a single NPC with some attributes and armor
     guard = GameActor("Guard", "test target")
     guard.set_context(local)
     guard.set("life", 16)
@@ -24,26 +25,24 @@ if __name__ == "__main__":
     guard.set("protection.pierce", 4)  # chainmail
     local.add_npc(guard)
 
-    # create a (single-actor) party
+    # create a single PC with some skills and attributes
     actor = GameActor("Hero", "initiator")
-    actor.set_context(local)
-    local.add_member(actor)
-
-    skills = Skills(actor.name)
     actor.set("perception", 25)     # attribute for searching
     actor.set("CHEAT", 25)          # specific skill ability
     actor.set("PUSH", 40)           # sepeciic skill ability
+    actor.set_context(local)
+    skills = Skills(actor.name)
     skills.set("actions", "SEARCH,PUSH,CHEAT,UNKNOWN-ACTION")
+    local.add_member(actor)
 
     # create obvious and hidden objects in the local context
     bench = GameObject("bench", "obvious object")
     local.add_object(bench)
-
     trap_door = GameObject("trap-door", "hidden object")
     trap_door.set("concealment", 50)
     local.add_object(trap_door)
 
-    # see what is in the local context
+    # SEE WHAT WE CAN LEARN FROM THE LOCAL CONTEXT
     print("{} ... {}".format(local.name, local.description))
     party = local.get_party()
     print("    party:")
@@ -61,7 +60,7 @@ if __name__ == "__main__":
         print("\t{} ... {}".format(thing.name, thing.description))
     print()
 
-    # (attribute-based) search and see if we turn up anything
+    # DO A SEARCH AND SEE IF WE CAN FIND ANYTHING ELSE
     actions = skills.possible_actions(actor, local)
     for action in actions:
         if action.verb == "SEARCH":
@@ -71,14 +70,14 @@ if __name__ == "__main__":
                           action.get("skill"),
                           local.name, result))
 
-    # now see what we can se
+    # now see what we can see
     stuff = local.get_objects()
     print("\n    objects:")
     for thing in stuff:
         print("\t{} ... {}".format(thing.name, thing.description))
     print()
 
-    # exercise the other non-combat skills against the guard
+    # EXERCISE OUR OTHER NON-COMBAT SKILLS
     for action in actions:
         if action.verb != "SEARCH":
             result = actor.take_action(action, guard)
@@ -88,7 +87,7 @@ if __name__ == "__main__":
                           guard.name, result))
             print()
 
-    # create a sword for the hero to use
+    # CREATE A WEAPON AND USE IT TO ATTACK THE GUARD
     weapon = Weapon("sword", damage="D6")
     weapon.set("actions", "ATTACK.slash,ATTACK.chop,ATTACK.pierce")
     weapon.set("damage.slash", "D6")
@@ -97,7 +96,6 @@ if __name__ == "__main__":
     weapon.set("hit_bonus", 10)
     weapon.set("damage_bonus", 2)
 
-    # use it to kill the guard
     target = npcs[0]
     actions = weapon.possible_actions(actor, local)
     while target.get("life") >= 1:

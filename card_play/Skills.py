@@ -4,11 +4,13 @@ from GameAction import GameAction
 
 class Skills(GameObject):
     """
-    This is the base class for attribue based skills
-    with a single attack, bonus and damage
-    """
+    This is the base class for attribute based skills.
 
-    """
+    The only value it adds (over the base GameObject) class is
+    its ability to enhance possible_actions by figuring out what
+    character skill or attribute might affect each action, and
+    adding the appropriate bonuses.
+
     A GameActor's ability to execute a GameAction might be
     based on:
         a specific skill (who's name is the same as the verb)

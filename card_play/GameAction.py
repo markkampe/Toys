@@ -8,9 +8,12 @@ class GameAction:
     It has attributes that control its effects, and when its act() method
     is called, it delivers that action to the intended target.
 
-    It is not a GameObject because it does not support operations to
-    generate and receive actions, and get() operations are not passed
-    on to the superclass.
+    The most interetsting method is act(initiator, target, context)
+    which informs the target to process the effects of the action.
+
+    A GameAction is not a GameObject because
+    (a) it does not support operations to generate and receive actions
+    (b) get() operations are not passed up to the superclass.
     """
 
     """
@@ -67,8 +70,25 @@ class GameAction:
         @param target (GameObject): the target of the action
         @param context (GameContext): most local context
         @return (string): result of the action
+
+        The act() method knows how to process attacks and
+        simple actions that require saves and produce
+        conditions.  Any action requiring more complex
+        processing (before calling the target) requires
+        the implementation of a sub-class.
         """
-        # generic attack
+
+        """
+        ATTACK actions are likely to have the following properties:
+            hit_bonus   ... a number to be added to a D100 success role
+            damage      ... a (Dice) damage description
+            special_damage  a (Dice) damage description to add to damage
+            damage_bonus .. a (Dice) damage description to add to damage
+
+        by the time they are passed to the target, they will have:
+            success         ... the to-hit role (including all bonuses)
+            delivered_damage .. the (pre-armor) damage being delivered
+        """
         if "ATTACK" in self.verb:
             # get and validate the basic combat parameters
             damage_spec = self.get("damage")
@@ -104,7 +124,17 @@ class GameAction:
             # deliver it to the target
             self.set("delivered_damage", roll)
             return target.accept_action(self, initiator, context)
+
         elif "SAVE" in self.verb or self.get("save") is not None:
+            """
+            An action that requires a save may have been delivered
+            with some skill.  If the GameAction has the attribute
+            "skill", that number will be added to the D100 success roll.
+
+            by the time they are passed to the target, they will have:
+                success  ... the to-hit role (including all bonuses)
+                save     ... the type of save the target must make
+            """
             roll = randint(1, 100)
 
             # if a skill is associated with this verb, add it to roll

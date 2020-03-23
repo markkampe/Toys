@@ -56,6 +56,12 @@ class GameContext(GameObject):
         @param context(GameContext): the most local context
         @return (string): description of the effect
         """
+
+        """
+        A locale can be searched, turning up concealed things.
+        a Search action will have a "skill" attribute, indicating
+        the searcher's skills at searching.
+        """
         if action.verb == "SEARCH":
             ability = action.get("skill")
             if ability is None:

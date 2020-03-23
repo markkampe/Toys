@@ -57,6 +57,12 @@ class GameActor(GameObject):
         else:
             attribute = action.get("save")
 
+        """
+        a save-requiring action will generally have at least
+        two standard attributes:
+            success  ... the to-hit role (including all bonuses)
+            save     ... the type of save the target must make
+        """
         if attribute is not None:
             attack = action.get("success")
             save = self.get(attribute)
@@ -67,6 +73,10 @@ class GameActor(GameObject):
                      .format(self.name,
                              "makes" if saved else "fails",
                              attribute, save, attack)
+            """
+            Depending on whether or not the save was made, we
+            may know what conditions to set to True or False
+            """
             if base_verb in self.make_conditions.keys():
                 condition = self.make_conditions[base_verb]
                 self.set(condition, saved)
@@ -78,9 +88,16 @@ class GameActor(GameObject):
                 self.set(condition, not saved)
                 result += ", and is {} {}" \
                           .format("not" if saved else "now", condition)
-
-        # standard attack handling
         elif base_verb == "ATTACK":
+            """
+            A standard attack will come with at-least two standard attributes:
+                success         ... the to-hit role (including all bonuses)
+                delivered_damage .. the (pre-armor) damage being delivered
+
+            The target will apply evasion to determine if it is hit,
+            protection to see how much damage gets through, and then
+            update its life points.
+            """
             # see if we are able to evade the attack
             attack = action.get("success")
             evasion = self.get("evasion." + sub_type)
