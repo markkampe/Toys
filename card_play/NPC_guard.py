@@ -1,5 +1,6 @@
 from GameActor import GameActor
 from Weapon import Weapon
+from Interaction import Interaction
 from random import randint
 
 
@@ -100,3 +101,11 @@ class NPC_guard(GameActor):
                             attack.get("special_damage"), result))
         else:
             return super().take_turn()
+
+    def interact(self, actor):
+        """
+        enable interactions with this NPC
+        @param actor (GameActor): actor initiating the interactions
+        @return Interaction object
+        """
+        return Interaction(self.name, self)

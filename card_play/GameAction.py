@@ -25,7 +25,13 @@ class GameAction:
     """
     saves = {
                 "PUSH": "dexterity",
-                "CHEAT": "wisdom"
+                "CHEAT": "wisdom",
+                "PURSUADE": "wisdom",
+                "FLATTER": "wisdom",        # needs work
+                "BEG": "wisdom",            # needs work
+                "OUTRANK": "wisdom",        # needs work
+                "INTIMIDATE": "strength",   # needs work
+                "THREATEN": "strength"      # needs work
             }
 
     def __init__(self, source, verb):

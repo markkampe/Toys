@@ -16,12 +16,24 @@ class GameActor(GameObject):
     """
     fail_conditions = {
                 "PUSH": "off-balance",
-                "CHEAT": "fooled"
+                "CHEAT": "fooled",
+                "PURSUADE": "convinced",
+                "FLATTER": "sympathetic",
+                "BEG": "sympathetic",
+                "OUTRANK": "respectful",
+                "INTIMIDATE": "obedient",
+                "THREATEN": "firghtened"
             }
 
     make_conditions = {
                 "PUSH": "on-guard",
-                "CHEAT": "suspicious"
+                "CHEAT": "suspicious",
+                "PURSUADE": "skeptical",
+                "FLATTER": "unsympathetic",
+                "BEG": "unsympathetic",
+                "OUTRANK": "hostile",
+                "INTIMIDATE": "hostile",
+                "THREATEN": "hostile"
             }
 
     def __init__(self, name, descr=None):

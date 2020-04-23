@@ -85,7 +85,14 @@ if __name__ == "__main__":
                   .format(actor.name, action.verb,
                           action.get("skill"),
                           guard.name, result))
-            print()
+
+    # attempt some interactions with the guard
+    interactions = guard.interact(actor)
+    actions = interactions.possible_actions(actor, local)
+    for interaction in actions:
+        result = actor.take_action(interaction, guard)
+        print("\n{} uses {} interaction on {}\n    {}"
+              .format(actor.name, interaction.verb, guard.name, result))
 
     # CREATE A WEAPON AND USE IT TO ATTACK THE GUARD
     weapon = Weapon("sword", damage="D6")
