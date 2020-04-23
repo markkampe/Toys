@@ -32,6 +32,8 @@ class GameActor(GameObject):
         """
         super().__init__(name, descr)
         self.context = None
+        self.alive = True
+        self.incapacitated = False
 
     def accept_action(self, action, actor, context):
         """
@@ -128,6 +130,8 @@ class GameActor(GameObject):
                            .format(self.name, old_hp, damage, new_hp)
                 if new_hp <= 0:
                     result += ", and is killed"
+                    self.alive = False
+                    self.incapacitated = True
             else:
                 result = "{}'s protection absorbs all damage from {}" \
                          .format(self.name, action.verb)

@@ -112,7 +112,7 @@ if __name__ == "__main__":
         target = None
         npcs = local.get_npcs()
         for n in npcs:
-            if n.get("life") > 0:
+            if not n.incapacitated:
                 print(n.take_turn())
                 if target is None:
                     target = n
@@ -122,4 +122,7 @@ if __name__ == "__main__":
 
     npcs = local.get_npcs()
     for n in npcs:
-        print("    {} has {} HP".format(n.name, n.get("life")))
+        if n.alive:
+            print("    {} has {} HP".format(n.name, n.get("life")))
+        else:
+            print("    {} is dead".format(n.name))
