@@ -1,5 +1,6 @@
 from GameObject import GameObject
 from GameActor import GameActor
+from NPC_guard import NPC_guard
 from GameAction import GameAction
 from GameContext import GameContext
 from Weapon import Weapon
@@ -14,15 +15,9 @@ if __name__ == "__main__":
     local = GameContext("town square", "center of village", village)
 
     # create a single NPC with some attributes and armor
-    guard = GameActor("Guard", "test target")
-    guard.set_context(local)
-    guard.set("life", 16)
-    guard.set("evasion", 50)
-    guard.set("dexterity", 15)
-    guard.set("wisdom", 10)
-    guard.set("evasion.slash", 20)  # harder to dodge
-    guard.set("protection", 2)
-    guard.set("protection.pierce", 4)  # chainmail
+    guard = NPC_guard("Guard #1", "test target")
+    guard.set("protection.pierce", 4)   # chainmail
+    guard.set("reinforcements", 50)     # help is available
     local.add_npc(guard)
 
     # create a single PC with some skills and attributes
@@ -30,6 +25,11 @@ if __name__ == "__main__":
     actor.set("perception", 25)     # attribute for searching
     actor.set("CHEAT", 25)          # specific skill ability
     actor.set("PUSH", 40)           # sepeciic skill ability
+    actor.set("life", 32)           # initial hit points
+    actor.set("evasion", 25)        # good dodge
+    actor.set("dexterity", 18)
+    actor.set("wisdom", 15)
+    actor.set("protection", 6)      # reasonable armor
     actor.set_context(local)
     skills = Skills(actor.name)
     skills.set("actions", "SEARCH,PUSH,CHEAT,UNKNOWN-ACTION")
@@ -96,14 +96,30 @@ if __name__ == "__main__":
     weapon.set("hit_bonus", 10)
     weapon.set("damage_bonus", 2)
 
+    # play out the battle until hero or all guards are dead
     target = npcs[0]
     actions = weapon.possible_actions(actor, local)
-    while target.get("life") >= 1:
+    while target is not None and actor.get("life") > 0:
         # choose a random attack
         attack = actions[randint(0, len(actions)-1)]
         result = actor.take_action(attack, target)
-        print("{} uses {} to {} {}, delivered={}+{}\n    {}"
+        print("\n{} uses {} to {} {}, delivered={}+{}\n    {}"
               .format(actor.name, weapon.name, attack.verb, target.name,
                       attack.get("damage"), attack.get("special_damage"),
                       result))
-        print()
+
+        # give each NPC an action and choose a target for nextg round
+        target = None
+        npcs = local.get_npcs()
+        for n in npcs:
+            if n.get("life") > 0:
+                print(n.take_turn())
+                if target is None:
+                    target = n
+
+    print("\nAfter the combat:")
+    print("    {} has {} HP".format(actor.name, actor.get("life")))
+
+    npcs = local.get_npcs()
+    for n in npcs:
+        print("    {} has {} HP".format(n.name, n.get("life")))

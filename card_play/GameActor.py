@@ -151,3 +151,9 @@ class GameActor(GameObject):
         """
         result = action.act(self, target, self.context)
         return result
+
+    def take_turn(self):
+        """
+        called once per round in initiative order
+        """
+        return self.name + " takes no action"

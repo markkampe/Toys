@@ -126,8 +126,8 @@ if __name__ == "__main__":
     print
 
     dice = Dice("2D2+3")
-    print("Rolling (2D2+3) " + str(dice.numDice) + "D" + str(dice.diceType)
-          + " + " + str(dice.plus))
+    print("Rolling (2D2+3) " + str(dice.numDice) + "D" + str(dice.diceType) +
+          " + " + str(dice.plus))
     for i in range(rolls):
         print("\t{}".format(dice.roll()))
     print
