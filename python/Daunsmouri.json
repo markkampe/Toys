@@ -1,0 +1,42 @@
+[
+    {
+        "name": "Dansmouri",
+        "race": "Gnoll",
+        "class": "Ranger",
+        "sub-class": "Woodland Tracker",
+        "alignment": "lawful neutral",
+        "level": 5,
+        "languages": [
+            "Dansouri",
+            "Sylvan"
+        ],
+        "stats": {
+            "str": 18,
+            "dex": 19,
+            "con": 18,
+            "int": 12,
+            "wis": 15,
+            "cha": 13,
+            "hp": 76,
+            "cr": 8,
+            "xp": 4800,
+            "ac": 24,
+            "touch": 15,
+            "flat footed": 19,
+            "melee base": 7
+        },
+        "skills": {
+            "acrobatics": 8,
+            "climb": 7,
+            "disguise": 2,
+            "perception": 12,
+            "ride": 10
+        },
+        "items": [
+            "+1 Leaf Armour",
+            "+1 Spear",
+            "+1 Shortbow, composite",
+            "Potion of cure moderate wounds"
+        ]
+    }
+]
