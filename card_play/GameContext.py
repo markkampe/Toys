@@ -4,6 +4,11 @@ from random import randint
 
 class GameContext(GameObject):
 
+    # skills that might be applicable in any context
+    skill_map = {
+            "SEARCH": "perception"
+            }
+
     def __init__(self, name, descr=None, parent=None):
         """
         create a new GameObject
@@ -46,6 +51,34 @@ class GameContext(GameObject):
     def add_object(self, item):
         if item not in self.objects:
             self.objects.append(item)
+
+    def possible_actions(self, actor, context):
+        """
+        return a list of possible actions in this context
+
+        @param actor (GameActor): the actor initiating the action
+        @param context(GameContext): should be "self"
+        @return (GameActions[]): list of possible actions
+        """
+        # get the list of actions for this context
+        actions = super().possible_actions(actor, context)
+
+        # if this verb has a skill associated with it, add it to the action
+        for action in actions:
+            # does the character have this as an explicit skill
+            skill = actor.get(action.verb)
+            if skill is not None:
+                action.set("skill", skill)
+                continue
+
+            # is this action a function of an attribute
+            if action.verb in self.skill_map.keys():
+                attribute = self.skill_map[action.verb]
+                value = actor.get(attribute)
+                if value is not None:
+                    action.set("skill", value)
+
+        return actions
 
     def accept_action(self, action, actor, context):
         """

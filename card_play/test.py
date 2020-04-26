@@ -32,7 +32,7 @@ if __name__ == "__main__":
     actor.set("protection", 6)      # reasonable armor
     actor.set_context(local)
     skills = Skills(actor.name)
-    skills.set("actions", "SEARCH,PUSH,CHEAT,UNKNOWN-ACTION")
+    skills.set("actions", "PUSH,CHEAT,UNKNOWN-ACTION")
     local.add_member(actor)
 
     # create obvious and hidden objects in the local context
@@ -41,6 +41,7 @@ if __name__ == "__main__":
     trap_door = GameObject("trap-door", "hidden object")
     trap_door.set("concealment", 50)
     local.add_object(trap_door)
+    local.set("actions", "SEARCH")
 
     # SEE WHAT WE CAN LEARN FROM THE LOCAL CONTEXT
     print("{} ... {}".format(local.name, local.description))
@@ -61,14 +62,13 @@ if __name__ == "__main__":
     print()
 
     # DO A SEARCH AND SEE IF WE CAN FIND ANYTHING ELSE
-    actions = skills.possible_actions(actor, local)
+    actions = local.possible_actions(actor, local)
     for action in actions:
-        if action.verb == "SEARCH":
-            result = actor.take_action(action, local)
-            print("{} searches(skill={}) {}\n    {}"
-                  .format(actor.name,
-                          action.get("skill"),
-                          local.name, result))
+        result = actor.take_action(action, local)
+        print("{} tries to {}(skill={}) {}\n    {}"
+              .format(actor.name,
+                      action.verb, action.get("skill"),
+                      local.name, result))
 
     # now see what we can see
     stuff = local.get_objects()
@@ -77,14 +77,14 @@ if __name__ == "__main__":
         print("\t{} ... {}".format(thing.name, thing.description))
     print()
 
-    # EXERCISE OUR OTHER NON-COMBAT SKILLS
+    # EXERCISE OUR PERSONAL NON-COMBAT SKILLS
+    actions = skills.possible_actions(actor, local)
     for action in actions:
-        if action.verb != "SEARCH":
-            result = actor.take_action(action, guard)
-            print("{} tries to {}(skill={}) {}\n    {}"
-                  .format(actor.name, action.verb,
-                          action.get("skill"),
-                          guard.name, result))
+        result = actor.take_action(action, guard)
+        print("{} tries to {}(skill={}) {}\n    {}"
+              .format(actor.name, action.verb,
+                      action.get("skill"),
+                      guard.name, result))
 
     # attempt some interactions with the guard
     interactions = guard.interact(actor)

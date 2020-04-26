@@ -19,7 +19,6 @@ class Skills(GameObject):
     character attributes.
     """
     skill_map = {
-            "SEARCH": "perception",
             "LOCKPICK": "dexterity",
             "INVESTIGATE": "intelligence",
             "PERSUADE": "charisma"
@@ -37,7 +36,7 @@ class Skills(GameObject):
 
     def possible_actions(self, actor, context):
         """
-        receive and process the effects of an action
+        return a list of possible actions for this actor in this context
 
         @param actor (GameActor): the actor initiating the action
         @param context(GameContext): the most local context
