@@ -37,8 +37,8 @@ class GameAction:
     def __init__(self, source, verb):
         """
         create a new GameAction
-        @param source(GameObject): the instrument for the action
-        @param verb(string): the name of the action
+        @param source: GameObject instrument for the action
+        @param verb: the name of the action
         """
         self.source = source
         self.verb = verb
@@ -52,8 +52,8 @@ class GameAction:
         """
         return the value of an attribute
 
-        @param attribute(string): name of attribute to be fetched
-        @return (string): value (or none)
+        @param attribute: name of attribute to be fetched
+        @return value (or none)
         """
         if attribute in self.attributes:
             return self.attributes[attribute]
@@ -64,18 +64,18 @@ class GameAction:
         """
         set the value of an attribute
 
-        @param attribute(string): name of attribute to be fetched
-        @param value(string): value to be stored for that attribute
+        @param attribute: name of attribute to be fetched
+        @param value: value to be stored for that attribute
         """
         self.attributes[attribute] = value
 
     def act(self, initiator, target, context):
         """
         Initiate an action against a target
-        @param initiator (GameActor): who initiates the action
-        @param target (GameObject): the target of the action
-        @param context (GameContext): most local context
-        @return (string): result of the action
+        @param initiator: GameActor initiating the action
+        @param target: GameObject target of the action
+        @param context: GameContext in which this is happening
+        @return: (string) result of the action
 
         The act() method knows how to process attacks and
         simple actions that require saves and produce

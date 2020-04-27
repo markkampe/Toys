@@ -3,6 +3,11 @@ from random import randint
 
 
 class GameContext(GameObject):
+    """
+    A GameContext corresponds to a geographic location and is a collection
+    of GameObjects, GameActors and state attributes.   They exist in
+    higherarchical relationships (e.g. kingdom, village, buiding, room).
+    """
 
     # skills that might be applicable in any context
     skill_map = {
@@ -12,8 +17,8 @@ class GameContext(GameObject):
     def __init__(self, name, descr=None, parent=None):
         """
         create a new GameObject
-        @param name(string): display name of this object
-        @param descr(string): human description of this object
+        @param name: display name of this object
+        @param descr: human description of this object
         """
         super().__init__(name, descr)
         self.parent = parent
@@ -25,8 +30,8 @@ class GameContext(GameObject):
         """
         return the value of an attribute
 
-        @param attribute(string): name of attribute to be fetched
-        @return (string): value (or none)
+        @param attribute: name of attribute to be fetched
+        @return: (string) value (or none)
 
         differs from base class because calls follow chain of parents
         """
@@ -49,6 +54,9 @@ class GameContext(GameObject):
         return visible
 
     def add_object(self, item):
+        """
+        add another object to this context
+        """
         if item not in self.objects:
             self.objects.append(item)
 
@@ -56,9 +64,9 @@ class GameContext(GameObject):
         """
         return a list of possible actions in this context
 
-        @param actor (GameActor): the actor initiating the action
-        @param context(GameContext): should be "self"
-        @return (GameActions[]): list of possible actions
+        @param actor: GameActor initiating the action
+        @param context: GameContext for this action (should be "self")
+        @return: list of possible GameActions
         """
         # get the list of actions for this context
         actions = super().possible_actions(actor, context)
@@ -84,10 +92,10 @@ class GameContext(GameObject):
         """
         receive and process the effects of an action
 
-        @param action (GameAction): the action being performed
-        @param actor (GameActor): the actor initiating the action
-        @param context(GameContext): the most local context
-        @return (string): description of the effect
+        @param action: GameAction being performed
+        @param actor: GameActor initiating the action
+        @param context: GameContext in which the action is happening
+        @return: (string) description of the effect
         """
 
         """

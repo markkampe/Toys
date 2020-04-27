@@ -12,8 +12,8 @@ class NPC_guard(GameActor):
     def __init__(self, name, descr=None):
         """
         create a new GameObject
-        @param name(string): display name of this object
-        @param descr(string): human description of this object
+        @param name: display name of this object
+        @param descr: human description of this object
         """
         super().__init__(name, descr)
         self.context = None
@@ -39,14 +39,14 @@ class NPC_guard(GameActor):
         """
         receive and process the effects of an action
 
-        @param action (GameAction): the action being performed
-        @param actor (GameActor): the actor initiating the action
-        @param context(GameContext): the most local context
-        @return (string): description of the effect
+        @param action: GameAction being performed
+        @param actor: GameActor) initiating the action
+        @param context: GameContext in which action is being taken
+        @return: (string) description of the effect
 
         The only special things about a guard ar that, if attacked
-         (1) he counter-attacks
-         (2) he can call for reinforcements.
+        (1) he counter-attacks
+        (2) he can call for reinforcements.
 
         """
         # remember where this is happening
@@ -105,7 +105,7 @@ class NPC_guard(GameActor):
     def interact(self, actor):
         """
         enable interactions with this NPC
-        @param actor (GameActor): actor initiating the interactions
-        @return Interaction object
+        @param actor: GameActor initiating the interactions
+        @return: Interaction object
         """
         return Interaction(self.name, self)

@@ -10,8 +10,8 @@ class Weapon(GameObject):
     def __init__(self, name, descr=None, damage=None):
         """
         create a new GameObject
-        @param name(string): display name of this object
-        @param descr(string): human description of this object
+        @param name: display name of this object
+        @param descr: human description of this object
         """
         if descr is None:
             descr = "simple weapon"
@@ -23,9 +23,9 @@ class Weapon(GameObject):
         """
         receive and process the effects of an action
 
-        @param actor (GameActor): the actor initiating the action
-        @param context(GameContext): the most local context
-        @return (GameActions[]): list of possible actions
+        @param actor: GameActor initiating the action
+        @param context: GameContext in which the action is taken
+        @return: list of possible GameActions
         """
 
         # get a list of possible actions with this weapon

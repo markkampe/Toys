@@ -9,7 +9,7 @@ class Dice:
 
     def __init__(self, formula):
         """
-        @param (String): formula for the roll, expressed as:
+        @param formula: description of roll, expressed as ...
             * dice (e.g. "D100", "3D6+2" or "D%")
             * a range of inclusive values (e.g. "3-18")
             * a simple number (e.g. "14")

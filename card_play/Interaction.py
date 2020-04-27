@@ -18,10 +18,10 @@ class Interaction(GameObject):
 
     def __init__(self, name, npc, descr=None):
         """
-        create a new GameObject
-        @param name(string): name of the interactee
-        @param npc(GameActor): actor with whom we are interacting
-        @param descr(string): human description of interactions
+        create a new Interaction GameObject
+        @param name: name of the interactee
+        @param npc: GameActor with whom we are interacting
+        @param descr: human description of interactions
         """
         if descr is None:
             descr = "interaction"
@@ -35,9 +35,9 @@ class Interaction(GameObject):
         """
         receive and process the effects of an action
 
-        @param actor (GameActor): the actor initiating the action
-        @param context(GameContext): the most local context
-        @return (GameActions[]): list of possible actions
+        @param actor: GameActor initiating the action
+        @param context: GameContext in which the action is taken
+        @return list of possible GameActions
         """
         # get my list of allowed interactions
         interactions = super().possible_actions(actor, context)

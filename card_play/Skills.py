@@ -13,8 +13,8 @@ class Skills(GameObject):
 
     A GameActor's ability to execute a GameAction might be
     based on:
-        a specific skill (who's name is the same as the verb)
-        a character attribute
+       - a specific skill (who's name is the same as the verb)
+       - a character attribute
     In support of the latter case, this list associates verbs with
     character attributes.
     """
@@ -27,8 +27,8 @@ class Skills(GameObject):
     def __init__(self, name, descr=None):
         """
         create a new Skills GameObject
-        @param name(string): display name of this object
-        @param descr(string): human description of this object
+        @param name: display name of this object
+        @param descr: human description of this object
         """
         if descr is None:
             descr = "character skills"
@@ -38,9 +38,9 @@ class Skills(GameObject):
         """
         return a list of possible actions for this actor in this context
 
-        @param actor (GameActor): the actor initiating the action
-        @param context(GameContext): the most local context
-        @return (GameActions[]): list of possible actions
+        @param actor: GameActor initiating the action
+        @param context: GameContext in which the action is being initiated
+        @return: list of possible GameActions
         """
         # get my list of allowed skill-based actions
         actions = super().possible_actions(actor, context)

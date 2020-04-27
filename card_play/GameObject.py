@@ -10,8 +10,8 @@ class GameObject:
     def __init__(self, name, descr=None):
         """
         create a new GameObject
-        @param name(string): display name of this object
-        @param descr(string): human description of this object
+        @param name: display name of this object
+        @param descr: human description of this object
         """
         self.name = name
         self.description = descr
@@ -19,10 +19,10 @@ class GameObject:
 
     def get(self, attribute):
         """
-        return the value of an attribute
+        return: value of an attribute
 
-        @param attribute(string): name of attribute to be fetched
-        @return (string): value (or none)
+        @param attribute: name of attribute to be fetched
+        @return: (string) value (or none)
         """
         if attribute in self.attributes:
             return self.attributes[attribute]
@@ -33,8 +33,8 @@ class GameObject:
         """
         set the value of an attribute
 
-        @param attribute(string): name of attribute to be fetched
-        @param value(string): value to be stored for that attribute
+        @param attribute: name of attribute to be fetched
+        @param value: value to be stored for that attribute
         """
         self.attributes[attribute] = value
 
@@ -42,10 +42,10 @@ class GameObject:
         """
         receive and process the effects of an action
 
-        @param action (GameAction): the action being performed
-        @param actor (GameActor): the actor initiating the action
-        @param context(GameContext): the most local context
-        @return (string): description of the effect
+        @param action: GameAction being performed
+        @param actor: GameActor initiating the action
+        @param context: GameContext in which action is occuring
+        @return: (string) description of the effect
         """
         # all action processing must be implemented in sub-classes
         return "{} cannot process ".format(self.name) \
@@ -58,9 +58,9 @@ class GameObject:
         """
         return a list of (all) possible actions
 
-        @param actor (GameActor): the actor initiating the action (ignored)
-        @param context(GameContext): the most local context (ignored)
-        @return (GameActions[]): list of possible actions
+        @param actor: GameActor initiating the action (ignored)
+        @param context: GameContext in which actions will be taken
+        @return: list of possible GameActions
         """
         actions = []
         value = self.get("actions")

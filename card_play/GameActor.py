@@ -39,8 +39,8 @@ class GameActor(GameObject):
     def __init__(self, name, descr=None):
         """
         create a new GameObject
-        @param name(string): display name of this object
-        @param descr(string): human description of this object
+        @param name: display name of this object
+        @param descr: human description of this object
         """
         super().__init__(name, descr)
         self.context = None
@@ -51,10 +51,10 @@ class GameActor(GameObject):
         """
         receive and process the effects of an action
 
-        @param action (GameAction): the action being performed
-        @param actor (GameActor): the actor initiating the action
-        @param context(GameContext): the most local context
-        @return (string): description of the effect
+        @param action: GameAction being performed
+        @param actor: GameActor initiating the action
+        @param context: GameContext in which action is being taken
+        @return:  (string) description of the effect
         """
         # figure out the action verb and sub-type
         if '.' in action.verb:
@@ -161,9 +161,9 @@ class GameActor(GameObject):
     def take_action(self, action, target):
         """
         Initiate an action against a target
-        @param action (GameAction): the action to be initiated
-        @param target (GameObject): the target of the action
-        @return (string): result of the action
+        @param action: GameAction to be initiated
+        @param target: GameObject target of the action
+        @return: (string) result of the action
         """
         result = action.act(self, target, self.context)
         return result
