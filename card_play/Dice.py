@@ -1,12 +1,17 @@
+"""
+This module provides the Dice class
+"""
 import sys
 from random import randint
 
 
-class Dice:
+# pylint: disable=too-few-public-methods
+class Dice(object):
     """
     This class implements formulae and rolls against them
     """
 
+    # pylint: disable=too-many-branches
     def __init__(self, formula):
         """
         @param formula: description of roll, expressed as ...
@@ -14,10 +19,10 @@ class Dice:
             * a range of inclusive values (e.g. "3-18")
             * a simple number (e.g. "14")
         """
-        self.numDice = None
-        self.diceType = None
-        self.minValue = None
-        self.maxValue = None
+        self.num_dice = None
+        self.dice_type = None
+        self.min_value = None
+        self.max_value = None
         self.plus = 0
 
         # make sure it is a string
@@ -52,7 +57,7 @@ class Dice:
         # process the values
         if delimiter == 'D' or delimiter == 'd':
             try:
-                self.numDice = 1 if values[0] == '' else int(values[0])
+                self.num_dice = 1 if values[0] == '' else int(values[0])
 
                 # there might be a plus after the dice type
                 if '+' in values[1]:
@@ -62,7 +67,7 @@ class Dice:
                 else:
                     values.append('0')
 
-                self.diceType = 100 if values[1] == '%' else int(values[1])
+                self.dice_type = 100 if values[1] == '%' else int(values[1])
                 self.plus = int(values[2])
             except ValueError:
                 sys.stderr.write("ERROR - " +
@@ -70,11 +75,11 @@ class Dice:
                                  formula + "\n")
         else:
             try:
-                self.minValue = int(values[0])
-                self.maxValue = int(values[1])
-                if self.minValue >= self.maxValue:
-                    self.minValue = None
-                    self.maxValue = None
+                self.min_value = int(values[0])
+                self.max_value = int(values[1])
+                if self.min_value >= self.max_value:
+                    self.min_value = None
+                    self.max_value = None
                     sys.stderr.write("ERROR - " +
                                      "illegal range in dice expression: " +
                                      formula + "\n")
@@ -85,19 +90,21 @@ class Dice:
 
     def roll(self):
         """
+        roll this set of dice
         """
-        sum = 0
+        total = 0
 
-        if self.numDice is not None and self.diceType is not None:
-            for times in range(self.numDice):
-                sum += randint(1, self.diceType)
-        elif self.minValue is not None and self.maxValue is not None:
-            sum = randint(self.minValue, self.maxValue)
+        if self.num_dice is not None and self.dice_type is not None:
+            for _ in range(self.num_dice):
+                total += randint(1, self.dice_type)
+        elif self.min_value is not None and self.max_value is not None:
+            total = randint(self.min_value, self.max_value)
 
-        return sum + self.plus
+        return total + self.plus
 
 
-if __name__ == "__main__":
+# pylint: disable=superfluous-parens; For consistency, I always use print()
+def main():
     """
     test cases:
     """
@@ -105,58 +112,62 @@ if __name__ == "__main__":
 
     # test valid dice expressions
     dice = Dice("3D4")
-    print("Rolling (3D4) " + str(dice.numDice) + "D" + str(dice.diceType) +
+    print("Rolling (3D4) " + str(dice.num_dice) + "D" + str(dice.dice_type) +
           " + " + str(dice.plus))
-    for i in range(rolls):
+    for _ in range(rolls):
         print("\t{}".format(dice.roll()))
     print
 
     dice = Dice("d20")
-    print("Rolling (d20) " + str(dice.numDice) + "D" + str(dice.diceType) +
+    print("Rolling (d20) " + str(dice.num_dice) + "D" + str(dice.dice_type) +
           " + " + str(dice.plus))
-    for i in range(rolls):
+    for _ in range(rolls):
         print("\t{}".format(dice.roll()))
     print
 
     dice = Dice("D%")
-    print("Rolling (D%) " + str(dice.numDice) + "D" + str(dice.diceType) +
+    print("Rolling (D%) " + str(dice.num_dice) + "D" + str(dice.dice_type) +
           " + " + str(dice.plus))
-    for i in range(rolls):
+    for _ in range(rolls):
         print("\t{}".format(dice.roll()))
     print
 
     dice = Dice("2D2+3")
-    print("Rolling (2D2+3) " + str(dice.numDice) + "D" + str(dice.diceType) +
+    print("Rolling (2D2+3) " + str(dice.num_dice) + "D" + str(dice.dice_type) +
           " + " + str(dice.plus))
-    for i in range(rolls):
+    for _ in range(rolls):
         print("\t{}".format(dice.roll()))
     print
 
     # test a valid range expression
     dice = Dice("3-9")
-    print("Rolling (3-9) " + str(dice.minValue) + "-" + str(dice.maxValue))
-    for i in range(rolls):
+    print("Rolling (3-9) " + str(dice.min_value) + "-" + str(dice.max_value))
+    for _ in range(rolls):
         print("\t{}".format(dice.roll()))
     print
 
     # dest a fixed damage expression
     dice = Dice("47")
     print("Rolling (47) " + str(dice.plus))
-    for i in range(rolls):
+    for _ in range(rolls):
         print("\t{}".format(dice.roll()))
     print
 
     # test invalid expressions
-    bad = Dice("2D")
-    bad = Dice("D")
-    bad = Dice("xDy")
+    _ = Dice("2D")
+    _ = Dice("D")
+    _ = Dice("xDy")
 
-    bad = Dice("4-2")
-    bad = Dice("-")
-    bad = Dice("3-")
-    bad = Dice("-3")
-    bad = Dice("x-y")
+    _ = Dice("4-2")
+    _ = Dice("-")
+    _ = Dice("3-")
+    _ = Dice("-3")
+    _ = Dice("x-y")
 
-    bad = Dice("100")
-    bad = Dice("7to9")
-    bad = Dice(100)
+    _ = Dice("100")
+    _ = Dice("7to9")
+    _ = Dice(100)
+
+
+if __name__ == "__main__":
+    main()
