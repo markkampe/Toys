@@ -1,7 +1,9 @@
+# pylint: disable=invalid-name; "Npc_guard" would be an abomination
+""" This module implements the NPC_guard class """
+from random import randint
 from GameActor import GameActor
 from Weapon import Weapon
 from Interaction import Interaction
-from random import randint
 
 
 class NPC_guard(GameActor):
@@ -15,7 +17,7 @@ class NPC_guard(GameActor):
         @param name: display name of this object
         @param descr: human description of this object
         """
-        super().__init__(name, descr)
+        super(NPC_guard, self).__init__(name, descr)
         self.context = None
 
         # default attributes ... easily changed after instantiation
@@ -53,9 +55,10 @@ class NPC_guard(GameActor):
         self.context = context
 
         # start with standard GameActor responses
-        result = super().accept_action(action, actor, context)
+        result = super(NPC_guard, self).accept_action(action, actor, context)
 
         # figure out the action verb and sub-type
+        # pylint: disable=unused-variable; I expect sub_type to be used later
         if '.' in action.verb:
             parts = action.verb.split('.')
             base_verb = parts[0]
@@ -100,8 +103,9 @@ class NPC_guard(GameActor):
                             self.target.name, attack.get("damage"),
                             attack.get("special_damage"), result))
         else:
-            return super().take_turn()
+            return super(NPC_guard, self).take_turn()
 
+    # pylint: disable=unused-argument; I expect actor to be used later
     def interact(self, actor):
         """
         enable interactions with this NPC

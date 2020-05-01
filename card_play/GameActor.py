@@ -1,3 +1,4 @@
+""" This module implements the GameActor class """
 from GameObject import GameObject
 
 
@@ -7,34 +8,32 @@ class GameActor(GameObject):
     context and is capable of initiating and receiving actions.
     """
 
-    """
-        if an action/condition pair is on the list and
-        a target fails his save, the named condition
-        will be instantiated in the target GameActor.
-        (tho giving that condition effect may still require
-        additional code somewhere else)
-    """
+    # if an action/condition pair is on the list and
+    # a target fails his save, the named condition
+    # will be instantiated in the target GameActor.
+    # (tho giving that condition effect may still require
+    # additional code somewhere else)
     fail_conditions = {
-                "PUSH": "off-balance",
-                "CHEAT": "fooled",
-                "PURSUADE": "convinced",
-                "FLATTER": "sympathetic",
-                "BEG": "sympathetic",
-                "OUTRANK": "respectful",
-                "INTIMIDATE": "obedient",
-                "THREATEN": "firghtened"
-            }
+        "PUSH": "off-balance",
+        "CHEAT": "fooled",
+        "PURSUADE": "convinced",
+        "FLATTER": "sympathetic",
+        "BEG": "sympathetic",
+        "OUTRANK": "respectful",
+        "INTIMIDATE": "obedient",
+        "THREATEN": "firghtened"
+        }
 
     make_conditions = {
-                "PUSH": "on-guard",
-                "CHEAT": "suspicious",
-                "PURSUADE": "skeptical",
-                "FLATTER": "unsympathetic",
-                "BEG": "unsympathetic",
-                "OUTRANK": "hostile",
-                "INTIMIDATE": "hostile",
-                "THREATEN": "hostile"
-            }
+        "PUSH": "on-guard",
+        "CHEAT": "suspicious",
+        "PURSUADE": "skeptical",
+        "FLATTER": "unsympathetic",
+        "BEG": "unsympathetic",
+        "OUTRANK": "hostile",
+        "INTIMIDATE": "hostile",
+        "THREATEN": "hostile"
+        }
 
     def __init__(self, name, descr=None):
         """
@@ -42,11 +41,14 @@ class GameActor(GameObject):
         @param name: display name of this object
         @param descr: human description of this object
         """
-        super().__init__(name, descr)
+        super(GameActor, self).__init__(name, descr)
         self.context = None
         self.alive = True
         self.incapacitated = False
 
+    # pylint: disable=too-many-locals
+    # pylint: disable=too-many-branches
+    # pylint: disable=too-many-statements
     def accept_action(self, action, actor, context):
         """
         receive and process the effects of an action
@@ -71,12 +73,10 @@ class GameActor(GameObject):
         else:
             attribute = action.get("save")
 
-        """
-        a save-requiring action will generally have at least
-        two standard attributes:
-            success  ... the to-hit role (including all bonuses)
-            save     ... the type of save the target must make
-        """
+        # a save-requiring action will generally have at least
+        # two standard attributes:
+        #    success  ... the to-hit role (including all bonuses)
+        #    save     ... the type of save the target must make
         if attribute is not None:
             attack = action.get("success")
             save = self.get(attribute)
@@ -87,10 +87,9 @@ class GameActor(GameObject):
                      .format(self.name,
                              "makes" if saved else "fails",
                              attribute, save, attack)
-            """
-            Depending on whether or not the save was made, we
-            may know what conditions to set to True or False
-            """
+
+            # Depending on whether or not the save was made, we
+            # may know what conditions to set to True or False
             if base_verb in self.make_conditions.keys():
                 condition = self.make_conditions[base_verb]
                 self.set(condition, saved)
@@ -103,15 +102,14 @@ class GameActor(GameObject):
                 result += ", and is {} {}" \
                           .format("not" if saved else "now", condition)
         elif base_verb == "ATTACK":
-            """
-            A standard attack will come with at-least two standard attributes:
-                success         ... the to-hit role (including all bonuses)
-                delivered_damage .. the (pre-armor) damage being delivered
+            # A standard attack will come with at-least two standard attributes:
+            #    success         ... the to-hit role (including all bonuses)
+            #    delivered_damage .. the (pre-armor) damage being delivered
+            #
+            # The target will apply evasion to determine if it is hit,
+            # protection to see how much damage gets through, and then
+            # update its life points.
 
-            The target will apply evasion to determine if it is hit,
-            protection to see how much damage gets through, and then
-            update its life points.
-            """
             # see if we are able to evade the attack
             attack = action.get("success")
             evasion = self.get("evasion." + sub_type)
@@ -149,7 +147,7 @@ class GameActor(GameObject):
                          .format(self.name, action.verb)
         else:
             # if we don't recognize this action, pass it up the chain
-            result = super().accept_action(action, actor, context)
+            result = super(GameActor, self).accept_action(action, actor, context)
         return result
 
     def set_context(self, context):

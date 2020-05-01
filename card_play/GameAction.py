@@ -1,8 +1,9 @@
-from Dice import Dice
+""" This module implements the GameAction class """
 from random import randint
+from Dice import Dice
 
 
-class GameAction:
+class GameAction(object):
     """
     A GameAction is an action possibility that is available to a GameActor.
     It has attributes that control its effects, and when its act() method
@@ -16,23 +17,21 @@ class GameAction:
     (b) get() operations are not passed up to the superclass.
     """
 
-    """
-    Lists of actions with known saves and conditions they cause
-        if an action/attribute pair is on the first list, the save
-        will be recorded in the GameAction so that the recipient
-        automatically knows what save he needs to try to make
-        against it.
-    """
+    # Lists of actions with known saves and conditions they cause
+    #    if an action/attribute pair is on the first list, the save
+    #    will be recorded in the GameAction so that the recipient
+    #    automatically knows what save he needs to try to make
+    #    against it.
     saves = {
-                "PUSH": "dexterity",
-                "CHEAT": "wisdom",
-                "PURSUADE": "wisdom",
-                "FLATTER": "wisdom",        # needs work
-                "BEG": "wisdom",            # needs work
-                "OUTRANK": "wisdom",        # needs work
-                "INTIMIDATE": "strength",   # needs work
-                "THREATEN": "strength"      # needs work
-            }
+        "PUSH": "dexterity",
+        "CHEAT": "wisdom",
+        "PURSUADE": "wisdom",
+        "FLATTER": "wisdom",        # needs work
+        "BEG": "wisdom",            # needs work
+        "OUTRANK": "wisdom",        # needs work
+        "INTIMIDATE": "strength",   # needs work
+        "THREATEN": "strength"      # needs work
+        }
 
     def __init__(self, source, verb):
         """
@@ -84,17 +83,15 @@ class GameAction:
         the implementation of a sub-class.
         """
 
-        """
-        ATTACK actions are likely to have the following properties:
-            hit_bonus   ... a number to be added to a D100 success role
-            damage      ... a (Dice) damage description
-            special_damage  a (Dice) damage description to add to damage
-            damage_bonus .. a (Dice) damage description to add to damage
-
-        by the time they are passed to the target, they will have:
-            success         ... the to-hit role (including all bonuses)
-            delivered_damage .. the (pre-armor) damage being delivered
-        """
+        # ATTACK actions are likely to have the following properties:
+        #    hit_bonus   ... a number to be added to a D100 success role
+        #    damage      ... a (Dice) damage description
+        #    special_damage  a (Dice) damage description to add to damage
+        #    damage_bonus .. a (Dice) damage description to add to damage
+        #
+        # by the time they are passed to the target, they will have:
+        #    success         ... the to-hit role (including all bonuses)
+        #    delivered_damage .. the (pre-armor) damage being delivered
         if "ATTACK" in self.verb:
             # get and validate the basic combat parameters
             damage_spec = self.get("damage")
@@ -132,15 +129,13 @@ class GameAction:
             return target.accept_action(self, initiator, context)
 
         elif "SAVE" in self.verb or self.get("save") is not None:
-            """
-            An action that requires a save may have been delivered
-            with some skill.  If the GameAction has the attribute
-            "skill", that number will be added to the D100 success roll.
-
-            by the time they are passed to the target, they will have:
-                success  ... the to-hit role (including all bonuses)
-                save     ... the type of save the target must make
-            """
+            # An action that requires a save may have been delivered
+            # with some skill.  If the GameAction has the attribute
+            # "skill", that number will be added to the D100 success roll.
+            #
+            # by the time they are passed to the target, they will have:
+            #     success  ... the to-hit role (including all bonuses)
+            #     save     ... the type of save the target must make
             roll = randint(1, 100)
 
             # if a skill is associated with this verb, add it to roll

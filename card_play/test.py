@@ -1,15 +1,24 @@
+"""
+Test cases and sample code to show how the basic methods
+of the key classes can be used.
+"""
+from random import randint
 from GameObject import GameObject
 from GameActor import GameActor
 from NPC_guard import NPC_guard
-from GameAction import GameAction
 from GameContext import GameContext
 from Weapon import Weapon
 from Skills import Skills
-from random import randint
 
 
-if __name__ == "__main__":
-    # SETUP
+# pylint: disable=superfluous-parens; I prefer to always use print()
+# pylint: disable=too-many-branches
+# pylint: disable=too-many-statements
+# pylint: disable=too-many-locals
+def main():
+    """
+    test cases and sample code
+    """
     # create a context
     village = GameContext("Snaefelness", "village on north side of island")
     local = GameContext("town square", "center of village", village)
@@ -118,18 +127,22 @@ if __name__ == "__main__":
         # give each NPC an action and choose a target for nextg round
         target = None
         npcs = local.get_npcs()
-        for n in npcs:
-            if not n.incapacitated:
-                print(n.take_turn())
+        for npc in npcs:
+            if not npc.incapacitated:
+                print(npc.take_turn())
                 if target is None:
-                    target = n
+                    target = npc
 
     print("\nAfter the combat:")
     print("    {} has {} HP".format(actor.name, actor.get("life")))
 
     npcs = local.get_npcs()
-    for n in npcs:
-        if n.alive:
-            print("    {} has {} HP".format(n.name, n.get("life")))
+    for npc in npcs:
+        if npc.alive:
+            print("    {} has {} HP".format(npc.name, npc.get("life")))
         else:
-            print("    {} is dead".format(n.name))
+            print("    {} is dead".format(npc.name))
+
+
+if __name__ == "__main__":
+    main()

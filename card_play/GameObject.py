@@ -1,7 +1,8 @@
+""" This module implements the (foundation) GameObject Class """
 from GameAction import GameAction
 
 
-class GameObject:
+class GameObject(object):
     """
     This is the base class for all objects and actors.
     All it has is a name, description, and attributes.
@@ -54,6 +55,7 @@ class GameObject:
                + " using {}".format(action.source.name) \
                + "\n\tin {} of {}".format(context.name, context.parent.name)
 
+    # pylint: disable=unused-argument; sub-classes are likely to use them
     def possible_actions(self, actor, context):
         """
         return a list of (all) possible actions
@@ -70,8 +72,11 @@ class GameObject:
         return actions
 
 
-# basic GameObject test cases
-if __name__ == "__main__":
+# pylint: disable=superfluous-parens; I prefer to consistently use print()
+def main():
+    """
+    basic test GameObject test cases
+    """
 
     describe = "simple get/set test object"
     go1 = GameObject("GameObject 1", describe)
@@ -131,3 +136,6 @@ if __name__ == "__main__":
         "second action not correctly returned"
 
     print("\nAll test cases passed")
+
+if __name__ == "__main__":
+    main()

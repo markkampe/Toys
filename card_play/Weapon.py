@@ -1,5 +1,5 @@
+""" this module implements the Weapon class """
 from GameObject import GameObject
-from GameAction import GameAction
 
 
 class Weapon(GameObject):
@@ -15,7 +15,7 @@ class Weapon(GameObject):
         """
         if descr is None:
             descr = "simple weapon"
-        super().__init__(name, descr)
+        super(Weapon, self).__init__(name, descr)
         if damage is not None:
             self.set("damage", damage)
 
@@ -29,21 +29,19 @@ class Weapon(GameObject):
         """
 
         # get a list of possible actions with this weapon
-        actions = super().possible_actions(actor, context)
+        actions = super(Weapon, self).possible_actions(actor, context)
 
-        """
-        A Weapon is expected to have a few standard properties:
-            damage      ... a base (Dice) damage expression
-            damage.xxx  ... a (Dice) damage expression for ATTACK.xxx
-            hit_bonus       bonuses added to the to-hit roll
-            damage_bonus    bonuses added to the damage roll
-
-        These will be added to any ATTACK GameAction as:
-            damage      ... the base damage expression
-            special_damage  additional sub-attack damage
-            hit_bonus   ... percentage to add to hit rolls
-            damage_bonus .. points to add to damage rolls
-        """
+        # A Weapon is expected to have a few standard properties:
+        #    damage      ... a base (Dice) damage expression
+        #    damage.xxx  ... a (Dice) damage expression for ATTACK.xxx
+        #    hit_bonus       bonuses added to the to-hit roll
+        #    damage_bonus    bonuses added to the damage roll
+        #
+        # These will be added to any ATTACK GameAction as:
+        #    damage      ... the base damage expression
+        #    special_damage  additional sub-attack damage
+        #    hit_bonus   ... percentage to add to hit rolls
+        #    damage_bonus .. points to add to damage rolls
         base_damage = self.get("damage")
         for action in actions:
             verb = action.verb

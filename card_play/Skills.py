@@ -1,5 +1,5 @@
+""" this module implements the Skills class """
 from GameObject import GameObject
-from GameAction import GameAction
 
 
 class Skills(GameObject):
@@ -19,10 +19,10 @@ class Skills(GameObject):
     character attributes.
     """
     skill_map = {
-            "LOCKPICK": "dexterity",
-            "INVESTIGATE": "intelligence",
-            "PERSUADE": "charisma"
-            }
+        "LOCKPICK": "dexterity",
+        "INVESTIGATE": "intelligence",
+        "PERSUADE": "charisma"
+        }
 
     def __init__(self, name, descr=None):
         """
@@ -32,7 +32,7 @@ class Skills(GameObject):
         """
         if descr is None:
             descr = "character skills"
-        super().__init__(name, descr)
+        super(Skills, self).__init__(name, descr)
 
     def possible_actions(self, actor, context):
         """
@@ -43,7 +43,7 @@ class Skills(GameObject):
         @return: list of possible GameActions
         """
         # get my list of allowed skill-based actions
-        actions = super().possible_actions(actor, context)
+        actions = super(Skills, self).possible_actions(actor, context)
 
         # if this verb has a skill associated with it, add it to the action
         for action in actions:

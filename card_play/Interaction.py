@@ -1,21 +1,22 @@
+""" This module implements the Interaction class """
 from GameObject import GameObject
-from GameAction import GameAction
 
 
 class Interaction(GameObject):
     """
-    This is the base class for NPC interactions
+    An Interaction is a GameObject that returns interaction actions to a player
     """
 
     skill_map = {
-            "PERSUADE": "charisma",
-            "FLATTER": "charisma",
-            "BEG": "disguise",
-            "OUTRANK": "disguise",
-            "INTIMIDATE": "disguise",
-            "THREATEN": "sterngth"
-            }
+        "PERSUADE": "charisma",
+        "FLATTER": "charisma",
+        "BEG": "disguise",
+        "OUTRANK": "disguise",
+        "INTIMIDATE": "disguise",
+        "THREATEN": "sterngth"
+        }
 
+    # pylint: disable=unused-argument; I expect to need this in the future
     def __init__(self, name, npc, descr=None):
         """
         create a new Interaction GameObject
@@ -25,7 +26,7 @@ class Interaction(GameObject):
         """
         if descr is None:
             descr = "interaction"
-        super().__init__(name, descr)
+        super(Interaction, self).__init__(name, descr)
 
         # crude list of standard interactions ... beef this up
         self.actions = []
@@ -40,7 +41,8 @@ class Interaction(GameObject):
         @return list of possible GameActions
         """
         # get my list of allowed interactions
-        interactions = super().possible_actions(actor, context)
+        interactions = super(Interaction, self).possible_actions(actor,
+                                                                 context)
 
         # if this verb has a skill associated with it, add it to the action
         for action in interactions:

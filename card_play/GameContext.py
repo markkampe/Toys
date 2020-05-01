@@ -1,5 +1,6 @@
-from GameObject import GameObject
+""" This module implements the GameContext class """
 from random import randint
+from GameObject import GameObject
 
 
 class GameContext(GameObject):
@@ -11,8 +12,8 @@ class GameContext(GameObject):
 
     # skills that might be applicable in any context
     skill_map = {
-            "SEARCH": "perception"
-            }
+        "SEARCH": "perception"
+        }
 
     def __init__(self, name, descr=None, parent=None):
         """
@@ -20,7 +21,7 @@ class GameContext(GameObject):
         @param name: display name of this object
         @param descr: human description of this object
         """
-        super().__init__(name, descr)
+        super(GameContext, self).__init__(name, descr)
         self.parent = parent
         self.objects = []
         self.party = []
@@ -37,8 +38,8 @@ class GameContext(GameObject):
         """
         if attribute in self.attributes:
             return self.attributes[attribute]
-        elif parent is not None:
-            return parent.get(attribute)
+        elif self.parent is not None:
+            return self.parent.get(attribute)
         else:
             return None
 
@@ -69,7 +70,7 @@ class GameContext(GameObject):
         @return: list of possible GameActions
         """
         # get the list of actions for this context
-        actions = super().possible_actions(actor, context)
+        actions = super(GameContext, self).possible_actions(actor, context)
 
         # if this verb has a skill associated with it, add it to the action
         for action in actions:
@@ -98,15 +99,13 @@ class GameContext(GameObject):
         @return: (string) description of the effect
         """
 
-        """
-        A locale can be searched, turning up concealed things.
-        a Search action will have a "skill" attribute, indicating
-        the searcher's skills at searching.
-        """
+        # A locale can be searched, turning up concealed things.
+        # a Search action will have a "skill" attribute, indicating
+        # the searcher's skills at searching.
         if action.verb == "SEARCH":
             ability = action.get("skill")
             if ability is None:
-                ablilty = 0
+                ability = 0
             found = None
             for thing in self.objects:
                 concealment = thing.get("concealment")
@@ -125,7 +124,8 @@ class GameContext(GameObject):
                 result = "You found " + found
         else:
             # if we don't recognize this action, pass it up the chain
-            result = super().accept_action(action, actor, context)
+            result = super(GameContext, self).accept_action(action,
+                                                            actor, context)
         return result
 
     def get_party(self):
@@ -135,14 +135,23 @@ class GameContext(GameObject):
         return self.party
 
     def add_member(self, member):
+        """
+        Add an player character to this context
+        @param member: player GameActor
+        """
         if member not in self.party:
             self.party.append(member)
 
     def get_npcs(self):
+        """
+        return a list of the NPCs in this context
+        """
         return self.npcs
 
     def add_npc(self, npc):
         """
+        Add an NPC to this context
+        @param npc: the NPC GameActor to be added
         @return: list of (non-party) GameActors in the context
         """
         if npc not in self.npcs:
