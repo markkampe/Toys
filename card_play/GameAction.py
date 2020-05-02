@@ -47,6 +47,7 @@ class GameAction(object):
         if verb in self.saves.keys():
             self.set("save", self.saves[verb])
 
+    # pylint: disable=duplicate-code; we do not inherit GameObject
     def get(self, attribute):
         """
         return the value of an attribute
@@ -59,6 +60,7 @@ class GameAction(object):
         else:
             return None
 
+    # pylint: disable=duplicate-code; we do not inherit GameObject
     def set(self, attribute, value):
         """
         set the value of an attribute

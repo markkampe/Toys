@@ -18,6 +18,7 @@ class GameObject(object):
         self.description = descr
         self.attributes = {}
 
+    # pylint: disable=duplicate-code; GameAction needs this as well
     def get(self, attribute):
         """
         return: value of an attribute
@@ -30,6 +31,7 @@ class GameObject(object):
         else:
             return None
 
+    # pylint: disable=duplicate-code; GameAction needs this as well
     def set(self, attribute, value):
         """
         set the value of an attribute
