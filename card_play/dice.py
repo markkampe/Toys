@@ -113,8 +113,8 @@ def test(formula, min_expected, max_expected, rolls=20):
     """
     test that a formula generates rolls w/expected values
     @param formula: (string) for the DIce
-    @param min: minimum expected value
-    @param max: maximum expecetd value
+    @param min_expected: minimum expected value
+    @param max_expected: maximum expecetd value
     @param rolls: number of test rolls
     """
     dice = Dice(formula)

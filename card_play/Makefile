@@ -13,13 +13,14 @@ all_test:
 	@echo
 	python3 test.py
 
-pydoc:
-	epydoc --graph=umlclasstree $(ALL)
+doc:
+	epydoc -v --graph=umlclasstree $(ALL)
 	@echo PyDocumentation can be found in html subdirectory
 
 DISABLES= --disable=duplicate-code
-pylint:
+lint:
 	pylint $(DISABLES) $(ALL)
+	pep8 $(ALL)
 
 clean:
 	-rm -f *.pyc
