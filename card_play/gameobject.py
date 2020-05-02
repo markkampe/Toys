@@ -1,5 +1,5 @@
 """ This module implements the (foundation) GameObject Class """
-from GameAction import GameAction
+from gameaction import GameAction
 
 
 class GameObject(object):
@@ -18,7 +18,6 @@ class GameObject(object):
         self.description = descr
         self.attributes = {}
 
-    # pylint: disable=duplicate-code; GameAction needs this as well
     def get(self, attribute):
         """
         return: value of an attribute
@@ -28,10 +27,8 @@ class GameObject(object):
         """
         if attribute in self.attributes:
             return self.attributes[attribute]
-        else:
-            return None
+        return None
 
-    # pylint: disable=duplicate-code; GameAction needs this as well
     def set(self, attribute, value):
         """
         set the value of an attribute
@@ -120,7 +117,7 @@ def main():
 
     # defaults to no actions
     actions = go1.possible_actions(None, None)
-    assert (len(actions) == 0), \
+    assert (not actions), \
         "New object returns non-empty action list"
 
     # added actions are returned
@@ -138,6 +135,7 @@ def main():
         "second action not correctly returned"
 
     print("\nAll test cases passed")
+
 
 if __name__ == "__main__":
     main()

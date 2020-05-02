@@ -1,5 +1,5 @@
 """ This module implements the Interaction class """
-from GameObject import GameObject
+from gameobject import GameObject
 
 
 class Interaction(GameObject):

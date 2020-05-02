@@ -1,5 +1,5 @@
 """ this module implements the Skills class """
-from GameObject import GameObject
+from gameobject import GameObject
 
 
 class Skills(GameObject):

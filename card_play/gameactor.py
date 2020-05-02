@@ -1,5 +1,5 @@
 """ This module implements the GameActor class """
-from GameObject import GameObject
+from gameobject import GameObject
 
 
 class GameActor(GameObject):
@@ -102,7 +102,7 @@ class GameActor(GameObject):
                 result += ", and is {} {}" \
                           .format("not" if saved else "now", condition)
         elif base_verb == "ATTACK":
-            # A standard attack will come with at-least two standard attributes:
+            # A standard attack comes with at-least two standard attributes:
             #    success         ... the to-hit role (including all bonuses)
             #    delivered_damage .. the (pre-armor) damage being delivered
             #
@@ -147,7 +147,8 @@ class GameActor(GameObject):
                          .format(self.name, action.verb)
         else:
             # if we don't recognize this action, pass it up the chain
-            result = super(GameActor, self).accept_action(action, actor, context)
+            result = super(GameActor, self).accept_action(action,
+                                                          actor, context)
         return result
 
     def set_context(self, context):

@@ -1,5 +1,5 @@
 """ this module implements the Weapon class """
-from GameObject import GameObject
+from gameobject import GameObject
 
 
 class Weapon(GameObject):

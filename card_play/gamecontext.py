@@ -1,6 +1,6 @@
 """ This module implements the GameContext class """
 from random import randint
-from GameObject import GameObject
+from gameobject import GameObject
 
 
 class GameContext(GameObject):
@@ -40,8 +40,7 @@ class GameContext(GameObject):
             return self.attributes[attribute]
         elif self.parent is not None:
             return self.parent.get(attribute)
-        else:
-            return None
+        return None
 
     def get_objects(self):
         """

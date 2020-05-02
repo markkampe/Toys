@@ -1,6 +1,6 @@
 """ This module implements the GameAction class """
 from random import randint
-from Dice import Dice
+from dice import Dice
 
 
 class GameAction(object):
@@ -47,7 +47,6 @@ class GameAction(object):
         if verb in self.saves.keys():
             self.set("save", self.saves[verb])
 
-    # pylint: disable=duplicate-code; we do not inherit GameObject
     def get(self, attribute):
         """
         return the value of an attribute
@@ -57,10 +56,8 @@ class GameAction(object):
         """
         if attribute in self.attributes:
             return self.attributes[attribute]
-        else:
-            return None
+        return None
 
-    # pylint: disable=duplicate-code; we do not inherit GameObject
     def set(self, attribute, value):
         """
         set the value of an attribute

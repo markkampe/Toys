@@ -1,9 +1,9 @@
 # pylint: disable=invalid-name; "Npc_guard" would be an abomination
 """ This module implements the NPC_guard class """
 from random import randint
-from GameActor import GameActor
-from Weapon import Weapon
-from Interaction import Interaction
+from gameactor import GameActor
+from weapon import Weapon
+from interaction import Interaction
 
 
 class NPC_guard(GameActor):
@@ -102,8 +102,7 @@ class NPC_guard(GameActor):
                     .format(self.name, weapon.name, attack.verb,
                             self.target.name, attack.get("damage"),
                             attack.get("special_damage"), result))
-        else:
-            return super(NPC_guard, self).take_turn()
+        return super(NPC_guard, self).take_turn()
 
     # pylint: disable=unused-argument; I expect actor to be used later
     def interact(self, actor):

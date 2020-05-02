@@ -3,12 +3,12 @@ Test cases and sample code to show how the basic methods
 of the key classes can be used.
 """
 from random import randint
-from GameObject import GameObject
-from GameActor import GameActor
-from NPC_guard import NPC_guard
-from GameContext import GameContext
-from Weapon import Weapon
-from Skills import Skills
+from gameobject import GameObject
+from gameactor import GameActor
+from npc_guard import NPC_guard
+from gamecontext import GameContext
+from weapon import Weapon
+from skills import Skills
 
 
 # pylint: disable=superfluous-parens; I prefer to always use print()
