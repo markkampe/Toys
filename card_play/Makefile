@@ -1,4 +1,4 @@
-BASE_CLASSES = gameobject.py gameactor.py gameaction.py gamecontext.py dice.py
+BASE_CLASSES = base.py gameobject.py gameactor.py gameaction.py gamecontext.py dice.py
 SUB_CLASSES = interaction.py skills.py weapon.py npc_guard.py
 PROGRAMS = test.py
 ALL = $(BASE_CLASSES) $(SUB_CLASSES) $(PROGRAMS)
@@ -17,7 +17,7 @@ doc:
 	epydoc -v --graph=umlclasstree $(ALL)
 	@echo PyDocumentation can be found in html subdirectory
 
-DISABLES= --disable=duplicate-code
+#DISABLES= --disable=duplicate-code
 lint:
 	pylint $(DISABLES) $(ALL)
 	pep8 $(ALL)
