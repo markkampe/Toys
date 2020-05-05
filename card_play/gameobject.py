@@ -1,43 +1,13 @@
 """ This module implements the (foundation) GameObject Class """
+from base import Base
 from gameaction import GameAction
 
 
-class GameObject(object):
+class GameObject(Base):
     """
     This is the base class for all objects and actors.
-    All it has is a name, description, and attributes.
+    Its only abilities are to offer and accept actions.
     """
-
-    def __init__(self, name, descr=None):
-        """
-        create a new GameObject
-        @param name: display name of this object
-        @param descr: human description of this object
-        """
-        self.name = name
-        self.description = descr
-        self.attributes = {}
-
-    def get(self, attribute):
-        """
-        return: value of an attribute
-
-        @param attribute: name of attribute to be fetched
-        @return: (string) value (or none)
-        """
-        if attribute in self.attributes:
-            return self.attributes[attribute]
-        return None
-
-    def set(self, attribute, value):
-        """
-        set the value of an attribute
-
-        @param attribute: name of attribute to be fetched
-        @param value: value to be stored for that attribute
-        """
-        self.attributes[attribute] = value
-
     def accept_action(self, action, actor, context):
         """
         receive and process the effects of an action
@@ -82,7 +52,7 @@ def main():
     go2 = GameObject("GameObject 2")
 
     # new object has name, description, and nothing else
-    print("Created 'GameObject 1', descr={}\n    got '{}', descr={}"
+    print("Created 'Base 1', descr={}\n    got '{}', descr={}"
           .format(describe, go1.name, go1.description))
     assert (go1.name == "GameObject 1"), \
         "New object does not have assigned name"
@@ -106,14 +76,6 @@ def main():
           .format(go1.get("attribute#1")))
     assert (go1.get("attribute#1") == "value2"), \
         "set does not correctly change value"
-
-    # description defaults to None
-    print("Created 'GameObject, descr=None\n    got '{}', descr={}"
-          .format(go2.name, go2.description))
-    assert (go2.name == "GameObject 2"), \
-        "New object does not have assigned name"
-    assert (go2.description is None), \
-        "New description does not default to None"
 
     # defaults to no actions
     actions = go1.possible_actions(None, None)
