@@ -1,5 +1,5 @@
 """
-This module provides the Dice class
+This module provides the Dice class (formula based random numbers)
 """
 import sys
 from random import randint
@@ -169,7 +169,7 @@ def main():
     if test("47", 47, 47, 10):
         tests_passed += 1
 
-    # test invalid expressions
+    # test detection of invalid expressions
     for formula in ["2D", "D", "xDy",
                     "4-2", "-", "3-", "x-y",
                     "7to9", 100]:
