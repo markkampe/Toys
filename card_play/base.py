@@ -1,5 +1,6 @@
 """ This module implements the base class that has only attributes """
 
+
 class Base(object):
     """
     This is the base class for all other classes
@@ -8,13 +9,22 @@ class Base(object):
 
     def __init__(self, name, descr=None):
         """
-        create a new GameObject
+        create a new object
         @param name: display name of this object
         @param descr: human description of this object
         """
         self.name = name
         self.description = descr
         self.attributes = {}
+
+    def __str__(self):
+        """
+        return a descriptive string for this object
+        """
+        if self.description is None:
+            return self.name
+        else:
+            return "{}({})".format(self.name, self.description)
 
     def get(self, attribute):
         """
@@ -40,17 +50,17 @@ class Base(object):
 # pylint: disable=superfluous-parens; I prefer to consistently use print()
 def main():
     """
-    basic test GameObject test cases
+    basic test cases for name, description, and attributes
     """
 
     describe = "simple get/set test object"
-    go1 = Base("GameObject 1", describe)
-    go2 = Base("GameObject 2")
+    go1 = Base("Base Object 1", describe)
+    go2 = Base("Base Object 2")
 
     # new object has name, description, and nothing else
-    print("Created 'Base 1', descr={}\n    got '{}', descr={}"
-          .format(describe, go1.name, go1.description))
-    assert (go1.name == "GameObject 1"), \
+    print("Created 'Base 1', descr={}\n    got '{}'"
+          .format(describe, str(go1)))
+    assert (go1.name == "Base Object 1"), \
         "New object does not have assigned name"
     assert (go1.description == describe), \
         "New object does not have assigned description"
@@ -74,9 +84,9 @@ def main():
         "set does not correctly change value"
 
     # description defaults to None
-    print("Created 'GameObject, descr=None\n    got '{}', descr={}"
-          .format(go2.name, go2.description))
-    assert (go2.name == "GameObject 2"), \
+    print("Created 'Base Object 2, descr=None\n    got '{}'"
+          .format(str(go2)))
+    assert (go2.name == "Base Object 2"), \
         "New object does not have assigned name"
     assert (go2.description is None), \
         "New description does not default to None"
