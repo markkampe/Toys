@@ -49,33 +49,6 @@ def main():
 
     describe = "simple get/set test object"
     go1 = GameObject("GameObject 1", describe)
-    go2 = GameObject("GameObject 2")
-
-    # new object has name, description, and nothing else
-    print("Created 'Base 1', descr={}\n    got '{}', descr={}"
-          .format(describe, go1.name, go1.description))
-    assert (go1.name == "GameObject 1"), \
-        "New object does not have assigned name"
-    assert (go1.description == describe), \
-        "New object does not have assigned description"
-
-    # a new set correctly adds a value
-    print("    before set(): get('attribute#1') -> {}"
-          .format(go1.get("attribute#1")))
-    assert (go1.get("attribute#1") is None), \
-        "New object has attribute values before set"
-    go1.set("attribute#1", "value1")
-    print("    after set('attribute#1', 'value1'): get('attribute#1') -> '{}'"
-          .format(go1.get("attribute#1")))
-    assert (go1.get("attribute#1") == "value1"), \
-        "set does not correctly set new value"
-
-    # a second set correctly changes a value
-    go1.set("attribute#1", "value2")
-    print("    after set('attribute#1', 'value2'): get('attribute#1') -> '{}'"
-          .format(go1.get("attribute#1")))
-    assert (go1.get("attribute#1") == "value2"), \
-        "set does not correctly change value"
 
     # defaults to no actions
     actions = go1.possible_actions(None, None)
