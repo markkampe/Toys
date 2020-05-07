@@ -91,7 +91,7 @@ def main():
     assert (go2.description is None), \
         "New description does not default to None"
 
-    print("\nAll test cases passed")
+    print("All Base test cases passed")
 
 
 if __name__ == "__main__":

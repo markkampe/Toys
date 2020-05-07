@@ -25,7 +25,7 @@ def main():
 
     # create a single NPC with some attributes and armor
     guard = NPC_guard("Guard #1", "test target")
-    guard.set("protection.pierce", 4)   # chainmail
+    guard.set("PROTECTION.pierce", 4)   # chainmail
     guard.set("reinforcements", 50)     # help is available
     local.add_npc(guard)
 
@@ -34,14 +34,15 @@ def main():
     actor.set("perception", 25)     # attribute for searching
     actor.set("CHEAT", 25)          # specific skill ability
     actor.set("PUSH", 40)           # sepeciic skill ability
-    actor.set("life", 32)           # initial hit points
-    actor.set("evasion", 25)        # good dodge
+    actor.set("LIFE", 32)           # initial hit points
+    actor.set("EVASION", 20)        # good dodge
     actor.set("dexterity", 18)
     actor.set("wisdom", 15)
-    actor.set("protection", 6)      # reasonable armor
+    actor.set("PROTECTION", 4)      # reasonable armor
+    actor.set("ACCURACY", 50)       # good with a sword
     actor.set_context(local)
     skills = Skills(actor.name)
-    skills.set("actions", "PUSH,CHEAT,UNKNOWN-ACTION")
+    skills.set("ACTIONS", "PUSH,CHEAT,UNKNOWN-ACTION")
     local.add_member(actor)
 
     # create obvious and hidden objects in the local context
@@ -50,7 +51,7 @@ def main():
     trap_door = GameObject("trap-door", "hidden object")
     trap_door.set("concealment", 50)
     local.add_object(trap_door)
-    local.set("actions", "SEARCH")
+    local.set("ACTIONS", "SEARCH")
 
     # SEE WHAT WE CAN LEARN FROM THE LOCAL CONTEXT
     print("{} ... {}".format(local.name, local.description))
@@ -105,24 +106,22 @@ def main():
 
     # CREATE A WEAPON AND USE IT TO ATTACK THE GUARD
     weapon = Weapon("sword", damage="D6")
-    weapon.set("actions", "ATTACK.slash,ATTACK.chop,ATTACK.pierce")
-    weapon.set("damage.slash", "D6")
-    weapon.set("damage.chop", "D4")
-    weapon.set("damage.pierce", "4")
-    weapon.set("hit_bonus", 10)
-    weapon.set("damage_bonus", 2)
+    weapon.set("ACTIONS", "ATTACK.slash,ATTACK.chop,ATTACK.pierce")
+    weapon.set("DAMAGE.slash", "D6+2")
+    weapon.set("DAMAGE.chop", "D4+2")
+    weapon.set("DAMAGE.pierce", "4")
+    weapon.set("ACCURACY", 10)      # a good sword
 
     # play out the battle until hero or all guards are dead
     target = npcs[0]
     actions = weapon.possible_actions(actor, local)
-    while target is not None and actor.get("life") > 0:
+    while target is not None and actor.get("LIFE") > 0:
         # choose a random attack
         attack = actions[randint(0, len(actions)-1)]
         result = actor.take_action(attack, target)
-        print("\n{} uses {} to {} {}, delivered={}+{}\n    {}"
+        print("\n{} uses {} to {} {}, delivered={}\n    {}"
               .format(actor.name, weapon.name, attack.verb, target.name,
-                      attack.get("damage"), attack.get("special_damage"),
-                      result))
+                      attack.get("HIT_POINTS"), result))
 
         # give each NPC an action and choose a target for nextg round
         target = None
@@ -134,12 +133,12 @@ def main():
                     target = npc
 
     print("\nAfter the combat:")
-    print("    {} has {} HP".format(actor.name, actor.get("life")))
+    print("    {} has {} HP".format(actor.name, actor.get("LIFE")))
 
     npcs = local.get_npcs()
     for npc in npcs:
         if npc.alive:
-            print("    {} has {} HP".format(npc.name, npc.get("life")))
+            print("    {} has {} HP".format(npc.name, npc.get("LIFE")))
         else:
             print("    {} is dead".format(npc.name))
 

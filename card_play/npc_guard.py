@@ -21,17 +21,18 @@ class NPC_guard(GameActor):
         self.context = None
 
         # default attributes ... easily changed after instantiation
-        self.set("life", 16)
-        self.set("evasion", 50)
-        self.set("evasion.slash", 20)   # slashes are harder to dodge
+        self.set("LIFE", 16)
+        self.set("ACCURACY", 10)
+        self.set("EVASION", 40)
+        self.set("EVASION.slash", 20)   # slashes are harder to dodge
         self.set("dexterity", 15)
         self.set("wisdom", 10)
-        self.set("protection", 2)       # by default, cheap armor
+        self.set("PROTECTION", 2)       # by default, cheap armor
         self.set("reinforcements", 0)   # by default, alone
 
-        self.weapon = Weapon("sword", damage="D6")
-        self.weapon.set("actions", "ATTACK.slash")
-        self.weapon.set("damage.slash", "D6")
+        self.weapon = Weapon("sword")
+        self.weapon.set("ACTIONS", "ATTACK.slash")
+        self.weapon.set("DAMAGE.slash", "D6")
 
         # sub-class combat attributes
         self.help_arrived = False
@@ -69,7 +70,7 @@ class NPC_guard(GameActor):
 
         # if I have been attacked, and am not dead
         if base_verb == "ATTACK" and \
-           self.get("life") > 0:
+           self.get("LIFE") > 0:
             # counter attack when our turn comes
             self.target = actor
 
@@ -98,10 +99,10 @@ class NPC_guard(GameActor):
             actions = weapon.possible_actions(self.target, self.context)
             attack = actions[randint(0, len(actions)-1)]
             result = self.take_action(actions[0], self.target)
-            return ("\n{} uses {} to {} {}, delivered={}+{}\n    {}"
+            return ("\n{} uses {} to {} {}, delivered={}\n    {}"
                     .format(self.name, weapon.name, attack.verb,
-                            self.target.name, attack.get("damage"),
-                            attack.get("special_damage"), result))
+                            self.target.name, attack.get("HIT_POINTS"),
+                            result))
         return super(NPC_guard, self).take_turn()
 
     # pylint: disable=unused-argument; I expect actor to be used later

@@ -1,5 +1,8 @@
 """ This module implements the GameActor class """
+from random import randint
 from gameobject import GameObject
+from gameaction import GameAction
+from gamecontext import GameContext
 
 
 class GameActor(GameObject):
@@ -46,9 +49,70 @@ class GameActor(GameObject):
         self.alive = True
         self.incapacitated = False
 
-    # pylint: disable=too-many-locals
-    # pylint: disable=too-many-branches
-    # pylint: disable=too-many-statements
+    def accept_attack(self, action, actor, context):
+        """
+        Accept an attack, figure out if it hits, and how bad
+        @param action: GameAction being performed
+        @param actor: GameActor initiating the action
+        @param context: GameContext in which action is being taken
+        @return:  (string) description of the effect
+
+        """
+        # A standard attack comes with at-least two standard attributes:
+        #    TO_HIT ... the (pre defense) to-hit probability
+        #    HIT_POINTS ... the (pre-armor) damage being delivered
+        #
+        # The target will apply evasion to determine if it is hit,
+        # protection to see how much damage gets through, and then
+        # update its life points.
+
+        # see if we are able to evade the attack
+        to_hit = action.get("TO_HIT")
+        evasion = self.get("EVASION")
+        if "ATTACK." in action.verb:
+            sub_evade = self.get("EVASION." + action.verb.split(".")[1])
+            if sub_evade is not None:
+                evasion = sub_evade
+        if evasion is not None:
+            to_hit -= evasion
+
+        # we may have to roll to see if we can evade
+        if to_hit < 100 and randint(1, 100) > to_hit:
+            return "{} evades {} {}" \
+                   .format(self.name, action.source.name, action.verb)
+
+        # see how much of the delivered damage we actually take
+        delivered = action.get("HIT_POINTS")
+        protection = self.get("PROTECTION")
+        if "ATTACK." in action.verb:
+            sub_prot = self.get("PROTECTION." + action.verb.split(".")[1])
+            if sub_prot is not None:
+                protection = sub_prot
+        reduction = 0 if protection is None else protection
+
+        if reduction >= delivered:
+            return "{}'s protection absorbs all damage from {}" \
+                   .format(self.name, action.verb)
+
+        # take the damage and see if we survive
+        old_hp = self.get("LIFE")
+        if old_hp is None:
+            old_hp = 0
+        new_hp = old_hp - (delivered - reduction)
+        self.set("LIFE", new_hp)
+
+        result = "{} hit by {} from {} using {} for {}-{} life-points in {}" \
+                 .format(self.name, action.verb, actor.name,
+                         action.source.name,
+                         delivered, reduction, context.name) \
+                 + "\n    {} life: {} - {} = {}"\
+                 .format(self.name, old_hp, delivered - reduction, new_hp)
+        if new_hp <= 0:
+            result += ", and is killed"
+            self.alive = False
+            self.incapacitated = True
+        return result
+
     def accept_action(self, action, actor, context):
         """
         receive and process the effects of an action
@@ -102,49 +166,7 @@ class GameActor(GameObject):
                 result += ", and is {} {}" \
                           .format("not" if saved else "now", condition)
         elif base_verb == "ATTACK":
-            # A standard attack comes with at-least two standard attributes:
-            #    success         ... the to-hit role (including all bonuses)
-            #    delivered_damage .. the (pre-armor) damage being delivered
-            #
-            # The target will apply evasion to determine if it is hit,
-            # protection to see how much damage gets through, and then
-            # update its life points.
-
-            # see if we are able to evade the attack
-            attack = action.get("success")
-            evasion = self.get("evasion." + sub_type)
-            if evasion is None:
-                evasion = self.get("evasion")
-            if evasion is not None and attack <= int(evasion):
-                return "{} evades {} {} ... evasion={} vs attack={}" \
-                       .format(self.name, action.source.name, action.verb,
-                               evasion, attack)
-
-            # see how much of the delivered damage we take
-            delivered = action.get("delivered_damage")
-            protection = self.get("protection." + sub_type)
-            if protection is None:
-                protection = self.get("protection")
-            reduction = 0 if protection is None else int(protection)
-            damage = delivered - reduction
-
-            old_hp = self.get("life")
-            if delivered > reduction:
-                new_hp = old_hp - damage
-                self.set("life", new_hp)
-
-                result = "{} hit by {} using {} for {}-{} life-points in {}" \
-                         .format(self.name, actor.name, action.source.name,
-                                 delivered, reduction, context.name) \
-                         + "\n    {} life: {} - {} = {}"\
-                           .format(self.name, old_hp, damage, new_hp)
-                if new_hp <= 0:
-                    result += ", and is killed"
-                    self.alive = False
-                    self.incapacitated = True
-            else:
-                result = "{}'s protection absorbs all damage from {}" \
-                         .format(self.name, action.verb)
+            result = self.accept_attack(action, actor, context)
         else:
             # if we don't recognize this action, pass it up the chain
             result = super(GameActor, self).accept_action(action,
@@ -172,3 +194,159 @@ class GameActor(GameObject):
         called once per round in initiative order
         """
         return self.name + " takes no action"
+
+
+# pylint: disable=superfluous-parens; for consistency, I always use print()
+def simple_tests():
+    """
+    Base attacks with assured outcomes
+    """
+    attacker = GameActor("attacker")
+    target = GameActor("target")
+    context = GameContext("unit-test")
+
+    # attack guarnteed to fail
+    target.set("LIFE", 10)
+    source = GameObject("weak-attack")
+    action = GameAction(source, "ATTACK")
+    action.set("ACCURACY", -100)
+    action.set("DAMAGE", "1")
+    print("{} tries to {} {} with {}".
+          format(attacker, action, target, source))
+    result = action.act(attacker, target, context)
+    assert target.get("LIFE") == 10, \
+        "{} took damage, LIFE: {} -> {}". \
+        format(target, 10, target.get("LIFE"))
+    print("    " + result)
+    print()
+
+    # attack guaranteed to succeed
+    source = GameObject("strong-attack")
+    action = GameAction(source, "ATTACK")
+    action.set("ACCURACY", 100)
+    action.set("DAMAGE", "1")
+    print("{} tries to {} {} with {}".
+          format(attacker, action, target, source))
+    result = action.act(attacker, target, context)
+    assert target.get("LIFE") == 9, \
+        "{} took incorrect damage, LIFE: {} -> {}". \
+        format(target, 10, target.get("LIFE"))
+    print("    " + result)
+    print()
+
+    # attack that will be evaded
+    source = GameObject("evadable-attack")
+    action = GameAction(source, "ATTACK")
+    action.set("ACCURACY", 0)
+    action.set("DAMAGE", "1")
+    target.set("EVASION", 100)
+    target.set("LIFE", 10)
+    print("{} tries to {} {} with {}".
+          format(attacker, action, target, source))
+    result = action.act(attacker, target, context)
+    assert target.get("LIFE") == 10, \
+        "{} took damage, LIFE: {} -> {}". \
+        format(target, 10, target.get("LIFE"))
+    print("    " + result)
+    print()
+
+    # attack that will be absorbabed
+    source = GameObject("absorbable-attack")
+    action = GameAction(source, "ATTACK")
+    action.set("ACCURACY", 100)
+    action.set("DAMAGE", "1")
+    target.set("EVASION", 0)
+    target.set("LIFE", 10)
+    target.set("PROTECTION", 1)
+    print("{} tries to {} {} with {}".
+          format(attacker, action, target, source))
+    result = action.act(attacker, target, context)
+    assert target.get("LIFE") == 10, \
+        "{} took damage, LIFE: {} -> {}". \
+        format(target, 10, target.get("LIFE"))
+    print("    " + result)
+    print()
+
+
+# pylint: disable=superfluous-parens; for consistency, I always use print()
+def sub_attack_tests():
+    """
+    Attacks that draw on sub-type EVASION and PROTECTION
+    """
+    attacker = GameActor("attacker")
+    target = GameActor("target")
+    context = GameContext("unit-test")
+
+    # base would succeed, but subtype would fail
+    source = GameObject("evadable")
+    action = GameAction(source, "ATTACK.subtype")
+    action.set("ACCURACY", 0)
+    action.set("DAMAGE", "1")
+
+    target.set("LIFE", 10)
+    target.set("EVASION", 0)
+    target.set("EVASION.subtype", 100)
+
+    print("{} tries to {} {} with {}".
+          format(attacker, action, target, source))
+    result = action.act(attacker, target, context)
+    assert target.get("LIFE") == 10, \
+        "{} took damage, LIFE: {} -> {}". \
+        format(target, 10, target.get("LIFE"))
+    print("    " + result)
+
+    # base has no protection, but subtype does
+    source = GameObject("absorbable")
+    action = GameAction(source, "ATTACK.subtype")
+    action.set("ACCURACY", 0)
+    action.set("DAMAGE", "4")
+
+    target.set("LIFE", 10)
+    target.set("EVASION.subtype", 0)
+    target.set("PROTECTION.subtype", 2)
+
+    print("{} tries to {} {} with {}".
+          format(attacker, action, target, source))
+    result = action.act(attacker, target, context)
+    assert target.get("LIFE") == 8, \
+        "{} took damage, LIFE: {} -> {}". \
+        format(target, 8, target.get("LIFE"))
+    print("    " + result)
+    print()
+
+
+# pylint: disable=superfluous-parens; for consistency, I always use print()
+def random_tests():
+    """
+    attacks that depend on dice-rolls
+    """
+    attacker = GameActor("attacker")
+    target = GameActor("target")
+    context = GameContext("unit-test")
+
+    target.set("LIFE", 10)
+    source = GameObject("fair-fight")
+    action = GameAction(source, "ATTACK")
+    action.set("ACCURACY", 0)
+    action.set("DAMAGE", "1")
+    target.set("EVASION", 50)
+    target.set("LIFE", 10)
+    target.set("PROTECTION", 0)
+    rounds = 10
+    for _ in range(rounds):
+        print("{} tries to {} {} with {}".
+              format(attacker, action, target, source))
+        result = action.act(attacker, target, context)
+        print("    " + result)
+
+    life = target.get("LIFE")
+    assert life < 10, "{} took no damage in {} rounds".format(target, rounds)
+    assert life > 10 - rounds, "{} took damage every round".format(target)
+    print("{} was hit {} times in {} rounds".format(target, 10 - life, rounds))
+
+
+if __name__ == "__main__":
+    simple_tests()
+    sub_attack_tests()
+    random_tests()
+    print("All GameActor test cases passed")

@@ -1,9 +1,10 @@
 """ This module implements the GameAction class """
 from random import randint
 from dice import Dice
+from base import Base
 
 
-class GameAction(object):
+class GameAction(Base):
     """
     A GameAction is an action possibility that is available to a GameActor.
     It has attributes that control its effects, and when its act() method
@@ -11,10 +12,6 @@ class GameAction(object):
 
     The most interetsting method is act(initiator, target, context)
     which informs the target to process the effects of the action.
-
-    A GameAction is not a GameObject because
-    (a) it does not support operations to generate and receive actions
-    (b) get() operations are not passed up to the superclass.
     """
 
     # Lists of actions with known saves and conditions they cause
@@ -39,6 +36,7 @@ class GameAction(object):
         @param source: GameObject instrument for the action
         @param verb: the name of the action
         """
+        super(GameAction, self).__init__(verb)
         self.source = source
         self.verb = verb
         self.attributes = {}
@@ -47,25 +45,70 @@ class GameAction(object):
         if verb in self.saves.keys():
             self.set("save", self.saves[verb])
 
-    def get(self, attribute):
+    def __str__(self):
         """
-        return the value of an attribute
+        return a string representation of this action
+        """
+        result = "{} (ACCURACY={}%, DAMAGE={})".\
+                 format(self.verb, self.get("ACCURACY"), self.get("DAMAGE"))
+        return result
 
-        @param attribute: name of attribute to be fetched
-        @return value (or none)
+    def accuracy(self, initiator):
         """
-        if attribute in self.attributes:
-            return self.attributes[attribute]
-        return None
+        Compute the accuracy of this attack
+        @param initator: GameActor who is initiating the attack
+        @return: (int) probability of hitting
+        """
+        # get the basic action accuracy
+        w_accuracy = self.get("ACCURACY")
+        if w_accuracy is None:
+            w_accuracy = 0
 
-    def set(self, attribute, value):
-        """
-        set the value of an attribute
+        # get the initiator accuracy for this attack
+        i_accuracy = initiator.get("ACCURACY")
+        if 'ATTACK.' in self.verb:
+            sub_type = self.verb.split('.')[1]
 
-        @param attribute: name of attribute to be fetched
-        @param value: value to be stored for that attribute
+            if sub_type is not None:
+                sub = initiator.get("ACCURACY." + sub_type)
+                if sub is not None:
+                    i_accuracy = sub
+
+        if i_accuracy is None:
+            i_accuracy = 0
+
+        return w_accuracy + i_accuracy
+
+    def damage(self, initiator):
         """
-        self.attributes[attribute] = value
+        compute the damage from this attack
+        @param initator: GameActor who is initiating the attack
+        @return: (int) total damage
+        """
+        # get the basic action damage formula and roll it
+        dmg = self.get("DAMAGE")
+        if dmg is not None:
+            dice = Dice(dmg)
+            w_damage = dice.roll()
+        else:
+            w_damage = 0
+
+        # get the initiator damage formula and roll it
+        dmg = initiator.get("DAMAGE")
+        if 'ATTACK.' in self.verb:
+            sub_type = self.verb.split('.')[1]
+            if sub_type is not None:
+                sub = initiator.get("DAMAGE." + sub_type)
+                if sub is not None:
+                    dmg = sub
+
+        if dmg is not None:
+            dice = Dice(dmg)
+            i_damage = dice.roll()
+        else:
+            i_damage = 0
+
+        return w_damage + i_damage
 
     def act(self, initiator, target, context):
         """
@@ -83,48 +126,21 @@ class GameAction(object):
         """
 
         # ATTACK actions are likely to have the following properties:
-        #    hit_bonus   ... a number to be added to a D100 success role
-        #    damage      ... a (Dice) damage description
-        #    special_damage  a (Dice) damage description to add to damage
-        #    damage_bonus .. a (Dice) damage description to add to damage
+        #    ACCURACY    ... a number to be added to a D100 success role
+        #    DAMAGE      ... a (Dice) damage description
+        #
+        # the initiator may have his/hir own ACCURACY/DAMAGE adjustments
         #
         # by the time they are passed to the target, they will have:
-        #    success         ... the to-hit role (including all bonuses)
-        #    delivered_damage .. the (pre-armor) damage being delivered
+        #    TO_HIT      ... the to-hit role (including all bonuses)
+        #    HIT_POINTS  ... a number of hit points
+        #
         if "ATTACK" in self.verb:
-            # get and validate the basic combat parameters
-            damage_spec = self.get("damage")
-            if damage_spec is None:
-                return self.source.name + " is not capable of doing damage"
 
-            # compute the success roll
-            roll = randint(1, 100)
-            hit_bonus = self.get("hit_bonus")
-            if hit_bonus is not None:
-                roll += hit_bonus
-            self.set("success", roll)
-
-            # compute the base damage
-            hit_dice = Dice(damage_spec)
-            roll = hit_dice.roll()
-            dbg = "roll={}". format(roll)
-
-            # compute the sub-class damage
-            special_spec = self.get("special_damage")
-            if special_spec is not None:
-                hit_dice = Dice(special_spec)
-                special = hit_dice.roll()
-                roll += special
-                dbg += ", spcl={}".format(special)
-
-            # add in any damage bonus
-            damage_bonus = self.get("damage_bonus")
-            if damage_bonus is not None:
-                roll += damage_bonus
-                dbg += ", bonus={}".format(damage_bonus)
+            self.set("TO_HIT", 100 + self.accuracy(initiator))
+            self.set("HIT_POINTS", self.damage(initiator))
 
             # deliver it to the target
-            self.set("delivered_damage", roll)
             return target.accept_action(self, initiator, context)
 
         elif "SAVE" in self.verb or self.get("save") is not None:
@@ -146,3 +162,132 @@ class GameAction(object):
 
         # catch-all ... just pass it on to the target
         return target.accept_action(self, initiator, context)
+
+
+class TestRecipient(Base):
+    """
+    a minimal object that can receive, and report on actions
+    """
+
+    def accept_action(self, action, actor, context):
+        """
+        report on the action we received
+        @param action: GameAction being sent
+        @param actor: GameActor who set it
+        @param context: GameContext in which this happened
+        """
+        if "ATTACK" in action.verb:
+            return "{} receives {} (TO_HIT={}, DAMAGE={}) from {} in {}". \
+                   format(self, action.verb,
+                          action.get("TO_HIT"), action.get("DAMAGE"),
+                          actor, context)
+        else:
+            return "not implemented yet"
+
+
+# pylint: disable=superfluous-parens;   for consistency I always use print()
+def base_attacks():
+    """
+    GameAction test cases:
+      TO_HIT and DAMAGE computations for base ATTACKs
+    """
+
+    # create a victim and context
+    victim = TestRecipient("victim")
+    context = Base("unit-test")
+
+    # create an artifact with actions
+    artifact = Base("test-case")
+
+    # test attacks from an un-skilled attacker (base values)
+    lame = Base("lame attacker")        # attacker w/no skills
+    # pylint: disable=bad-whitespace
+    lame_attacks = [
+        # verb,       accuracy, damage, exp hit, exp dmg
+        ("ATTACK",        None,    "1",     100,       1),
+        ("ATTACK.ten",      10,   "10",     110,      10),
+        ("ATTACK.twenty",   20,   "20",     120,      20),
+        ("ATTACK.thirty",   30,   "30",     130,      30)]
+
+    for (verb, accuracy, damage, exp_hit, exp_dmg) in lame_attacks:
+        action = GameAction(artifact, verb)
+        if accuracy is not None:
+            action.set("ACCURACY", accuracy)
+        action.set("DAMAGE", damage)
+        result = action.act(lame, victim, context)
+
+        # see if the action contained the expected values
+        to_hit = action.get("TO_HIT")
+        hit_points = action.get("HIT_POINTS")
+        if action.verb == verb and to_hit == exp_hit and hit_points == exp_dmg:
+            print(result + " ... CORRECT")
+        else:
+            print(result)
+            assert action.verb == verb, \
+                "incorrect action verb: expected " + verb
+            assert action.get("TO_HIT") == exp_hit, \
+                "incorrect base accuracy: expected " + str(exp_hit)
+            assert action.get("HIT_POINTS") == exp_dmg, \
+                "incorrect base damage: expected " + str(exp_dmg)
+
+    print()
+
+
+# pylint: disable=superfluous-parens;   for consistency I always use print()
+def subtype_attacks():
+    """
+    GameAction test cases:
+      TO_HIT and DAMAGE computations for sub-type attacks
+    """
+
+    # create a victim and context
+    victim = TestRecipient("victim")
+    context = Base("unit-test")
+
+    # create an artifact with actions
+    artifact = Base("test-case")
+
+    # test attacks from a skilled attacker, w/bonus values
+    skilled = Base("skilled attacker")  # attacker w/many skills
+    skilled.set("ACCURACY", 10)
+    skilled.set("DAMAGE", "10")
+    skilled.set("ACCURACY.twenty", 20)
+    skilled.set("DAMAGE.twenty", "20")
+    skilled.set("ACCURACY.thirty", 30)
+    skilled.set("DAMAGE.thirty", "30")
+
+    # pylint: disable=bad-whitespace
+    skilled_attacks = [
+        # verb,       accuracy, damage, exp hit, exp dmg
+        ("ATTACK",        None,    "1",     110,      11),
+        ("ATTACK.ten",      10,   "10",     120,      20),
+        ("ATTACK.twenty",   20,   "20",     140,      40),
+        ("ATTACK.thirty",   30,   "30",     160,      60)]
+
+    for (verb, accuracy, damage, exp_hit, exp_dmg) in skilled_attacks:
+        action = GameAction(artifact, verb)
+        if accuracy is not None:
+            action.set("ACCURACY", accuracy)
+        action.set("DAMAGE", damage)
+        result = action.act(skilled, victim, context)
+
+        # see if the action contained the expected values
+        to_hit = action.get("TO_HIT")
+        hit_points = action.get("HIT_POINTS")
+        if action.verb == verb and to_hit == exp_hit and hit_points == exp_dmg:
+            print(result + " ... CORRECT")
+        else:
+            print(result)
+            assert action.verb == verb, \
+                "incorrect action verb: expected " + verb
+            assert action.get("TO_HIT") == exp_hit, \
+                "incorrect base accuracy: expected " + str(exp_hit)
+            assert action.get("HIT_POINTS") == exp_dmg, \
+                "incorrect base damage: expected " + str(exp_dmg)
+
+    print("All GameAction test cases passed")
+
+
+if __name__ == "__main__":
+    base_attacks()
+    subtype_attacks()

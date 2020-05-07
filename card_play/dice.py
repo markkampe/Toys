@@ -183,7 +183,7 @@ def main():
                   format(formula, sys.exc_info()[1]))
             tests_passed += 1
 
-    print("{}/{} tests passed\n".format(tests_passed, tests_run))
+    print("{}/{} Dice test casees passed\n".format(tests_passed, tests_run))
 
 
 if __name__ == "__main__":

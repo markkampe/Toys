@@ -34,7 +34,7 @@ class GameObject(Base):
         @return: list of possible GameActions
         """
         actions = []
-        value = self.get("actions")
+        value = self.get("ACTIONS")
         if value is not None:
             for action in value.split(','):
                 actions.append(GameAction(self, action))
@@ -57,7 +57,7 @@ def main():
 
     # added actions are returned
     test_actions = "ACTION,SECOND ACTION"
-    go1.set("actions", test_actions)
+    go1.set("ACTIONS", test_actions)
     print("Set actions='{}', possible_actions returns:".format(test_actions))
     actions = go1.possible_actions(None, None)
     for action in actions:
@@ -69,7 +69,7 @@ def main():
     assert (actions[1].verb == "SECOND ACTION"), \
         "second action not correctly returned"
 
-    print("\nAll test cases passed")
+    print("All GameObject test cases passed")
 
 
 if __name__ == "__main__":
