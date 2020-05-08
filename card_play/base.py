@@ -1,4 +1,4 @@
-""" This module implements the base class that has only attributes """
+""" This module implements the base class for almost everything"""
 
 
 class Base(object):

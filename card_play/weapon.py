@@ -6,17 +6,25 @@ from gameobject import GameObject
 class Weapon(GameObject):
     """
     This is the base class for simple weapons
-    with a single attack, bonus and damage
+
+    In addition to (the standard) ACTIONS, a weapon is
+    is expected to have a few other standard properties:
+          DAMAGE      ... a base (Dice) damage expression
+          ACCURACY    ... a base (percentage) accuracy
+          DAMAGE.xxx  ... a (Dice) damage expression for ATTACK.xxx
+          ACCURACY.xxx ...a (percentage) accuracy for ATTACK.xxx
     """
     def __init__(self, name, descr=None, damage=None):
         """
         create a new GameObject
         @param name: display name of this object
         @param descr: human description of this object
+        @param damage: damage formula for simple ATTACK
         """
         if descr is None:
             descr = "simple weapon"
         super(Weapon, self).__init__(name, descr)
+
         if damage is not None:
             self.set("ACTIONS", "ATTACK")
             self.set("DAMAGE", damage)
@@ -50,12 +58,6 @@ class Weapon(GameObject):
         # get a list of possible actions with this weapon
         actions = super(Weapon, self).possible_actions(actor, context)
 
-        # A Weapon is expected to have a few standard properties:
-        #   DAMAGE      ... a base (Dice) damage expression
-        #   ACCURACY    ... a base (percentage) accuracy
-        #   DAMAGE.xxx  ... a (Dice) damage expression for ATTACK.xxx
-        #   ACCURACY.xxx ...a (percentage) accuracy for ATTACK.xxx
-        #
         base_damage = self.get("DAMAGE")
         base_accuracy = self.get("ACCURACY")
 
@@ -145,7 +147,7 @@ def main():
     assert len(actions) == 3, \
         "incorrect actions list, expected 3, got " + str(actions)
 
-    # pylint: disable=consider-using-enumerate; pylint misses parallel lists
+    # pylint: disable=consider-using-enumerate; two parallel lists
     for index in range(len(actions)):
         (verb, accuracy, damage) = attacks[index]
         action = actions[index]
