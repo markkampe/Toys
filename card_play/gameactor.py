@@ -11,32 +11,8 @@ class GameActor(GameObject):
     context and is capable of initiating and receiving actions.
     """
 
-    # if an action/condition pair is on the list and
-    # a target fails his save, the named condition
-    # will be instantiated in the target GameActor.
-    # (tho giving that condition effect may still require
-    # additional code somewhere else)
-    fail_conditions = {
-        "PUSH": "off-balance",
-        "CHEAT": "fooled",
-        "PURSUADE": "convinced",
-        "FLATTER": "sympathetic",
-        "BEG": "sympathetic",
-        "OUTRANK": "respectful",
-        "INTIMIDATE": "obedient",
-        "THREATEN": "firghtened"
-        }
-
-    make_conditions = {
-        "PUSH": "on-guard",
-        "CHEAT": "suspicious",
-        "PURSUADE": "skeptical",
-        "FLATTER": "unsympathetic",
-        "BEG": "unsympathetic",
-        "OUTRANK": "hostile",
-        "INTIMIDATE": "hostile",
-        "THREATEN": "hostile"
-        }
+    # base verbs for condition delivery
+    conditions = ["MENTAL", "PHYSICAL"]
 
     def __init__(self, name, descr=None):
         """
@@ -118,6 +94,65 @@ class GameActor(GameObject):
             self.incapacitated = True
         return result
 
+    def accept_condition(self, action, actor, context):
+        """
+        receive and process the effects of a condition delivery
+
+        @param action: GameAction being performed
+        @param actor: GameActor initiating the action
+        @param context: GameContext in which action is being taken
+        @return:  (string) description of the effect
+        """
+        # get the base verb and sub-type
+        if '.' in action.verb:
+            parts = action.verb.split('.')
+            base_verb = parts[0]
+            sub_type = parts[1]
+        else:
+            base_verb = action.verb
+            sub_type = None
+
+        # check our base resistance
+        res = self.get("RESISTANCE")
+        resistance = 0 if res is None else int(res)
+
+        # see if we have a base-type resistance
+        res = self.get("RESISTANCE." + base_verb)
+        if res is not None:
+            resistance += int(res)
+
+        # see if we have a sube-type resistance
+        if sub_type is not None:
+            res = self.get("RESISTANCE." + base_verb + "." + sub_type)
+            if res is not None:
+                resistance += int(res)
+
+        # see if we can resist it entirely
+        power = int(action.get("POWER")) - resistance
+        if power < 0:
+            return "{} resists {} {}" \
+                   .format(self.name, action.source.name, action.verb)
+
+        # see how many stacks we can resist
+        received = 0
+        incoming = int(action.get("STACKS"))
+        for _ in range(incoming):
+            roll = randint(1, 100)
+            if roll <= power:
+                received += 1
+
+        # deliver the updated condition
+        if received > 0:
+            have = self.get(action.verb)
+            if have is None:
+                self.set(action.verb, received)
+            else:
+                self.set(action.verb, received + int(have))
+
+        return "{} resists {}/{} stacks of {} from {} in {}" \
+               .format(self.name, incoming - received, incoming,
+                       action.verb, actor, context)
+
     def accept_action(self, action, actor, context):
         """
         receive and process the effects of an action
@@ -127,65 +162,27 @@ class GameActor(GameObject):
         @param context: GameContext in which action is being taken
         @return:  (string) description of the effect
         """
-        # figure out the action verb and sub-type
-        if '.' in action.verb:
-            parts = action.verb.split('.')
-            base_verb = parts[0]
-            sub_type = parts[1]
-        else:
-            base_verb = action.verb
-            sub_type = None
+        # get the base action verb
+        base_verb = action.verb.split('.')[0] \
+            if '.' in action.verb else action.verb
 
-        # TODO: non-attacks have RESISTANCE (base+subtype)
-        # saves or actions that require saves
-        if base_verb == "SAVE":
-            attribute = sub_type
-        else:
-            attribute = action.get("save")
+        # attacks are based on HIT/EVADE and DAMAGE/PROTECTION
+        if base_verb == "ATTACK":
+            return self.accept_attack(action, actor, context)
 
-        # a save-requiring action will generally have at least
-        # two standard attributes:
-        #    success  ... the to-hit role (including all bonuses)
-        #    save     ... the type of save the target must make
-        if attribute is not None:
-            attack = action.get("success")
-            save = self.get(attribute)
-            if save is None:
-                save = 0
-            saved = attack <= save
-            result = "{} {} his {} save ({} vs {})" \
-                     .format(self.name,
-                             "makes" if saved else "fails",
-                             attribute, save, attack)
+        # condition deliveries are based on POWER/RESISTANCE
+        for verb in self.conditions:
+            if base_verb == verb:
+                return self.accept_condition(action, actor, context)
 
-            # Depending on whether or not the save was made, we
-            # may know what conditions to set to True or False
-            if base_verb in self.make_conditions.keys():
-                condition = self.make_conditions[base_verb]
-                self.set(condition, saved)
-                result += ", he is {} {}" \
-                          .format("now" if saved else "not", condition)
-
-            if base_verb in self.fail_conditions.keys():
-                condition = self.fail_conditions[base_verb]
-                self.set(condition, not saved)
-                result += ", and is {} {}" \
-                          .format("not" if saved else "now", condition)
-        elif base_verb == "ATTACK":
-            result = self.accept_attack(action, actor, context)
-        else:
-            # if we don't recognize this action, pass it up the chain
-            result = super(GameActor, self).accept_action(action,
-                                                          actor, context)
-        return result
+        # see if our super class knows what to do with it
+        return super(GameActor, self).accept_action(action, actor, context)
 
     def set_context(self, context):
         """
         establish the local context
         """
         self.context = context
-
-    # TODO: actors now have skill based actions against NPCs
 
     def take_action(self, action, target):
         """
@@ -356,4 +353,5 @@ if __name__ == "__main__":
     simple_attack_tests()
     sub_attack_tests()
     random_attack_tests()
+    # TODO add condition tests
     print("All GameActor test cases passed")
