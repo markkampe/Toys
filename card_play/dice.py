@@ -25,8 +25,11 @@ class Dice(object):
         self.max_value = None
         self.plus = 0
 
-        # make sure it is a string
-        if not isinstance(formula, str):
+        # formula must be a string (or integer)
+        if isinstance(formula, int):
+            self.plus = formula
+            return
+        elif not isinstance(formula, str):
             raise ValueError("non-string dice expression")
 
         # figure out what kind of expression this is
@@ -126,8 +129,14 @@ def test(formula, min_expected, max_expected, rolls=20):
         if rolled > max_rolled:
             max_rolled = rolled
 
-    print("    legal formula {} ({}): returns {} values between {} and {}".
-          format(formula, dice.str(), rolls, min_rolled, max_rolled))
+    result = "    legal formula "
+    if isinstance(formula, str):
+        result += '"' + formula + '"'
+    else:
+        result += str(formula)
+    result += " ({}): returns {} values between {} and {}".\
+          format(dice.str(), rolls, min_rolled, max_rolled)
+    print(result)
 
     assert min_rolled >= min_expected, "roll returns below-minimum values"
     assert max_rolled <= max_expected, "roll returns above-maximum values"
@@ -168,10 +177,14 @@ def main():
     if test("47", 47, 47, 10):
         tests_passed += 1
 
+    tests_run += 1
+    if test(47, 47, 47, 10):
+        tests_passed += 1
+
     # test detection of invalid expressions
     for formula in ["2D", "D", "xDy",
                     "4-2", "-", "3-", "x-y",
-                    "7to9", 100]:
+                    "7to9"]:
         tests_run += 1
         try:
             dice = Dice(formula)
