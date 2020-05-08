@@ -59,23 +59,27 @@ class GameAction(Base):
         @param initator: GameActor who is initiating the attack
         @return: (int) probability of hitting
         """
-        # get the basic action accuracy
-        w_accuracy = self.get("ACCURACY")
-        if w_accuracy is None:
+        # get base accuracy from the action
+        acc = self.get("ACCURACY")
+        if acc is None:
             w_accuracy = 0
+        else:
+            w_accuracy = int(acc)
 
-        # get the initiator accuracy for this attack
-        i_accuracy = initiator.get("ACCURACY")
+        # get the initiator base accuracy
+        acc = initiator.get("ACCURACY")
+        if acc is None:
+            i_accuracy = 0
+        else:
+            i_accuracy = int(acc)
+
+        # add any initiator sub-type accuracy
         if 'ATTACK.' in self.verb:
             sub_type = self.verb.split('.')[1]
-
             if sub_type is not None:
-                sub = initiator.get("ACCURACY." + sub_type)
-                if sub is not None:
-                    i_accuracy = sub
-
-        if i_accuracy is None:
-            i_accuracy = 0
+                acc = initiator.get("ACCURACY." + sub_type)
+                if acc is not None:
+                    i_accuracy += int(acc)
 
         return w_accuracy + i_accuracy
 
@@ -87,26 +91,28 @@ class GameAction(Base):
         """
         # get the basic action damage formula and roll it
         dmg = self.get("DAMAGE")
-        if dmg is not None:
+        if dmg is None:
+            w_damage = 0
+        else:
             dice = Dice(dmg)
             w_damage = dice.roll()
-        else:
-            w_damage = 0
 
-        # get the initiator damage formula and roll it
+        # get initiator base damage formula and roll it
         dmg = initiator.get("DAMAGE")
+        if dmg is None:
+            i_damage = 0
+        else:
+            dice = Dice(dmg)
+            i_damage = dice.roll()
+
+        # add any initiator sub-type damage
         if 'ATTACK.' in self.verb:
             sub_type = self.verb.split('.')[1]
             if sub_type is not None:
-                sub = initiator.get("DAMAGE." + sub_type)
-                if sub is not None:
-                    dmg = sub
-
-        if dmg is not None:
-            dice = Dice(dmg)
-            i_damage = dice.roll()
-        else:
-            i_damage = 0
+                dmg = initiator.get("DAMAGE." + sub_type)
+                if dmg is not None:
+                    dice = Dice(dmg)
+                    i_damage += dice.roll()
 
         return w_damage + i_damage
 
@@ -185,7 +191,6 @@ class TestRecipient(Base):
             return "not implemented yet"
 
 
-# pylint: disable=superfluous-parens;   for consistency I always use print()
 def base_attacks():
     """
     GameAction test cases:
@@ -233,7 +238,6 @@ def base_attacks():
     print()
 
 
-# pylint: disable=superfluous-parens;   for consistency I always use print()
 def subtype_attacks():
     """
     GameAction test cases:
@@ -261,8 +265,8 @@ def subtype_attacks():
         # verb,       accuracy, damage, exp hit, exp dmg
         ("ATTACK",        None,    "1",     110,      11),
         ("ATTACK.ten",      10,   "10",     120,      20),
-        ("ATTACK.twenty",   20,   "20",     140,      40),
-        ("ATTACK.thirty",   30,   "30",     160,      60)]
+        ("ATTACK.twenty",   20,   "20",     150,      50),
+        ("ATTACK.thirty",   30,   "30",     170,      70)]
 
     for (verb, accuracy, damage, exp_hit, exp_dmg) in skilled_attacks:
         action = GameAction(artifact, verb)
