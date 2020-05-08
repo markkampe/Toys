@@ -66,31 +66,36 @@ class GameActor(GameObject):
         # protection to see how much damage gets through, and then
         # update its life points.
 
-        # see if we are able to evade the attack
-        to_hit = action.get("TO_HIT")
-        evasion = self.get("EVASION")
-        if "ATTACK." in action.verb:
-            sub_evade = self.get("EVASION." + action.verb.split(".")[1])
-            if sub_evade is not None:
-                evasion = sub_evade
-        if evasion is not None:
-            to_hit -= evasion
+        # get the victim's base evasion
+        evade = self.get("EVASION")
+        evasion = 0 if evade is None else int(evade)
 
-        # we may have to roll to see if we can evade
+        # add in any sub-type evasion
+        if "ATTACK." in action.verb:
+            evade = self.get("EVASION." + action.verb.split(".")[1])
+            if evade is not None:
+                evasion += int(evade)
+
+        # see if TO_HIT can beat the evasion
+        to_hit = action.get("TO_HIT") - evasion
         if to_hit < 100 and randint(1, 100) > to_hit:
             return "{} evades {} {}" \
                    .format(self.name, action.source.name, action.verb)
 
+        # get the victim's base protection
+        prot = self.get("PROTECTION")
+        protection = 0 if prot is None else int(prot)
+
+        # add in any sub-type protection
+        if "ATTACK." in action.verb:
+            prot = self.get("PROTECTION." + action.verb.split(".")[1])
+            if prot is not None:
+                protection += int(prot)
+
         # see how much of the delivered damage we actually take
         delivered = action.get("HIT_POINTS")
-        protection = self.get("PROTECTION")
-        if "ATTACK." in action.verb:
-            sub_prot = self.get("PROTECTION." + action.verb.split(".")[1])
-            if sub_prot is not None:
-                protection = sub_prot
-        reduction = 0 if protection is None else protection
 
-        if reduction >= delivered:
+        if protection >= delivered:
             return "{}'s protection absorbs all damage from {}" \
                    .format(self.name, action.verb)
 
@@ -98,15 +103,15 @@ class GameActor(GameObject):
         old_hp = self.get("LIFE")
         if old_hp is None:
             old_hp = 0
-        new_hp = old_hp - (delivered - reduction)
+        new_hp = old_hp - (delivered - protection)
         self.set("LIFE", new_hp)
 
         result = "{} hit by {} from {} using {} for {}-{} life-points in {}" \
                  .format(self.name, action.verb, actor.name,
                          action.source.name,
-                         delivered, reduction, context.name) \
+                         delivered, protection, context.name) \
                  + "\n    {} life: {} - {} = {}"\
-                 .format(self.name, old_hp, delivered - reduction, new_hp)
+                 .format(self.name, old_hp, delivered - protection, new_hp)
         if new_hp <= 0:
             result += ", and is killed"
             self.alive = False
@@ -196,7 +201,7 @@ class GameActor(GameObject):
         return self.name + " takes no action"
 
 
-def simple_tests():
+def simple_attack_tests():
     """
     Base attacks with assured outcomes
     """
@@ -275,15 +280,15 @@ def sub_attack_tests():
     target = GameActor("target")
     context = GameContext("unit-test")
 
-    # base would succeed, but subtype would fail
+    # evasion succeeds because base and sub-type add
     source = GameObject("evadable")
     action = GameAction(source, "ATTACK.subtype")
     action.set("ACCURACY", 0)
     action.set("DAMAGE", "1")
 
     target.set("LIFE", 10)
-    target.set("EVASION", 0)
-    target.set("EVASION.subtype", 100)
+    target.set("EVASION", 50)
+    target.set("EVASION.subtype", 50)
 
     print("{} tries to {} {} with {}".
           format(attacker, action, target, source))
@@ -293,15 +298,17 @@ def sub_attack_tests():
         format(target, 10, target.get("LIFE"))
     print("    " + result)
 
-    # base has no protection, but subtype does
+    # protection is sum of base and sub-type
     source = GameObject("absorbable")
     action = GameAction(source, "ATTACK.subtype")
     action.set("ACCURACY", 0)
     action.set("DAMAGE", "4")
 
     target.set("LIFE", 10)
+    target.set("EVASION", 0)
     target.set("EVASION.subtype", 0)
-    target.set("PROTECTION.subtype", 2)
+    target.set("PROTECTION", 1)
+    target.set("PROTECTION.subtype", 1)
 
     print("{} tries to {} {} with {}".
           format(attacker, action, target, source))
@@ -313,7 +320,7 @@ def sub_attack_tests():
     print()
 
 
-def random_tests():
+def random_attack_tests():
     """
     attacks that depend on dice-rolls
     """
@@ -343,7 +350,7 @@ def random_tests():
 
 
 if __name__ == "__main__":
-    simple_tests()
+    simple_attack_tests()
     sub_attack_tests()
-    random_tests()
+    random_attack_tests()
     print("All GameActor test cases passed")
