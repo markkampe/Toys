@@ -11,6 +11,7 @@ class GameContext(GameObject):
     """
 
     # skills that might be applicable in any context
+    # TODO search no longer has a mapped save
     skill_map = {
         "SEARCH": "perception"
         }

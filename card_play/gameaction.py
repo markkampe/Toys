@@ -150,6 +150,8 @@ class GameAction(Base):
             return target.accept_action(self, initiator, context)
 
         elif "SAVE" in self.verb or self.get("save") is not None:
+            # TODO: CONDITIONS have POWER (action+initiator, base+subtype)
+            # TODO: CONDITIONS have STACKS (action+initiator, base+subtype)
             # An action that requires a save may have been delivered
             # with some skill.  If the GameAction has the attribute
             # "skill", that number will be added to the D100 success roll.

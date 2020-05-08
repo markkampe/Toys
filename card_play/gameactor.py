@@ -136,6 +136,7 @@ class GameActor(GameObject):
             base_verb = action.verb
             sub_type = None
 
+        # TODO: non-attacks have RESISTANCE (base+subtype)
         # saves or actions that require saves
         if base_verb == "SAVE":
             attribute = sub_type
@@ -183,6 +184,8 @@ class GameActor(GameObject):
         establish the local context
         """
         self.context = context
+
+    # TODO: actors now have skill based actions against NPCs
 
     def take_action(self, action, target):
         """
