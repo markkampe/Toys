@@ -53,37 +53,53 @@ class Weapon(GameObject):
         @param actor: GameActor initiating the action
         @param context: GameContext in which the action is taken
         @return: list of possible GameActions
+
+        PROBLEM:
+            Base and sub-type ACCURACY values add, as they should.
+            This is harder to do with DAMAGE because those are not
+            (easily added) values, but dice formulae.  For now,
+            we simply use the sub-type value if present, else the
+            base value.
         """
 
         # get a list of possible actions with this weapon
         actions = super(Weapon, self).possible_actions(actor, context)
 
+        # get our base accuracy and damage
         base_damage = self.get("DAMAGE")
         base_accuracy = self.get("ACCURACY")
 
+        # add in sub-type damage and accuracy
         for action in actions:
             verb = action.verb
             # attacks require special handling
             if 'ATTACK' not in verb:
                 continue
 
-            # check for additional sub-type specific damage
-            damage = None
-            accuracy = None
+            # see if we hae sub-type accuracy/damage
+            sub_accuracy = None
+            sub_damage = None
             if 'ATTACK.' in verb:
                 sub_type = verb.split('.')[1]
-                damage = self.get("DAMAGE." + sub_type)
-                accuracy = self.get("ACCURACY." + sub_type)
+                sub_accuracy = self.get("ACCURACY." + sub_type)
+                sub_damage = self.get("DAMAGE." + sub_type)
 
-            action.set("DAMAGE",
-                       base_damage if damage is None else damage)
-            action.set("ACCURACY",
-                       base_accuracy if accuracy is None else accuracy)
+            # combine the base and sub-type values
+            accuracy = 0 if base_accuracy is None else int(base_accuracy)
+            accuracy += 0 if sub_accuracy is None else int(sub_accuracy)
+            action.set("ACCURACY", int(accuracy))
+
+            # FIX GameAction.DAMAGE is a formula and cannot be added
+            if sub_damage is not None:
+                action.set("DAMAGE", sub_damage)
+            elif base_damage is not None:
+                action.set("DAMAGE", base_damage)
+            else:
+                action.set("DAMAGE", "0")
 
         return actions
 
 
-# pylint: disable=superfluous-parens; for consistency, I always use print()
 def main():
     """
     test for weapon actions and damage
@@ -99,7 +115,8 @@ def main():
     actions = w_0.possible_actions(None, None)
     assert len(actions) == 0, \
         "incorrect default actions, expected None"
-    print("test #1: " + str(w_0) + " ... CORRECT")
+    print("test #1: " + str(w_0) +
+          " ... NO ATTACKS, ACCURACY or DAMAGE - CORRECT")
 
     # if a weapon is created with damage, it has ATTACK
     w_1 = Weapon("Simple Weapon", damage="666")
@@ -117,19 +134,20 @@ def main():
         "incorrect base damage, expected '666', got " + str(actions[0])
     assert actions[0].get("ACCURACY") == 66, \
         "incorrect base accuracy, expected 66, got " + str(actions[0])
-    print("test #2: " + str(w_1) + " ... CORRECT")
+    print("test #2: " + str(w_1) +
+          " ... BASE ATTACK, ACCURACY and DAMAGE - CORRECT")
 
-    # multi-attack weapons have damage and accuracy for each attack
+    # multi-attack weapons have (addative) damage and accuracy for each attack
     # pylint: disable=bad-whitespace
     w_2 = Weapon("multi-attack weapon")
 
     attacks = [
-        # verb,    accuracy, damage
-        ("ATTACK",       50,     "5"),
-        ("ATTACK.60",    60,     "6"),
-        ("ATTACK.70",    70,     "7")]
+        # verb,    accuracy, damage, exp acc, exp dmg
+        ("ATTACK",       50,   "D5",      50,    "D5"),
+        ("ATTACK.60",    10,   "D6",      60,    "D6"),
+        ("ATTACK.70",    20,   "D7",      70,    "D7")]
     verbs = None
-    for (verb, accuracy, damage) in attacks:
+    for (verb, accuracy, damage, exp_acc, exp_dmg) in attacks:
         if verbs is None:
             verbs = verb
         else:
@@ -149,17 +167,20 @@ def main():
 
     # pylint: disable=consider-using-enumerate; two parallel lists
     for index in range(len(actions)):
-        (verb, accuracy, damage) = attacks[index]
+        (verb, accuracy, damage, exp_acc, exp_dmg) = attacks[index]
         action = actions[index]
         assert action.verb == verb, \
             "action {}, verb={}, expected {}".format(index, action.verb, verb)
-        assert action.get("ACCURACY") == accuracy, \
+        assert action.get("ACCURACY") == exp_acc, \
             "action {}, expected ACCURACY={}, got {}". \
-            format(action.verb, accuracy, action.get("ACCURACY"))
-        assert action.get("DAMAGE") == damage, \
+            format(action.verb, exp_acc, action.get("ACCURACY"))
+        assert action.get("DAMAGE") == exp_dmg, \
             "action {}, expected DAMAGE={}, got {}". \
-            format(action.verb, damage, action.get("DAMAGE"))
-    print("test #3: " + str(w_2) + " ... CORRECT")
+            format(action.verb, exp_dmg, action.get("DAMAGE"))
+        print("test #3: {} {} ... ACCURACY({}) and DAMAGE({}) - CORRECT".
+              format(w_2.name, action.verb,
+                     "base plus sub-type" if "." in verb else "base only",
+                     "sub-type only" if "." in verb else "base only"))
 
     print("All Weapon test cases passed")
 
