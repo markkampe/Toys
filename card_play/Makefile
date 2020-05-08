@@ -34,7 +34,7 @@ doc:
 
 DISABLES= --disable=duplicate-code
 lint:
-	pylint $(DISABLES) $(ALL)
+	pylint3 $(DISABLES) $(ALL)
 	pep8 $(ALL)
 
 clean:

@@ -41,7 +41,6 @@ class GameObject(Base):
         return actions
 
 
-# pylint: disable=superfluous-parens; I prefer to consistently use print()
 def main():
     """
     basic test GameObject test cases

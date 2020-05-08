@@ -196,7 +196,6 @@ class GameActor(GameObject):
         return self.name + " takes no action"
 
 
-# pylint: disable=superfluous-parens; for consistency, I always use print()
 def simple_tests():
     """
     Base attacks with assured outcomes
@@ -268,7 +267,6 @@ def simple_tests():
     print()
 
 
-# pylint: disable=superfluous-parens; for consistency, I always use print()
 def sub_attack_tests():
     """
     Attacks that draw on sub-type EVASION and PROTECTION
@@ -315,7 +313,6 @@ def sub_attack_tests():
     print()
 
 
-# pylint: disable=superfluous-parens; for consistency, I always use print()
 def random_tests():
     """
     attacks that depend on dice-rolls

@@ -47,7 +47,6 @@ class Base(object):
         self.attributes[attribute] = value
 
 
-# pylint: disable=superfluous-parens; I prefer to consistently use print()
 def main():
     """
     basic test cases for name, description, and attributes

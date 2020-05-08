@@ -11,7 +11,6 @@ from weapon import Weapon
 from skills import Skills
 
 
-# pylint: disable=superfluous-parens; I prefer to always use print()
 # pylint: disable=too-many-branches
 # pylint: disable=too-many-statements
 # pylint: disable=too-many-locals
