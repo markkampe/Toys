@@ -1,5 +1,4 @@
 """ This module implements the GameContext class """
-from random import randint
 from gameobject import GameObject
 
 
@@ -37,16 +36,26 @@ class GameContext(GameObject):
             return self.parent.get(attribute)
         return None
 
-    def get_objects(self):
+    def get_objects(self, hidden=False):
         """
+        @param hidden: hidden (rather than obvious) objects
         @return: list of GameOjects in this context
         """
-        visible = []
+        reported = []
         for thing in self.objects:
-            concealed = thing.get("concealment")
-            if concealed is None or concealed == 0:
-                visible.append(thing)
-        return visible
+            atr = thing.get("RESISTANCE.SEARCH")
+            concealed = atr is not None and atr > 0
+            atr = thing.get("SEARCH")
+            found = atr is not None and atr > 0
+
+            if hidden:
+                if concealed and not found:
+                    reported.append(thing)
+            else:
+                if found or not concealed:
+                    reported.append(thing)
+
+        return reported
 
     def add_object(self, item):
         """

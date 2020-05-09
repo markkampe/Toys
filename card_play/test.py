@@ -16,15 +16,14 @@ def objects_in_context(context):
     @param context: to be enumerated
     """
     stuff = context.get_objects()
-    print("\n    objects:")
+    print("\n    recognized objects:")
     for thing in stuff:
-        hidden = thing.get("RESISTANCE.SEARCH")
-        found = thing.get("SEARCH")
-        if hidden is None or hidden == 0:
-            print("\t{} ... {}".format(thing.name, thing.description))
-        elif found is not None and found > 0:
-            print("\t{} ... {} has now been discovered".
-                  format(thing.name, thing.description))
+        print("\t{} ... {}".format(thing.name, thing.description))
+
+    stuff = context.get_objects(hidden=True)
+    print("\n    undiscovered objects:")
+    for thing in stuff:
+        print("\t{} ... {}".format(thing.name, thing.description))
     return
 
 
