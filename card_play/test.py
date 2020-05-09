@@ -8,7 +8,24 @@ from gameactor import GameActor
 from npc_guard import NPC_guard
 from gamecontext import GameContext
 from weapon import Weapon
-from skills import Skills
+
+
+def objects_in_context(context):
+    """
+    print out a list of the (visable and invisable) objects in the context
+    @param context: to be enumerated
+    """
+    stuff = context.get_objects()
+    print("\n    objects:")
+    for thing in stuff:
+        hidden = thing.get("RESISTANCE.SEARCH")
+        found = thing.get("SEARCH")
+        if hidden is None or hidden == 0:
+            print("\t{} ... {}".format(thing.name, thing.description))
+        elif found is not None and found > 0:
+            print("\t{} ... {} has now been discovered".
+                  format(thing.name, thing.description))
+    return
 
 
 # pylint: disable=too-many-branches
@@ -30,17 +47,14 @@ def main():
 
     # create a single PC with some skills and attributes
     actor = GameActor("Hero", "initiator")
-    actor.set("perception", 25)     # attribute for searching
-    actor.set("CHEAT", 25)          # specific skill ability
-    actor.set("PUSH", 40)           # sepeciic skill ability
     actor.set("LIFE", 32)           # initial hit points
     actor.set("EVASION", 20)        # good dodge
-    actor.set("dexterity", 18)
-    actor.set("wisdom", 15)
     actor.set("PROTECTION", 4)      # reasonable armor
     actor.set("ACCURACY", 50)       # good with a sword
+    actor.set("POWER.SEARCH", 25)   # OK searching
     actor.set_context(local)
-    skills = Skills(actor.name)
+
+    skills = GameObject(actor.name)
     skills.set("ACTIONS", "PUSH,CHEAT,UNKNOWN-ACTION")
     local.add_member(actor)
 
@@ -48,8 +62,11 @@ def main():
     bench = GameObject("bench", "obvious object")
     local.add_object(bench)
     trap_door = GameObject("trap-door", "hidden object")
-    trap_door.set("concealment", 50)
+    trap_door.set("RESISTANCE.SEARCH", 75)
     local.add_object(trap_door)
+    coin = GameObject("coin", "non-obvious object")
+    coin.set("RESISTANCE.SEARCH", 1)
+    local.add_object(coin)
     local.set("ACTIONS", "SEARCH")
 
     # SEE WHAT WE CAN LEARN FROM THE LOCAL CONTEXT
@@ -64,33 +81,27 @@ def main():
     for person in npcs:
         print("\t{} ... {}".format(person.name, person.description))
 
-    stuff = local.get_objects()
-    print("\n    objects:")
-    for thing in stuff:
-        print("\t{} ... {}".format(thing.name, thing.description))
+    objects_in_context(local)
     print()
 
-    # DO A SEARCH AND SEE IF WE CAN FIND ANYTHING ELSE
+    # try the context-afforded actins (incl SEARCH)
     actions = local.possible_actions(actor, local)
     for action in actions:
         result = actor.take_action(action, local)
-        print("{} tries to {}(skill={}) {}\n    {}"
+        print("{} tries to {}(power={}) {}\n    {}"
               .format(actor.name,
-                      action.verb, action.get("skill"),
+                      action.verb, actor.get("POWER."+action.verb),
                       local.name, result))
 
     # now see what we can see
-    stuff = local.get_objects()
-    print("\n    objects:")
-    for thing in stuff:
-        print("\t{} ... {}".format(thing.name, thing.description))
+    objects_in_context(local)
     print()
 
     # EXERCISE OUR PERSONAL NON-COMBAT SKILLS
     actions = skills.possible_actions(actor, local)
     for action in actions:
         result = actor.take_action(action, guard)
-        print("{} tries to {}(skill={}) {}\n    {}"
+        print("{} tries to {}(power={}) {}\n    {}"
               .format(actor.name, action.verb,
                       action.get("skill"),
                       guard.name, result))
