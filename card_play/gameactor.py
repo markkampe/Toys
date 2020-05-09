@@ -127,7 +127,7 @@ class GameActor(GameObject):
                 resistance += int(res)
 
         # see if we can resist it entirely
-        power = int(action.get("POWER")) - resistance
+        power = int(action.get("TO_HIT")) - resistance
         if power <= 0:
             return "{} resists {} {}" \
                    .format(self.name, action.source.name, action.verb)
@@ -169,7 +169,7 @@ class GameActor(GameObject):
         if base_verb == "ATTACK":
             return self.accept_attack(action, actor, context)
 
-        # condition deliveries are based on POWER/RESISTANCE
+        # condition deliveries are based on TO_HIT/RESISTANCE
         for verb in self.conditions:
             if base_verb == verb:
                 return self.accept_condition(action, actor, context)
@@ -360,7 +360,7 @@ def simple_condition_tests():
     # impossibly weak condition will not happen
     source = GameObject("weak-condition")
     action = GameAction(source, "MENTAL.CONDITION-1")
-    action.set("POWER", 0)
+    action.set("TO_HIT", 0)
     action.set("STACKS", "10")
     print("{} tries to {} {} with {}".
           format(sender, action, target, source))
@@ -373,7 +373,7 @@ def simple_condition_tests():
     # un-resisted condition will always happen
     source = GameObject("strong-condition")
     action = GameAction(source, "MENTAL.CONDITION-2")
-    action.set("POWER", 100)
+    action.set("TO_HIT", 100)
     action.set("STACKS", "10")
     print("{} tries to {} {} with {}".
           format(sender, action, target, source))
@@ -386,7 +386,7 @@ def simple_condition_tests():
     # fully resisted condition will never happen
     source = GameObject("base-class-resisted-condition")
     action = GameAction(source, "MENTAL.CONDITION-3")
-    action.set("POWER", 100)
+    action.set("TO_HIT", 100)
     action.set("STACKS", "10")
     target.set("RESISTANCE.MENTAL", 100)
     print("{} tries to {} {} with {}".
@@ -411,7 +411,7 @@ def sub_condition_tests():
     # MENTAL + sub-type are sufficient to resist it
     source = GameObject("sub-type-resisted-condition")
     action = GameAction(source, "MENTAL.CONDITION-4")
-    action.set("POWER", 100)
+    action.set("TO_HIT", 100)
     action.set("STACKS", "10")
     target.set("RESISTANCE.MENTAL", 50)
     target.set("RESISTANCE.MENTAL.CONDITION-4", 50)
@@ -436,7 +436,7 @@ def random_condition_tests():
 
     source = GameObject("partially-resisted-condition")
     action = GameAction(source, "MENTAL.CONDITION-5")
-    action.set("POWER", 100)
+    action.set("TO_HIT", 100)
     action.set("STACKS", "10")
     target.set("RESISTANCE.MENTAL", 25)
     target.set("RESISTANCE.MENTAL.CONDITION-5", 25)
@@ -449,7 +449,7 @@ def random_condition_tests():
         print("    " + result)
 
     delivered = rounds * 10
-    expected = delivered / 2    # POWER=100, RESISTANCE=50
+    expected = delivered / 2    # TO_HIT=100, RESISTANCE=50
     received = target.get("MENTAL.CONDITION-5")
     assert received > 0.7 * expected, \
         "{} took {}/{} stacks".format(target, received, delivered)

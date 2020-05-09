@@ -53,8 +53,8 @@ class GameAction(Base):
             return "{} (ACCURACY={}%, DAMAGE={})".\
                 format(self.verb, self.get("ACCURACY"), self.get("DAMAGE"))
         else:
-            return "{} (POWER={}%, STACKS={})".\
-                format(self.verb, self.get("POWER"), self.get("STACKS"))
+            return "{} (TO_HIT={}%, STACKS={})".\
+                format(self.verb, self.get("TO_HIT"), self.get("STACKS"))
 
     def accuracy(self, initiator):
         """
