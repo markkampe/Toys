@@ -1,5 +1,4 @@
 """ This module implements the GameAction class """
-from random import randint
 from dice import Dice
 from base import Base
 
@@ -13,23 +12,6 @@ class GameAction(Base):
     The most interetsting method is act(initiator, target, context)
     which informs the target to process the effects of the action.
     """
-
-    # Lists of actions with known saves and conditions they cause
-    #    if an action/attribute pair is on the first list, the save
-    #    will be recorded in the GameAction so that the recipient
-    #    automatically knows what save he needs to try to make
-    #    against it.
-    saves = {
-        "PUSH": "dexterity",
-        "CHEAT": "wisdom",
-        "PURSUADE": "wisdom",
-        "FLATTER": "wisdom",        # needs work
-        "BEG": "wisdom",            # needs work
-        "OUTRANK": "wisdom",        # needs work
-        "INTIMIDATE": "strength",   # needs work
-        "THREATEN": "strength"      # needs work
-        }
-
     def __init__(self, source, verb):
         """
         create a new GameAction
@@ -41,10 +23,6 @@ class GameAction(Base):
         self.verb = verb
         self.attributes = {}
 
-        # if this action has a known save, record it for use by the target
-        if verb in self.saves.keys():
-            self.set("save", self.saves[verb])
-
     def __str__(self):
         """
         return a string representation of this action
@@ -52,9 +30,8 @@ class GameAction(Base):
         if "ATTACK" in self.verb:
             return "{} (ACCURACY={}%, DAMAGE={})".\
                 format(self.verb, self.get("ACCURACY"), self.get("DAMAGE"))
-        else:
-            return "{} (TO_HIT={}%, STACKS={})".\
-                format(self.verb, self.get("TO_HIT"), self.get("STACKS"))
+        return "{} (POWER={}%, STACKS={})".\
+            format(self.verb, self.get("POWER"), self.get("STACKS"))
 
     def accuracy(self, initiator):
         """
@@ -119,6 +96,77 @@ class GameAction(Base):
 
         return w_damage + i_damage
 
+    def power(self, initiator):
+        """
+        Compute the power with which this condition is being sent
+        @param initator: GameActor who is sending the condition
+        @return: (int) total probability of hitting
+        """
+        # figure out the condition type and subtype
+        if '.' in self.verb:
+            base_type = self.verb.split('.')[0]
+            sub_type = self.verb.split('.')[1]
+        else:
+            base_type = self.verb
+            sub_type = None
+
+        # get base power from the action
+        pwr = self.get("POWER")
+        if pwr is None:
+            power = 0
+        else:
+            power = int(pwr)
+
+        # add the initiator base power
+        pwr = initiator.get("POWER." + base_type)
+        if pwr is not None:
+            power += int(pwr)
+
+        # add any initiator sub-type accuracy
+        if sub_type is not None:
+            pwr = initiator.get("POWER." + base_type + '.' + sub_type)
+            if pwr is not None:
+                power += int(pwr)
+
+        return power
+
+    def stacks(self, initiator):
+        """
+        Compute the number of stacks to be sent
+        @param initator: GameActor who is sending the condition
+        @return: (int) total number of stacks
+        """
+        # figure out the condition type and subtype
+        if '.' in self.verb:
+            base_type = self.verb.split('.')[0]
+            sub_type = self.verb.split('.')[1]
+        else:
+            base_type = self.verb
+            sub_type = None
+
+        # get base stacks from the action
+        stx = self.get("STACKS")
+        if stx is None:
+            stacks = 0
+        else:
+            dice = Dice(stx)
+            stacks = dice.roll()
+
+        # add the initiator base power
+        stx = initiator.get("STACKS." + base_type)
+        if stx is not None:
+            dice = Dice(stx)
+            stacks += dice.roll()
+
+        # add any initiator sub-type accuracy
+        if sub_type is not None:
+            stx = initiator.get("STACKS." + base_type + '.' + sub_type)
+            if stx is not None:
+                dice = Dice(stx)
+                stacks += dice.roll()
+
+        return stacks
+
     def act(self, initiator, target, context):
         """
         Initiate an action against a target
@@ -133,45 +181,33 @@ class GameAction(Base):
         processing (before calling the target) requires
         the implementation of a sub-class.
         """
-
-        # ATTACK actions are likely to have the following properties:
-        #    ACCURACY    ... a number to be added to a D100 success role
-        #    DAMAGE      ... a (Dice) damage description
-        #
-        # the initiator may have his/hir own ACCURACY/DAMAGE adjustments
-        #
-        # by the time they are passed to the target, they will have:
-        #    TO_HIT      ... the to-hit role (including all bonuses)
-        #    HIT_POINTS  ... a number of hit points
-        #
         if "ATTACK" in self.verb:
+            # ATTACK actions are likely to have the following properties:
+            #    ACCURACY    ... a number to be added to a D100 success role
+            #    DAMAGE      ... a (Dice) damage description
+            #
+            # the initiator may have his/hir own ACCURACY/DAMAGE adjustments
+            #
+            # by the time they are passed to the target, they will have:
+            #    TO_HIT      ... the to-hit role (including all bonuses)
+            #    HIT_POINTS  ... a number of hit points
 
             self.set("TO_HIT", 100 + self.accuracy(initiator))
             self.set("HIT_POINTS", self.damage(initiator))
-
-            # deliver it to the target
-            return target.accept_action(self, initiator, context)
-
-        elif "SAVE" in self.verb or self.get("save") is not None:
-            # TODO: CONDITIONS have POWER (action+initiator, base+subtype)
-            # TODO: CONDITIONS have STACKS (action+initiator, base+subtype)
-            # An action that requires a save may have been delivered
-            # with some skill.  If the GameAction has the attribute
-            # "skill", that number will be added to the D100 success roll.
+        else:
+            # CONDITION actions are likely to have the following properties:
+            #   POWER   ... a number to be added to a D100 success roll
+            #   STACKS  ... a (Dice) description of stacks to send
+            #
+            # the initiator may have his/her own POWER/STACKS adjustments
             #
             # by the time they are passed to the target, they will have:
-            #     success  ... the to-hit role (including all bonuses)
-            #     save     ... the type of save the target must make
-            roll = randint(1, 100)
+            #     TO_HIT  ... the to-hit role (including all bonuses)
+            #     TOTAL   ... the number of stacks are being sent
+            self.set("TO_HIT", 100 + self.power(initiator))
+            self.set("TOTAL", self.stacks(initiator))
 
-            # if a skill is associated with this verb, add it to roll
-            skill = self.get("skill")
-            if skill is not None:
-                roll += skill
-            self.set("success", roll)
-            return target.accept_action(self, initiator, context)
-
-        # catch-all ... just pass it on to the target
+        # and pass it on to the target
         return target.accept_action(self, initiator, context)
 
 
@@ -192,7 +228,10 @@ class TestRecipient(Base):
                    format(self, action.verb,
                           action.get("TO_HIT"), action.get("DAMAGE"),
                           actor, context)
-        return "not implemented yet"
+        return "{} receives {} (TO_HIT={}, STACKS={}) from {} in {}". \
+               format(self, action.verb,
+                      action.get("TO_HIT"), action.get("STACKS"),
+                      actor, context)
 
 
 def base_attacks():
@@ -292,10 +331,111 @@ def subtype_attacks():
                 "incorrect base accuracy: expected " + str(exp_hit)
             assert action.get("HIT_POINTS") == exp_dmg, \
                 "incorrect base damage: expected " + str(exp_dmg)
+    print()
 
-    print("All GameAction test cases passed")
+
+def base_conditions():
+    """
+    GameAction test cases:
+      TO_HIT and STACKS computations for base CONDITIONS
+    """
+
+    # create a victim and context
+    victim = TestRecipient("victim")
+    context = Base("unit-test")
+
+    # create an artifact with actions
+    artifact = Base("test-case")
+
+    # test attacks from an un-skilled attacker (base values)
+    lame = Base("unskilled sender")      # sender w/no skills
+    # pylint: disable=bad-whitespace
+    lame_attacks = [
+        # verb,       power, stacks, exp hit, exp stx
+        ("MENTAL",     None,    "1",     100,       1),
+        ("MENTAL.X",     10,   "10",     110,      10),
+        ("MENTAL.Y",     20,   "20",     120,      20),
+        ("MENTAL.Z",     30,   "30",     130,      30)]
+
+    for (verb, power, stacks, exp_hit, exp_stx) in lame_attacks:
+        action = GameAction(artifact, verb)
+        if power is not None:
+            action.set("POWER", power)
+        action.set("STACKS", stacks)
+        result = action.act(lame, victim, context)
+
+        # see if the action contained the expected values
+        to_hit = action.get("TO_HIT")
+        stacks = action.get("TOTAL")
+        if action.verb == verb and to_hit == exp_hit and stacks == exp_stx:
+            print(result + " ... CORRECT")
+        else:
+            print(result)
+            assert action.verb == verb, \
+                "incorrect action verb: expected " + verb
+            assert action.get("TO_HIT") == exp_hit, \
+                "incorrect base accuracy: expected " + str(exp_hit)
+            assert action.get("TOTAL") == exp_stx, \
+                "incorrect base stacks: expected " + str(exp_stx)
+    print()
+
+
+def subtype_conditions():
+    """
+    GameAction test cases:
+      TO_HIT and TOTAL computations for sub-type attacks
+    """
+
+    # create a victim and context
+    victim = TestRecipient("victim")
+    context = Base("unit-test")
+
+    # create an artifact with actions
+    artifact = Base("test-case")
+
+    # test attacks from a skilled attacker, w/bonus values
+    skilled = Base("skilled sender")  # sender w/many skills
+    skilled.set("POWER.MENTAL", 10)
+    skilled.set("STACKS.MENTAL", "10")
+    skilled.set("POWER.MENTAL.Y", 20)
+    skilled.set("STACKS.MENTAL.Y", "20")
+    skilled.set("POWER.MENTAL.Z", 30)
+    skilled.set("STACKS.MENTAL.Z", "30")
+
+    # pylint: disable=bad-whitespace
+    skilled_attacks = [
+        # verb,       power, stacks, exp hit, exp stx
+        ("MENTAL",     None,    "1",     110,      11),
+        ("MENTAL.X",     10,   "10",     120,      20),
+        ("MENTAL.Y",     20,   "20",     150,      50),
+        ("MENTAL.Z",     30,   "30",     170,      70)]
+
+    for (verb, power, stacks, exp_hit, exp_stx) in skilled_attacks:
+        action = GameAction(artifact, verb)
+        if power is not None:
+            action.set("POWER", power)
+        action.set("STACKS", stacks)
+        result = action.act(skilled, victim, context)
+
+        # see if the action contained the expected values
+        to_hit = action.get("TO_HIT")
+        stacks = action.get("TOTAL")
+        if action.verb == verb and to_hit == exp_hit and stacks == exp_stx:
+            print(result + " ... CORRECT")
+        else:
+            print(result)
+            assert action.verb == verb, \
+                "incorrect action verb: expected " + verb
+            assert action.get("TO_HIT") == exp_hit, \
+                "incorrect base accuracy: expected " + str(exp_hit)
+            assert action.get("TOTAL") == exp_stx, \
+                "incorrect base stacks: expected " + str(exp_stx)
+    print()
 
 
 if __name__ == "__main__":
     base_attacks()
     subtype_attacks()
+    base_conditions()
+    subtype_conditions()
+    print("All GameAction test cases passed")
