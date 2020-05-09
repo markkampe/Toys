@@ -71,7 +71,12 @@ class Base(object):
                     value = int(fields[1])
                     self.set(name, value)
                 except ValueError:
-                    self.set(name, fields[1])
+                    if fields[1].startswith('"'):
+                        self.set(name, fields[1].strip('"'))
+                    elif fields[1].startswith("'"):
+                        self.set(name, fields[1].strip("'"))
+                    else:
+                        self.set(name, fields[1])
 
             infile.close()
         except IOError:

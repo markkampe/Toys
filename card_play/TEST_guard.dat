@@ -1,3 +1,5 @@
+# TEST guard attributes
+
 # interaction attributes
 RESISTANCE.VERBAL		50	he is used to dealing w/hucksters
 RESISTANCE.VERBAL.FLATTER	-10	but he does like to be treated well

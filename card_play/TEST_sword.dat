@@ -5,4 +5,4 @@ ACTIONS			ATTACK.slash,ATTACK.chop,ATTACK.pierce
 
 DAMAGE.slash		D6+2
 DAMAGE.chop		D4+2
-DAMAGE.pierce		4
+DAMAGE.pierce		'4'
