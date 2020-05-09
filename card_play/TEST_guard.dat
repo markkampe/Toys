@@ -1,0 +1,12 @@
+# interaction attributes
+RESISTANCE.VERBAL		50	he is used to dealing w/hucksters
+RESISTANCE.VERBAL.FLATTER	-10	but he does like to be treated well
+RESISTANCE.VERBAL.OUTRANK	100	he is the authority around here
+RESISTANCE.VERBAL.INTIMMIDATE	100	he is the authority around here
+
+# combat attributes
+RESISTANCE.PHYSICAL		75	he's tough
+PROTECTION			4	chain mail
+
+# other attributes
+reinforcements			50	if things go bad, he will call for help

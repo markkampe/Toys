@@ -1,0 +1,15 @@
+# basic attributes for test hero
+LIFE			32
+EVASION			20
+POWER.PHYSICAL		25
+
+# skill attributes
+ACTIONS			PHYSICAL.PUSH,PHYSICAL.TRIP
+POWER.SEARCH		25
+POWER.VERBAL.CHEAT	50
+STACKS.VERBAL.BEG	5
+
+# combat attributes
+PROTECTION		4
+ACCURACY		50
+DAMAGE			D4

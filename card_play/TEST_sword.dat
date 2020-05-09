@@ -1,0 +1,8 @@
+# attributes for the hero's sword
+ACCURACY		10	a very well made sword
+
+ACTIONS			ATTACK.slash,ATTACK.chop,ATTACK.pierce
+
+DAMAGE.slash		D6+2
+DAMAGE.chop		D4+2
+DAMAGE.pierce		4

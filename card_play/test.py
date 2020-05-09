@@ -47,20 +47,12 @@ def main():
 
     # create a single NPC with some attributes and armor
     guard = NPC_guard("Guard #1", "test target")
-    guard.set("PROTECTION.pierce", 4)   # chainmail
-    guard.set("reinforcements", 50)     # help is available
+    guard.load("TEST_guard.dat")
     local.add_npc(guard)
 
     # create a single PC with some skills and attributes
     actor = GameActor("Hero", "initiator")
-    actor.set("LIFE", 32)           # initial hit points
-    actor.set("EVASION", 20)        # good dodge
-    actor.set("PROTECTION", 4)      # reasonable armor
-    actor.set("ACCURACY", 50)       # good with a sword
-    actor.set("DAMAGE", "D4")       # with some extra damage
-    actor.set("POWER.SEARCH", 25)   # OK searching
-    actor.set("POWER.PHYSICAL", 25)     # moderately strong & skilled
-    actor.set("ACTIONS", "PHYSICAL.PUSH,PHYSICAL.TRIP")
+    actor.load("TEST_hero.dat")
     actor.set_context(local)
 
     # create obvious and hidden objects in the local context
@@ -103,12 +95,6 @@ def main():
     print()
 
     # attempt some interactions with the guard
-    actor.set("POWER.VERBAL.CHEAT", 50)
-    actor.set("STACKS.VERBAL.BEG", 5)
-    guard.set("RESISTANCE.VERBAL", 50)
-    guard.set("RESISTANCE.VERBAL.FLATTER", -10)
-    guard.set("RESISTANCE.VERBAL.OUTRANK", 100)
-    guard.set("RESISTANCE.VERBAL.INTIMMIDATE", 100)
     interactions = guard.interact(actor)
     actions = interactions.possible_actions(actor, local)
     for interaction in actions:
@@ -119,7 +105,6 @@ def main():
         print("    {}.{} = {}".format(guard.name, verb, guard.get(verb)))
 
     # TRY PHYSICAL ACTIONS on the guard
-    guard.set("RESISTANCE.PHYSICAL", 75)    # he's tough
     actions = actor.possible_actions(actor, local)
     for action in actions:
         (_, desc) = actor.take_action(action, guard)
@@ -130,17 +115,13 @@ def main():
     print()
 
     # CREATE A WEAPON AND USE IT TO ATTACK THE GUARD
+    weapon = Weapon("sword", damage="D6")
+    weapon.load("TEST_sword.dat")
+
+    # play out the battle until hero or all guards are dead
     if args.no_combat:
         return
 
-    weapon = Weapon("sword", damage="D6")
-    weapon.set("ACTIONS", "ATTACK.slash,ATTACK.chop,ATTACK.pierce")
-    weapon.set("DAMAGE.slash", "D6+2")
-    weapon.set("DAMAGE.chop", "D4+2")
-    weapon.set("DAMAGE.pierce", "4")
-    weapon.set("ACCURACY", 10)      # a good sword
-
-    # play out the battle until hero or all guards are dead
     target = npcs[0]
     actions = weapon.possible_actions(actor, local)
     while target is not None and actor.get("LIFE") > 0:
