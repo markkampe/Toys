@@ -44,8 +44,8 @@ class GameObject(Base):
         # see if we can resist it entirely
         power = int(action.get("TO_HIT")) - resistance
         if power <= 0:
-            return "{} resists {} {}" \
-                   .format(self.name, action.source.name, action.verb)
+            return (False, "{} resists {} {}"
+                    .format(self.name, action.source.name, action.verb))
 
         # see how many stacks we can resist
         received = 0
@@ -63,9 +63,10 @@ class GameObject(Base):
             else:
                 self.set(action.verb, received + int(have))
 
-        return "{} resists {}/{} stacks of {} from {} in {}" \
-               .format(self.name, incoming - received, incoming,
-                       action.verb, actor, context)
+        return (received > 0,
+                "{} resists {}/{} stacks of {} from {} in {}"
+                .format(self.name, incoming - received, incoming,
+                        action.verb, actor, context))
 
     # pylint: disable=unused-argument; sub-classes are likely to use them
     def possible_actions(self, actor, context):

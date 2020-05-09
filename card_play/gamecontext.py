@@ -88,18 +88,24 @@ class GameContext(GameObject):
 
         # A locale can be searched, turning up concealed things.
         if action.verb == "SEARCH":
+            found_stuff = False
             result = ""
             for thing in self.objects:
                 concealment = thing.get("RESISTANCE.SEARCH")
                 if concealment is not None and concealment > 0:
-                    if result != "":
-                        result += "\n    "
-                    result += thing.accept_action(action, actor, context)
-        else:
-            # if we don't recognize this action, pass it up the chain
-            result = super(GameContext, self).accept_action(action,
-                                                            actor, context)
-        return result
+                    (success, descr) = thing.accept_action(action, actor,
+                                                           context)
+                    if success:
+                        found_stuff = True
+                    if result == "":
+                        result = descr
+                    else:
+                        result += "\n    " + descr
+            return(found_stuff, result)
+
+        # if we don't recognize this action, pass it up the chain
+        return super(GameContext, self).accept_action(action,
+                                                      actor, context)
 
     def get_party(self):
         """

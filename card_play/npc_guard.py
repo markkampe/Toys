@@ -56,17 +56,14 @@ class NPC_guard(GameActor):
         self.context = context
 
         # start with standard GameActor responses
-        result = super(NPC_guard, self).accept_action(action, actor, context)
+        (hit, desc) = super(NPC_guard, self).accept_action(action,
+                                                           actor, context)
 
         # figure out the action verb and sub-type
-        # pylint: disable=unused-variable; I expect sub_type to be used later
         if '.' in action.verb:
-            parts = action.verb.split('.')
-            base_verb = parts[0]
-            sub_type = parts[1]
+            base_verb = action.verb.split('.')[0]
         else:
             base_verb = action.verb
-            sub_type = None
 
         # if I have been attacked, and am not dead
         if base_verb == "ATTACK" and \
@@ -76,18 +73,18 @@ class NPC_guard(GameActor):
 
             # see if we can call for help
             if self.get("reinforcements") > 0 and not self.help_arrived:
-                result += "\n    " + self.name + " calls for help"
+                desc += "\n    " + self.name + " calls for help"
                 roll = randint(1, 100)
                 if roll <= self.get("reinforcements"):
                     helper = NPC_guard("Guard #2", "test reinforcement")
                     helper.target = actor
-                    result += ", and " + helper.name + " arrives"
+                    desc += ", and " + helper.name + " arrives"
                     context.add_npc(helper)
                     helper.set_context(context)
                     self.help_arrived = True
 
         # and return our (perhaps updated) result
-        return result
+        return (hit, desc)
 
     def take_turn(self):
         """
@@ -98,11 +95,12 @@ class NPC_guard(GameActor):
             weapon = self.weapon
             actions = weapon.possible_actions(self.target, self.context)
             attack = actions[randint(0, len(actions)-1)]
-            result = self.take_action(actions[0], self.target)
-            return ("\n{} uses {} to {} {}, delivered={}\n    {}"
+            (success, desc) = self.take_action(actions[0], self.target)
+            return (success,
+                    "\n{} uses {} to {} {}, delivered={}\n    {}"
                     .format(self.name, weapon.name, attack.verb,
                             self.target.name, attack.get("HIT_POINTS"),
-                            result))
+                            desc))
         return super(NPC_guard, self).take_turn()
 
     # pylint: disable=unused-argument; I expect actor to be used later

@@ -57,8 +57,9 @@ def main():
     actor.set("EVASION", 20)        # good dodge
     actor.set("PROTECTION", 4)      # reasonable armor
     actor.set("ACCURACY", 50)       # good with a sword
+    actor.set("DAMAGE", "D4")       # with some extra damage
     actor.set("POWER.SEARCH", 25)   # OK searching
-    actor.set("POWER.PHYSICAL", 25) # moderately strong & skilled
+    actor.set("POWER.PHYSICAL", 25)     # moderately strong & skilled
     actor.set("ACTIONS", "PHYSICAL.PUSH,PHYSICAL.TRIP")
     actor.set_context(local)
 
@@ -91,11 +92,11 @@ def main():
     # try the context-afforded actins (incl SEARCH)
     actions = local.possible_actions(actor, local)
     for action in actions:
-        result = actor.take_action(action, local)
+        (_, desc) = actor.take_action(action, local)
         print("{} tries to {}(power={}) {}\n    {}"
               .format(actor.name,
                       action.verb, actor.get("POWER."+action.verb),
-                      local.name, result))
+                      local.name, desc))
 
     # now see what we can see
     objects_in_context(local)
@@ -111,20 +112,20 @@ def main():
     interactions = guard.interact(actor)
     actions = interactions.possible_actions(actor, local)
     for interaction in actions:
-        result = actor.take_action(interaction, guard)
+        (_, desc) = actor.take_action(interaction, guard)
         verb = interaction.verb
         print("\n{} uses {} interaction on {}\n    {}"
-              .format(actor.name, verb, guard.name, result))
+              .format(actor.name, verb, guard.name, desc))
         print("    {}.{} = {}".format(guard.name, verb, guard.get(verb)))
 
     # TRY PHYSICAL ACTIONS on the guard
     guard.set("RESISTANCE.PHYSICAL", 75)    # he's tough
     actions = actor.possible_actions(actor, local)
     for action in actions:
-        result = actor.take_action(action, guard)
+        (_, desc) = actor.take_action(action, guard)
         verb = action.verb
         print("\n{} tries to {} {}\n    {}"
-              .format(actor.name, verb, guard.name, result))
+              .format(actor.name, verb, guard.name, desc))
         print("    {}.{} = {}".format(guard.name, verb, guard.get(verb)))
     print()
 
@@ -145,17 +146,18 @@ def main():
     while target is not None and actor.get("LIFE") > 0:
         # choose a random attack
         attack = actions[randint(0, len(actions)-1)]
-        result = actor.take_action(attack, target)
+        (_, desc) = actor.take_action(attack, target)
         print("\n{} uses {} to {} {}, delivered={}\n    {}"
               .format(actor.name, weapon.name, attack.verb, target.name,
-                      attack.get("HIT_POINTS"), result))
+                      attack.get("HIT_POINTS"), desc))
 
         # give each NPC an action and choose a target for nextg round
         target = None
         npcs = local.get_npcs()
         for npc in npcs:
             if not npc.incapacitated:
-                print(npc.take_turn())
+                (_, desc) = npc.take_turn()
+                print(desc)
                 if target is None:
                     target = npc
 
