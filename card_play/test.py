@@ -2,6 +2,7 @@
 Test cases and sample code to show how the basic methods
 of the key classes can be used.
 """
+import argparse
 from random import randint
 from gameobject import GameObject
 from gameactor import GameActor
@@ -34,6 +35,12 @@ def main():
     """
     test cases and sample code
     """
+    # figure out what we have been asked to do
+    parser = argparse.ArgumentParser(description='general test cases')
+    parser.add_argument("--nocombat",
+                        dest="no_combat", action="store_true", default=False)
+    args = parser.parse_args()
+
     # create a context
     village = GameContext("Snaefelness", "village on north side of island")
     local = GameContext("town square", "center of village", village)
@@ -51,11 +58,9 @@ def main():
     actor.set("PROTECTION", 4)      # reasonable armor
     actor.set("ACCURACY", 50)       # good with a sword
     actor.set("POWER.SEARCH", 25)   # OK searching
+    actor.set("POWER.PHYSICAL", 25) # moderately strong & skilled
+    actor.set("ACTIONS", "PHYSICAL.PUSH,PHYSICAL.TRIP")
     actor.set_context(local)
-
-    skills = GameObject(actor.name)
-    skills.set("ACTIONS", "PUSH,CHEAT,UNKNOWN-ACTION")
-    local.add_member(actor)
 
     # create obvious and hidden objects in the local context
     bench = GameObject("bench", "obvious object")
@@ -96,24 +101,37 @@ def main():
     objects_in_context(local)
     print()
 
-    # EXERCISE OUR PERSONAL NON-COMBAT SKILLS
-    actions = skills.possible_actions(actor, local)
-    for action in actions:
-        result = actor.take_action(action, guard)
-        print("{} tries to {}(power={}) {}\n    {}"
-              .format(actor.name, action.verb,
-                      action.get("skill"),
-                      guard.name, result))
-
     # attempt some interactions with the guard
+    actor.set("POWER.VERBAL.CHEAT", 50)
+    actor.set("STACKS.VERBAL.BEG", 5)
+    guard.set("RESISTANCE.VERBAL", 50)
+    guard.set("RESISTANCE.VERBAL.FLATTER", -10)
+    guard.set("RESISTANCE.VERBAL.OUTRANK", 100)
+    guard.set("RESISTANCE.VERBAL.INTIMMIDATE", 100)
     interactions = guard.interact(actor)
     actions = interactions.possible_actions(actor, local)
     for interaction in actions:
         result = actor.take_action(interaction, guard)
+        verb = interaction.verb
         print("\n{} uses {} interaction on {}\n    {}"
-              .format(actor.name, interaction.verb, guard.name, result))
+              .format(actor.name, verb, guard.name, result))
+        print("    {}.{} = {}".format(guard.name, verb, guard.get(verb)))
+
+    # TRY PHYSICAL ACTIONS on the guard
+    guard.set("RESISTANCE.PHYSICAL", 75)    # he's tough
+    actions = actor.possible_actions(actor, local)
+    for action in actions:
+        result = actor.take_action(action, guard)
+        verb = action.verb
+        print("\n{} tries to {} {}\n    {}"
+              .format(actor.name, verb, guard.name, result))
+        print("    {}.{} = {}".format(guard.name, verb, guard.get(verb)))
+    print()
 
     # CREATE A WEAPON AND USE IT TO ATTACK THE GUARD
+    if args.no_combat:
+        return
+
     weapon = Weapon("sword", damage="D6")
     weapon.set("ACTIONS", "ATTACK.slash,ATTACK.chop,ATTACK.pierce")
     weapon.set("DAMAGE.slash", "D6+2")
