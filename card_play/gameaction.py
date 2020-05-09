@@ -23,6 +23,10 @@ class GameAction(Base):
         self.verb = verb
         self.attributes = {}
 
+        # non-attacks automatically have STACKS=1
+        if not "ATTACK" in verb:
+            self.set("STACKS", "1")
+
     def __str__(self):
         """
         return a string representation of this action
