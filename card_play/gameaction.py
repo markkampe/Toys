@@ -49,9 +49,12 @@ class GameAction(Base):
         """
         return a string representation of this action
         """
-        result = "{} (ACCURACY={}%, DAMAGE={})".\
-                 format(self.verb, self.get("ACCURACY"), self.get("DAMAGE"))
-        return result
+        if "ATTACK" in self.verb:
+            return "{} (ACCURACY={}%, DAMAGE={})".\
+                format(self.verb, self.get("ACCURACY"), self.get("DAMAGE"))
+        else:
+            return "{} (POWER={}%, STACKS={})".\
+                format(self.verb, self.get("POWER"), self.get("STACKS"))
 
     def accuracy(self, initiator):
         """

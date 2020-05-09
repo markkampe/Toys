@@ -105,9 +105,8 @@ class GameActor(GameObject):
         """
         # get the base verb and sub-type
         if '.' in action.verb:
-            parts = action.verb.split('.')
-            base_verb = parts[0]
-            sub_type = parts[1]
+            base_verb = action.verb.split('.')[0]
+            sub_type = action.verb.split('.')[1]
         else:
             base_verb = action.verb
             sub_type = None
@@ -129,7 +128,7 @@ class GameActor(GameObject):
 
         # see if we can resist it entirely
         power = int(action.get("POWER")) - resistance
-        if power < 0:
+        if power <= 0:
             return "{} resists {} {}" \
                    .format(self.name, action.source.name, action.verb)
 
@@ -347,11 +346,126 @@ def random_attack_tests():
     assert life < 10, "{} took no damage in {} rounds".format(target, rounds)
     assert life > 10 - rounds, "{} took damage every round".format(target)
     print("{} was hit {} times in {} rounds".format(target, 10 - life, rounds))
+    print()
+
+
+def simple_condition_tests():
+    """
+    conditions that are guaranteed to happen or not
+    """
+    sender = GameActor("sender")
+    target = GameActor("target")
+    context = GameContext("unit-test")
+
+    # impossibly weak condition will not happen
+    source = GameObject("weak-condition")
+    action = GameAction(source, "MENTAL.CONDITION-1")
+    action.set("POWER", 0)
+    action.set("STACKS", "10")
+    print("{} tries to {} {} with {}".
+          format(sender, action, target, source))
+    result = action.act(sender, target, context)
+    assert target.get("MENTAL.CONDITION-1") is None, \
+        "{} RECEIVED CONDITION-1={}". \
+        format(target, target.get("MENTAL.CONDITION-1"))
+    print("    " + result)
+
+    # un-resisted condition will always happen
+    source = GameObject("strong-condition")
+    action = GameAction(source, "MENTAL.CONDITION-2")
+    action.set("POWER", 100)
+    action.set("STACKS", "10")
+    print("{} tries to {} {} with {}".
+          format(sender, action, target, source))
+    result = action.act(sender, target, context)
+    assert target.get("MENTAL.CONDITION-2") == 10, \
+        "{} RECEIVED CONDITION-2={}". \
+        format(target, target.get("MENTAL.CONDITION-2"))
+    print("    " + result)
+
+    # fully resisted condition will never happen
+    source = GameObject("base-class-resisted-condition")
+    action = GameAction(source, "MENTAL.CONDITION-3")
+    action.set("POWER", 100)
+    action.set("STACKS", "10")
+    target.set("RESISTANCE.MENTAL", 100)
+    print("{} tries to {} {} with {}".
+          format(sender, action, target, source))
+    result = action.act(sender, target, context)
+    assert target.get("MENTAL.CONDITION-3") is None, \
+        "{} RECEIVED CONDITION-3={}". \
+        format(target, target.get("MENTAL.CONDITION-3"))
+    print("    " + result)
+
+    print()
+
+
+def sub_condition_tests():
+    """
+    conditions that draw on sub-type RESISTANCE
+    """
+    sender = GameActor("sender")
+    target = GameActor("target")
+    context = GameContext("unit-test")
+
+    # MENTAL + sub-type are sufficient to resist it
+    source = GameObject("sub-type-resisted-condition")
+    action = GameAction(source, "MENTAL.CONDITION-4")
+    action.set("POWER", 100)
+    action.set("STACKS", "10")
+    target.set("RESISTANCE.MENTAL", 50)
+    target.set("RESISTANCE.MENTAL.CONDITION-4", 50)
+    print("{} tries to {} {} with {}".
+          format(sender, action, target, source))
+    result = action.act(sender, target, context)
+    assert target.get("MENTAL.CONDITION-4") is None, \
+        "{} RECEIVED CONDITION-4={}". \
+        format(target, target.get("MENTAL.CONDITION-4"))
+    print("    " + result)
+
+    print()
+
+
+def random_condition_tests():
+    """
+    conditions that depend on dice rolls
+    """
+    sender = GameActor("sender")
+    target = GameActor("target")
+    context = GameContext("unit-test")
+
+    source = GameObject("partially-resisted-condition")
+    action = GameAction(source, "MENTAL.CONDITION-5")
+    action.set("POWER", 100)
+    action.set("STACKS", "10")
+    target.set("RESISTANCE.MENTAL", 25)
+    target.set("RESISTANCE.MENTAL.CONDITION-5", 25)
+
+    rounds = 5
+    for _ in range(rounds):
+        print("{} tries to {} {} with {}".
+              format(sender, action, target, source))
+        result = action.act(sender, target, context)
+        print("    " + result)
+
+    delivered = rounds * 10
+    expected = delivered / 2    # POWER=100, RESISTANCE=50
+    received = target.get("MENTAL.CONDITION-5")
+    assert received > 0.7 * expected, \
+        "{} took {}/{} stacks".format(target, received, delivered)
+    assert received < 1.3 * expected, \
+        "{} took {}/{} stacks". format(target, received, delivered)
+    print("{} took {}/{} stacks (vs {} expected)".
+          format(target, received, delivered, int(expected)))
+
+    print()
 
 
 if __name__ == "__main__":
     simple_attack_tests()
     sub_attack_tests()
     random_attack_tests()
-    # TODO add condition tests
+    simple_condition_tests()
+    sub_condition_tests()
+    random_condition_tests()
     print("All GameActor test cases passed")
