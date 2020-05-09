@@ -1,4 +1,5 @@
 """ This module implements the (foundation) GameObject Class """
+from random import randint
 from base import Base
 from gameaction import GameAction
 
@@ -17,12 +18,54 @@ class GameObject(Base):
         @param context: GameContext in which action is occuring
         @return: (string) description of the effect
         """
-        # all action processing must be implemented in sub-classes
-        return "{} cannot process ".format(self.name) \
-               + "{} event".format(action.verb) \
-               + "\n\tfrom {} ".format(actor.name) \
-               + " using {}".format(action.source.name) \
-               + "\n\tin {} of {}".format(context.name, context.parent.name)
+        # get the base verb and sub-type
+        if '.' in action.verb:
+            base_verb = action.verb.split('.')[0]
+            sub_type = action.verb.split('.')[1]
+        else:
+            base_verb = action.verb
+            sub_type = None
+
+        # check our base resistance
+        res = self.get("RESISTANCE")
+        resistance = 0 if res is None else int(res)
+
+        # see if we have a base-type resistance
+        res = self.get("RESISTANCE." + base_verb)
+        if res is not None:
+            resistance += int(res)
+
+        # see if we have a sube-type resistance
+        if sub_type is not None:
+            res = self.get("RESISTANCE." + base_verb + "." + sub_type)
+            if res is not None:
+                resistance += int(res)
+
+        # see if we can resist it entirely
+        power = int(action.get("TO_HIT")) - resistance
+        if power <= 0:
+            return "{} resists {} {}" \
+                   .format(self.name, action.source.name, action.verb)
+
+        # see how many stacks we can resist
+        received = 0
+        incoming = int(action.get("TOTAL"))
+        for _ in range(incoming):
+            roll = randint(1, 100)
+            if roll <= power:
+                received += 1
+
+        # deliver the updated condition
+        if received > 0:
+            have = self.get(action.verb)
+            if have is None:
+                self.set(action.verb, received)
+            else:
+                self.set(action.verb, received + int(have))
+
+        return "{} resists {}/{} stacks of {} from {} in {}" \
+               .format(self.name, incoming - received, incoming,
+                       action.verb, actor, context)
 
     # pylint: disable=unused-argument; sub-classes are likely to use them
     def possible_actions(self, actor, context):

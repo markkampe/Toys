@@ -11,9 +11,6 @@ class GameActor(GameObject):
     context and is capable of initiating and receiving actions.
     """
 
-    # base verbs for condition delivery
-    conditions = ["MENTAL", "PHYSICAL"]
-
     def __init__(self, name, descr=None):
         """
         create a new GameObject
@@ -94,64 +91,6 @@ class GameActor(GameObject):
             self.incapacitated = True
         return result
 
-    def accept_condition(self, action, actor, context):
-        """
-        receive and process the effects of a condition delivery
-
-        @param action: GameAction being performed
-        @param actor: GameActor initiating the action
-        @param context: GameContext in which action is being taken
-        @return:  (string) description of the effect
-        """
-        # get the base verb and sub-type
-        if '.' in action.verb:
-            base_verb = action.verb.split('.')[0]
-            sub_type = action.verb.split('.')[1]
-        else:
-            base_verb = action.verb
-            sub_type = None
-
-        # check our base resistance
-        res = self.get("RESISTANCE")
-        resistance = 0 if res is None else int(res)
-
-        # see if we have a base-type resistance
-        res = self.get("RESISTANCE." + base_verb)
-        if res is not None:
-            resistance += int(res)
-
-        # see if we have a sube-type resistance
-        if sub_type is not None:
-            res = self.get("RESISTANCE." + base_verb + "." + sub_type)
-            if res is not None:
-                resistance += int(res)
-
-        # see if we can resist it entirely
-        power = int(action.get("TO_HIT")) - resistance
-        if power <= 0:
-            return "{} resists {} {}" \
-                   .format(self.name, action.source.name, action.verb)
-
-        # see how many stacks we can resist
-        received = 0
-        incoming = int(action.get("TOTAL"))
-        for _ in range(incoming):
-            roll = randint(1, 100)
-            if roll <= power:
-                received += 1
-
-        # deliver the updated condition
-        if received > 0:
-            have = self.get(action.verb)
-            if have is None:
-                self.set(action.verb, received)
-            else:
-                self.set(action.verb, received + int(have))
-
-        return "{} resists {}/{} stacks of {} from {} in {}" \
-               .format(self.name, incoming - received, incoming,
-                       action.verb, actor, context)
-
     def accept_action(self, action, actor, context):
         """
         receive and process the effects of an action
@@ -168,11 +107,6 @@ class GameActor(GameObject):
         # attacks are based on HIT/EVADE and DAMAGE/PROTECTION
         if base_verb == "ATTACK":
             return self.accept_attack(action, actor, context)
-
-        # condition deliveries are based on TO_HIT/RESISTANCE
-        for verb in self.conditions:
-            if base_verb == verb:
-                return self.accept_condition(action, actor, context)
 
         # see if our super class knows what to do with it
         return super(GameActor, self).accept_action(action, actor, context)
