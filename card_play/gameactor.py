@@ -134,7 +134,7 @@ class GameActor(GameObject):
 
         # see how many stacks we can resist
         received = 0
-        incoming = int(action.get("STACKS"))
+        incoming = int(action.get("TOTAL"))
         for _ in range(incoming):
             roll = randint(1, 100)
             if roll <= power:
@@ -360,7 +360,7 @@ def simple_condition_tests():
     # impossibly weak condition will not happen
     source = GameObject("weak-condition")
     action = GameAction(source, "MENTAL.CONDITION-1")
-    action.set("TO_HIT", 0)
+    action.set("POWER", -100)
     action.set("STACKS", "10")
     print("{} tries to {} {} with {}".
           format(sender, action, target, source))
@@ -373,7 +373,7 @@ def simple_condition_tests():
     # un-resisted condition will always happen
     source = GameObject("strong-condition")
     action = GameAction(source, "MENTAL.CONDITION-2")
-    action.set("TO_HIT", 100)
+    action.set("POWER", 0)
     action.set("STACKS", "10")
     print("{} tries to {} {} with {}".
           format(sender, action, target, source))
@@ -386,7 +386,7 @@ def simple_condition_tests():
     # fully resisted condition will never happen
     source = GameObject("base-class-resisted-condition")
     action = GameAction(source, "MENTAL.CONDITION-3")
-    action.set("TO_HIT", 100)
+    action.set("POWER", 0)
     action.set("STACKS", "10")
     target.set("RESISTANCE.MENTAL", 100)
     print("{} tries to {} {} with {}".
@@ -411,7 +411,7 @@ def sub_condition_tests():
     # MENTAL + sub-type are sufficient to resist it
     source = GameObject("sub-type-resisted-condition")
     action = GameAction(source, "MENTAL.CONDITION-4")
-    action.set("TO_HIT", 100)
+    action.set("POWER", 0)
     action.set("STACKS", "10")
     target.set("RESISTANCE.MENTAL", 50)
     target.set("RESISTANCE.MENTAL.CONDITION-4", 50)
@@ -436,7 +436,7 @@ def random_condition_tests():
 
     source = GameObject("partially-resisted-condition")
     action = GameAction(source, "MENTAL.CONDITION-5")
-    action.set("TO_HIT", 100)
+    action.set("POWER", 0)
     action.set("STACKS", "10")
     target.set("RESISTANCE.MENTAL", 25)
     target.set("RESISTANCE.MENTAL.CONDITION-5", 25)
