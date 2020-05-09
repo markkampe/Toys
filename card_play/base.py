@@ -23,8 +23,7 @@ class Base(object):
         """
         if self.description is None:
             return self.name
-        else:
-            return "{}({})".format(self.name, self.description)
+        return "{}({})".format(self.name, self.description)
 
     def get(self, attribute):
         """

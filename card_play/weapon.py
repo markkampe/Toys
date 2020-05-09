@@ -113,7 +113,7 @@ def main():
     assert w_0.get("ACCURACY") is None, \
         "Incorrect default accuracy, expected None"
     actions = w_0.possible_actions(None, None)
-    assert len(actions) == 0, \
+    assert not actions, \
         "incorrect default actions, expected None"
     print("test #1: " + str(w_0) +
           " ... NO ATTACKS, ACCURACY or DAMAGE - CORRECT")

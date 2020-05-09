@@ -189,8 +189,7 @@ class TestRecipient(Base):
                    format(self, action.verb,
                           action.get("TO_HIT"), action.get("DAMAGE"),
                           actor, context)
-        else:
-            return "not implemented yet"
+        return "not implemented yet"
 
 
 def base_attacks():
