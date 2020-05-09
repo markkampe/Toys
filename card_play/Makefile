@@ -1,5 +1,5 @@
 BASE_CLASSES = base.py gameobject.py gameactor.py gameaction.py gamecontext.py dice.py
-SUB_CLASSES = interaction.py skills.py weapon.py npc_guard.py
+SUB_CLASSES = interaction.py weapon.py npc_guard.py
 PROGRAMS = test.py
 ALL = $(BASE_CLASSES) $(SUB_CLASSES) $(PROGRAMS)
 
