@@ -135,7 +135,7 @@ def test(formula, min_expected, max_expected, rolls=20):
     else:
         result += str(formula)
     result += " ({}): returns {} values between {} and {}".\
-          format(dice.str(), rolls, min_rolled, max_rolled)
+        format(dice.str(), rolls, min_rolled, max_rolled)
     print(result)
 
     assert min_rolled >= min_expected, "roll returns below-minimum values"
