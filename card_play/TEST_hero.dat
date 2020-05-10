@@ -1,7 +1,10 @@
+NAME        Hero
+DESCRIPTION "test actor"
+
 # basic attributes for test hero
 LIFE			32
 EVASION			20
-POWER.PHYSICAL		25
+POWER.PHYSICAL	25
 
 # skill attributes
 ACTIONS			"PHYSICAL.PUSH,PHYSICAL.TRIP"
@@ -13,3 +16,15 @@ STACKS.VERBAL.BEG	5
 PROTECTION		4
 ACCURACY		50
 DAMAGE			D4
+
+OBJECT	
+	NAME            'long sword'
+	DESCRIPTION	    "Hero's sword"
+	ACCURACY	    10	a very well made sword
+	DAMAGE          D6
+
+	ACTIONS		ATTACK.slash,ATTACK.chop,ATTACK.pierce
+
+	DAMAGE.slash	D6+2
+	DAMAGE.chop	    D4+2
+	DAMAGE.pierce	'4'

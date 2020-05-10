@@ -4,11 +4,9 @@ of the key classes can be used.
 """
 import argparse
 from random import randint
-from gameobject import GameObject
 from gameactor import GameActor
 from npc_guard import NPC_guard
 from gamecontext import GameContext
-from weapon import Weapon
 
 
 def objects_in_context(context):
@@ -43,28 +41,19 @@ def main():
 
     # create a context
     village = GameContext("Snaefelness", "village on north side of island")
-    local = GameContext("town square", "center of village", village)
+    local = GameContext(parent=village)
+    local.load("TEST_context.dat")
 
     # create a single NPC with some attributes and armor
-    guard = NPC_guard("Guard #1", "test target")
+    guard = NPC_guard()
     guard.load("TEST_guard.dat")
     local.add_npc(guard)
 
     # create a single PC with some skills and attributes
-    actor = GameActor("Hero", "initiator")
+    actor = GameActor()
     actor.load("TEST_hero.dat")
     actor.set_context(local)
-
-    # create obvious and hidden objects in the local context
-    bench = GameObject("bench", "obvious object")
-    local.add_object(bench)
-    trap_door = GameObject("trap-door", "hidden object")
-    trap_door.set("RESISTANCE.SEARCH", 75)
-    local.add_object(trap_door)
-    coin = GameObject("coin", "non-obvious object")
-    coin.set("RESISTANCE.SEARCH", 1)
-    local.add_object(coin)
-    local.set("ACTIONS", "SEARCH")
+    local.add_member(actor)
 
     # SEE WHAT WE CAN LEARN FROM THE LOCAL CONTEXT
     print("{} ... {}".format(local.name, local.description))
@@ -114,9 +103,8 @@ def main():
         print("    {}.{} = {}".format(guard.name, verb, guard.get(verb)))
     print()
 
-    # CREATE A WEAPON AND USE IT TO ATTACK THE GUARD
-    weapon = Weapon("sword", damage="D6")
-    weapon.load("TEST_sword.dat")
+    # find the Hero's sword
+    weapon = actor.get_objects()[0]
 
     # play out the battle until hero or all guards are dead
     if args.no_combat:

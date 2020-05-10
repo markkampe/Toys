@@ -1,9 +1,8 @@
 # pylint: disable=invalid-name; "Npc_guard" would be an abomination
 """ This module implements the NPC_guard class """
 from random import randint
+from gameobject import GameObject
 from gameactor import GameActor
-from weapon import Weapon
-from interaction import Interaction
 
 
 class NPC_guard(GameActor):
@@ -11,7 +10,7 @@ class NPC_guard(GameActor):
     A guard is a low-level NPC fighter who will quickly
     engage and can call for reinforcements.
     """
-    def __init__(self, name, descr=None):
+    def __init__(self, name="guard", descr=None):
         """
         create a new GameObject
         @param name: display name of this object
@@ -25,12 +24,10 @@ class NPC_guard(GameActor):
         self.set("ACCURACY", 10)
         self.set("EVASION", 40)
         self.set("EVASION.slash", 20)   # slashes are harder to dodge
-        self.set("dexterity", 15)
-        self.set("wisdom", 10)
         self.set("PROTECTION", 2)       # by default, cheap armor
         self.set("reinforcements", 0)   # by default, alone
 
-        self.weapon = Weapon("sword")
+        self.weapon = GameObject("sword")
         self.weapon.set("ACTIONS", "ATTACK.slash")
         self.weapon.set("DAMAGE.slash", "D6")
 
@@ -102,12 +99,3 @@ class NPC_guard(GameActor):
                             self.target.name, attack.get("HIT_POINTS"),
                             desc))
         return super(NPC_guard, self).take_turn()
-
-    # pylint: disable=unused-argument; I expect actor to be used later
-    def interact(self, actor):
-        """
-        enable interactions with this NPC
-        @param actor: GameActor initiating the interactions
-        @return: Interaction object
-        """
-        return Interaction(self.name, self)

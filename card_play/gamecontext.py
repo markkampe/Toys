@@ -9,7 +9,7 @@ class GameContext(GameObject):
     higherarchical relationships (e.g. kingdom, village, buiding, room).
     """
 
-    def __init__(self, name, descr=None, parent=None):
+    def __init__(self, name="context", descr=None, parent=None):
         """
         create a new GameObject
         @param name: display name of this object
@@ -17,7 +17,6 @@ class GameContext(GameObject):
         """
         super(GameContext, self).__init__(name, descr)
         self.parent = parent
-        self.objects = []
         self.party = []
         self.npcs = []
 
@@ -35,34 +34,6 @@ class GameContext(GameObject):
         elif self.parent is not None:
             return self.parent.get(attribute)
         return None
-
-    def get_objects(self, hidden=False):
-        """
-        @param hidden: hidden (rather than obvious) objects
-        @return: list of GameOjects in this context
-        """
-        reported = []
-        for thing in self.objects:
-            atr = thing.get("RESISTANCE.SEARCH")
-            concealed = atr is not None and atr > 0
-            atr = thing.get("SEARCH")
-            found = atr is not None and atr > 0
-
-            if hidden:
-                if concealed and not found:
-                    reported.append(thing)
-            else:
-                if found or not concealed:
-                    reported.append(thing)
-
-        return reported
-
-    def add_object(self, item):
-        """
-        add another object to this context
-        """
-        if item not in self.objects:
-            self.objects.append(item)
 
     def possible_actions(self, actor, context):
         """

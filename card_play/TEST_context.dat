@@ -1,0 +1,20 @@
+# test locale
+NAME            'town square'
+DESCRIPTION	"center of village"
+
+# we will instantiate objects for which we can search
+ACTIONS		"SEARCH"
+
+OBJECT
+	NAME		"bench"
+	DESCRIPTION	"obvious object"
+
+OBJECT
+	NAME			"trap-door"
+	DESCRIPTION		"hidden object"
+	RESISTANCE.SEARCH	75
+
+OBJECT
+	NAME			"coin"
+	DESCRIPTION		"non-obvious object"
+	RESISTANCE.SEARCH	5

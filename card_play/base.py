@@ -1,5 +1,4 @@
 """ This module implements the base class for almost everything"""
-import sys
 
 
 class Base(object):
@@ -45,43 +44,6 @@ class Base(object):
         @param value: value to be stored for that attribute
         """
         self.attributes[attribute] = value
-
-    def load(self, filename):
-        """
-        read attributes from a file
-        @param filename: name of file to be read
-        """
-        try:
-            infile = open(filename, "r")
-            for line in infile:
-                # skip comments
-                if line.startswith("#"):
-                    continue
-
-                # see if it seems to be an attribute and value
-                fields = line.split()
-                if len(fields) < 2:
-                    continue
-
-                # first field is a name
-                name = fields[0]
-
-                # second is a value, which might be numeric
-                try:
-                    value = int(fields[1])
-                    self.set(name, value)
-                except ValueError:
-                    if fields[1].startswith('"'):
-                        self.set(name, fields[1].strip('"'))
-                    elif fields[1].startswith("'"):
-                        self.set(name, fields[1].strip("'"))
-                    else:
-                        self.set(name, fields[1])
-
-            infile.close()
-        except IOError:
-            sys.stderr.write("Unable to read attributes from {}\n".
-                             format(filename))
 
 
 def main():

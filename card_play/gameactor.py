@@ -11,7 +11,7 @@ class GameActor(GameObject):
     context and is capable of initiating and receiving actions.
     """
 
-    def __init__(self, name, descr=None):
+    def __init__(self, name="actor", descr=None):
         """
         create a new GameObject
         @param name: display name of this object
@@ -110,6 +110,23 @@ class GameActor(GameObject):
 
         # see if our super class knows what to do with it
         return super(GameActor, self).accept_action(action, actor, context)
+
+    # pylint: disable=unused-argument; I expect actor to be used later
+    def interact(self, actor):
+        """
+        enable interactions with this NPC
+        @param actor: GameActor initiating the interactions
+        @return: Interaction object
+        """
+        interactions = GameObject("interactions w/" + self.name)
+        verbs = self.get("INTERACTIONS")
+        actions = ""
+        if verbs is not None:
+            for verb in verbs.split(','):
+                actions += "VERBAL." if actions == "" else ",VERBAL."
+                actions += verb
+        interactions.set("ACTIONS", actions)
+        return interactions
 
     def set_context(self, context):
         """
