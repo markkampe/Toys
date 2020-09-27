@@ -1,0 +1,7 @@
+abc SCORE comment -1 eat my shorts
+def SCORE comment -1 and another complaint
+# SCORE apart 1 fixed
+SCORE names +1 extra point that won't work
+SCORE bool: 3 colon after name
+abc def ghi
+lorum ipsum lorum ipsum
