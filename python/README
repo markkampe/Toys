@@ -1,10 +1,17 @@
 teaching tools:
-	ScoreScrape.py ... (brief) CS51J grading tool
+    ScoreScrape.py ... (brief) CS51J grading tool
 		process comments scraped out of a pdf, looking
 		for SCORE comments, and process those against rubric
 		to see what score updates they describe.
+       test.txt test input file
 
     quizsort.py ... tool to help organize (UCLA) moodle quizzes
 
 Diving tools:
-	LogDump.py ... create one line/dive summary from XML dive log
+    LogDump.py ... create one line/dive summary from XML dive log
+
+Playing around:
+    blurr.py ... test program to understand Gaussian blurring
+    csv_to_vector.py ... turn a csv file into per-column vectors
+    DnD.py ... sample json read/write program
+	Daunsmouri.json ... sample input
