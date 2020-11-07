@@ -1,0 +1,87 @@
+#!/bin/bash
+
+GIT_DIR="/home/git"
+
+untracked=""
+uncommitted=""
+unpulled=""
+
+cd $GIT_DIR
+for file in *
+do
+    if [ -d "$file" -a -d "$file/.git" ]
+    then
+    	echo "... CHECKING $GIT_DIR/$file"
+    	cd $GIT_DIR/$file
+	git status > /tmp/$$.out
+
+	# analyze the results
+	show=0
+	grep "Your branch is up" /tmp/$$.out > /dev/null
+	if [ $? -ne 0 ]
+	then
+		if [ -n "$unpulled" ]
+		then
+		    unpulled="$unpulled, $file"
+		else
+		    unpulled="$file"
+		fi
+		show=1
+	fi
+	grep "Untracked files:" /tmp/$$.out > /dev/null
+	if [ $? -eq 0 ]
+	then
+		if [ -n "$untracked" ]
+		then
+		    untracked="$untracked, $file"
+		else
+		    untracked="$file"
+		fi
+		show=1
+	fi
+	grep "nothing to commit" /tmp/$$.out > /dev/null
+	no_new=$?
+	grep "nothing added to commit" /tmp/$$.out > /dev/null
+	none_waiting=$?
+	if [ $no_new -ne 0 -a $none_waiting -ne 0 ]
+	then
+		if [ -n "$uncommitted" ]
+		then
+		    uncommitted="$uncommitted, $file"
+		else
+		    uncommitted="$file"
+		fi
+		show=1
+	fi
+
+	if [ $show -ne 0 ]
+	then
+		sed 's/^/\t/' < /tmp/$$.out
+		echo
+	fi
+	rm /tmp/$$.out
+
+	cd $GIT_DIR
+    fi
+done
+
+# report the results
+ret=0
+if [ -n "$unpulled" ]
+then
+	echo
+	echo "WARNING - not up to date:" $unpulled	>&2
+	ret=1
+fi
+if [ -n "$uncommitted" ]
+then
+	echo
+	echo "WARNING - uncommitted changes in:" $uncommitted >&2
+	ret=1
+fi
+if [ -n "$untracked" ]
+then
+	echo
+	echo "Note - untracked files found in:" $untracked
+fi
+exit $ret
