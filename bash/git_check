@@ -13,6 +13,7 @@ do
     then
     	echo "... CHECKING $GIT_DIR/$file"
     	cd $GIT_DIR/$file
+	git fetch > /dev/null
 	git status > /tmp/$$.out
 
 	# analyze the results
