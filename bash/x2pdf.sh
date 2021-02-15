@@ -3,9 +3,10 @@
 # Turn an ASCII text exam submission into a pdf for up-load to Gradescope.
 #
 # input file should one question per page, ASCII text exam submission
-#    likely obtained by downloading from Sakai Assignments
+#    likely obtained by going to Sakai Dropbox, going to submission,
+#    and right-clicking Download-Link
 #
-# usage: x2pdf input_file output_basename
+# usage:	x2pdf input_file output_basename
 #	e.g. x2pdf x1.txt markk
 #	create markk.pdf from x1.txt
 #
