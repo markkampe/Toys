@@ -14,7 +14,7 @@
 MY_IP=`dig TXT +short o-o.myaddr.1.google.com @ns1.google.com | tr -d '"'`
 
 # use DNS to look up the (hopefully still valid) address of our other home system.
-if [ `hostname`="hod" ] 
+if [ `hostname` == "hod" ] 
 then
     HIS_IP=`host binah.ddns.net | cut -d" " -f 4`
 else
@@ -40,3 +40,5 @@ cat <<- EOF > hosts.allow
 	# LA, TallPines loop back, local
 EOF
 echo "sshd: $MY_IP, $HIS_IP, $LOCAL, $OUTSIDE" >> hosts.allow
+
+cat hosts.allow
