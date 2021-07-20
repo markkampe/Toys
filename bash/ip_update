@@ -10,15 +10,15 @@
 #     which is not yet listed in hosts.allow or known to ddns.net.
 #
 
-# look up our current external IP address (which may have changed)
-MY_IP=`dig TXT +short o-o.myaddr.1.google.com @ns1.google.com | tr -d '"'`
-
+# ask Google what our current external IP address is
 # use DNS to look up the (hopefully still valid) address of our other home system.
 if [ `hostname`=="hod" ] 
 then
-    HIS_IP=`host binah.ddns.net | cut -d" " -f 4`
+    HOD=`dig TXT +short o-o.myaddr.1.google.com @ns1.google.com | tr -d '"'`
+    BINAH=`host binah.ddns.net | cut -d" " -f 4`
 else
-    HIS_IP=`host sagredo.ddns.net | cut -d" " -f 4`
+    HOD=`host sagredo.ddns.net | cut -d" " -f 4`
+    BINAH=`dig TXT +short o-o.myaddr.1.google.com @ns1.google.com | tr -d '"'`
 fi
 
 # anybody on the local network is allowed to try to log in
@@ -37,8 +37,8 @@ cat <<- EOF > hosts.allow
 	# If you're going to protect the portmapper use the name "rpcbind" for the
 	# daemon name. See rpcbind(8) and rpc.mountd(8) for further information.
 	#
-	# LA, TallPines loop back, local
 EOF
-echo "sshd: $MY_IP, $HIS_IP, $LOCAL, $OUTSIDE" >> hosts.allow
+echo "#     LA, TP, local, HMC"			>> hosts.allow
+echo "sshd: $HOD, $BINAH, $LOCAL, $OUTSIDE"	>> hosts.allow
 
 cat hosts.allow
