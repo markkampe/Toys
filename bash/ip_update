@@ -12,7 +12,8 @@
 
 # ask Google what our current external IP address is
 # use DNS to look up the (hopefully still valid) address of our other home system.
-if [ `hostname`=="hod" ] 
+MYNAME=`hostname`
+if [ "$MYNAME" == "Hod" ] 
 then
     HOD=`dig TXT +short o-o.myaddr.1.google.com @ns1.google.com | tr -d '"'`
     BINAH=`host binah.ddns.net | cut -d" " -f 4`
@@ -38,7 +39,7 @@ cat <<- EOF > hosts.allow
 	# daemon name. See rpcbind(8) and rpc.mountd(8) for further information.
 	#
 EOF
-echo "#     LA, TP, local, HMC"			>> hosts.allow
+echo "# SSH connections from LA, TP, the local network, and one trusted host" >> hosts.allow
 echo "sshd: $HOD, $BINAH, $LOCAL, $OUTSIDE"	>> hosts.allow
 
 cat hosts.allow
