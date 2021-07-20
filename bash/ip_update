@@ -1,0 +1,42 @@
+#!/bin/bash
+# 	
+# re-create a new /etc/hosts.allow
+#
+#   - We use hosts.allow to prevent ssh attempts from unknown addresses.  We only
+#     accept ssh from our two homes or from one trusted external site.
+#   - We have to use real IP addresses, because the DDNS names do not support
+#     reverse lookup.
+#   - After a power failure, our cable modem is likely to be allocated a new IP address,
+#     which is not yet listed in hosts.allow or known to ddns.net.
+#
+
+# look up our current external IP address (which may have changed)
+MY_IP=`dig TXT +short o-o.myaddr.1.google.com @ns1.google.com | tr -d '"'`
+
+# use DNS to look up the (hopefully still valid) address of our other home system.
+if [ `hostname`="hod" ] 
+then
+    HIS_IP=`host binah.ddns.net | cut -d" " -f 4`
+else
+    HIS_IP=`host sagredo.ddns.net | cut -d" " -f 4`
+fi
+
+# anybody on the local network is allowed to try to log in
+LOCAL='192.168.1.*'
+
+# and, in case my address has changed, one other is allowed
+OUTSIDE='knuth.cs.hmc.edu'
+
+cat <<- EOF > hosts.allow
+	# /etc/hosts.allow: list of hosts that are allowed to access the system.
+	#                   See the manual pages hosts_access(5) and hosts_options(5).
+	#
+	# Example:    ALL: LOCAL @some_netgroup
+	#             ALL: .foobar.edu EXCEPT terminalserver.foobar.edu
+	#
+	# If you're going to protect the portmapper use the name "rpcbind" for the
+	# daemon name. See rpcbind(8) and rpc.mountd(8) for further information.
+	#
+	# LA, TallPines loop back, local
+EOF
+echo "sshd: $MY_IP, $HIS_IP, $LOCAL, $OUTSIDE" >> hosts.allow
