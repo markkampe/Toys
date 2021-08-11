@@ -1,0 +1,76 @@
+#!/bin/bash
+#
+# copy new versions of slides into my (current) course website
+#
+
+# assumed base directory for all course web-sites
+BASE="/home/infosys/www/courses"
+
+# courses I teach (only names to consider)
+COURSES="cs181aa cs134"
+
+# make sure some file names were given
+if [ $# -lt 1 ]
+then
+    echo "Usage: $0 file ..." >&2
+    exit -1
+fi
+
+# assume we are dealing with current semester until it ends
+#  (we can't start fall slides in May or spring slides in December)
+MONTH=`date "+%m"`
+if [ $MONTH -lt 6 ]
+then
+    SEMESTER="spring"
+else
+    SEMESTER="fall"
+fi
+YEAR=`date "+%Y"`
+if [ ! -d "$BASE/$YEAR/$SEMESTER" ]
+then
+    echo "Error: $BASE/$YEAR/$SEMESTGER - no such directory" >&2
+    exit -1
+fi
+
+# See which of my courses exist in that semester (w/slides sub-directories)
+SLIDES=""
+for c in $COURSES
+do
+    if [ -d "$BASE/$YEAR/$SEMESTER/$c" ]
+    then
+    	if [ -d "$BASE/$YEAR/$SEMESTER/$c/slides" ]
+	then
+	    if [ -z "$SLIDES" ]
+	    then
+		SLIDES="$BASE/$YEAR/$SEMESTER/$c/slides"
+	    else
+		# I have multiple courses this semester???
+	    	echo "... assuming $SLIDES (vs $c)" >&2
+	    fi
+	fi
+    fi
+done
+
+# make sure we found a course slide directory to copy them in to
+if [ -z "$SLIDES" ]
+then
+    echo "Error: unable to find appt course ($COURSES) directory under $YEAR/$SEMESTER" >&2
+    exit -1
+fi
+
+# move all of the slides files into that directory
+ERROR=0
+while [ -n "$1" ] 
+do
+    if [ -f "$1" ]
+    then
+	echo "... $1 -> $SLIDES"
+    	chmod 644 $1
+	mv $1 $SLIDES
+    else
+    	echo "Error: $1 - no such file" >&2
+    	ERROR=1
+    fi
+    shift
+done
+exit $ERROR
