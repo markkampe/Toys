@@ -1,6 +1,7 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 import xml.etree.ElementTree as ET
+
 
 def toFeet(meters):
     """ utility function to convert meters to feet """
@@ -18,6 +19,21 @@ def toViz(stars):
     return visabilities[stars]
 
 
+class Statics:
+    """
+        We create one LogDump instance per input file, but there are
+        a few parameters that should continue from one file to the
+        next
+    """
+    # formatting parameters that are the same for all instances
+    page_len = 0    # number of lines per page
+    page_pad = 0    # header/footer padding
+
+    # running counts that should carry from one instance to the next
+    buddyDives = 0  # if we are counting buddy's dives rather than mine
+    lineCount = 0   # (total) number of lines output so far
+
+
 class LogDump:
     """
         digest SubSurface logs and output a simple line-per-dive summary
@@ -26,9 +42,6 @@ class LogDump:
         what I wanted to see, and a few aspects of this output are tied
         to the way I encode info in my own log (e.g. how I encode viz)
     """
-
-    buddyDives = 0  # if we are counting buddy's dives rather than mine
-
     # output columns
     FORMAT = "%6s  %8s %5s  %4s  %4s  %4s  %4s  %4s   %s"
     f_title = \
@@ -39,14 +52,10 @@ class LogDump:
          "----", "--------")
 
     # persistent instance state
-    linecount = 0       # lines we have already printed (on this page)
     root = None         # root of the XML tree
 
-    # formatting parameters
-    page_len = 0        # number of lines per page
-    page_pad = 0        # header/footer padding
-
-    def __init__(self, file):
+    def __init__(self, file, statics):
+        self.statics = statics
         tree = ET.parse(file)
         self.root = tree.getroot()
         self.sitemap = {}
@@ -61,7 +70,6 @@ class LogDump:
                         (to enble me to track Lynnette's dives)
 
         """
-
         # see if we have to match a buddy
         if buddy is not None:
             thisBuddy = dive.find('buddy')
@@ -69,29 +77,28 @@ class LogDump:
                 return
 
         # see if we need to output a page footer
-        if self.page_len > 0:
-            last = self.page_len - self.page_pad
-            if self.linecount >= last:
-                while self.linecount < self.page_len:
+        if statics.page_len > 0:
+            last = statics.page_len - statics.page_pad
+            if statics.lineCount >= last:
+                while statics.lineCount < statics.page_len:
                     print
-                    self.linecount += 1
-                self.linecount = 0
+                    statics.lineCount += 1
+                statics.lineCount = 0
 
         # see if we need to output a new header
-        if self.linecount == 0:
-            while self.linecount < self.page_pad:
+        if statics.lineCount == 0:
+            while statics.lineCount < statics.page_pad:
                 print
-                self.linecount += 1
+                statics.lineCount += 1
 
-            print self.FORMAT % self.f_title
-            print self.FORMAT % self.f_lines
-            self.linecount += 2
+            print(self.FORMAT % self.f_title)
+            print(self.FORMAT % self.f_lines)
+            statics.lineCount += 2
 
         # dive number may be mine or buddy's
-        if buddy is not None:
-            global buddyDives
-            buddyDives = buddyDives + 1
-            diveNum = buddyDives
+        if buddy is not None or statics.buddyDives > 0:
+            statics.buddyDives = statics.buddyDives + 1
+            diveNum = statics.buddyDives
         else:
             diveNum = dive.get('number')
         if diveNum is not None:
@@ -166,16 +173,14 @@ class LogDump:
                 temp = "%3dF" % degF
 
         # now print it all out
-        print self.FORMAT % (num, date, time, feet, dur, temp, viz, rate, loc)
-        self.linecount += 1
+        print(self.FORMAT % (num, date, time, feet, dur, temp, viz, rate, loc))
+        statics.lineCount += 1
 
     def dumpLog(self, buddy):
         """
             enumerate and list all the dives in this log
             args buddy name (optional), only list matching dives
         """
-
-
         # build up a divesite map
         sites = self.root.find('divesites')
         for child in sites:
@@ -205,24 +210,43 @@ class LogDump:
         return (numTrips, numDives)
 
 
+#
+# TODO
+#     if I were cooler, when multiple file names were specified, I would
+#     accumulate them and then re-sort (and re-number) based on date and time
+#
 if __name__ == '__main__':
 
     # parse the arguments
     import argparse
     parser = argparse.ArgumentParser(description='Subsurface Log Dump')
-    parser.add_argument("filename", help="log-file-name")
+    parser.add_argument("filename", nargs='+', help="log-file-name")
     parser.add_argument("--page", type=int, default='0', help="lines/page")
     parser.add_argument("--pad", type=int, default='0', help="top/bot margins")
     parser.add_argument("--buddy", type=str, default=None, help="buddy name")
-    parser.add_argument("--dives", type=int, default='0', help="buddy's previous dives")
+    parser.add_argument("--dives", type=int, default='0',
+                        help="buddy's previous dives")
     args = parser.parse_args()
 
-    # instantiate the dumper
-    dumper = LogDump(args.filename)
+    # initialize the format parameters
+    statics = Statics()
     if args.page != 0:
-        dumper.page_len = args.page
-        dumper.page_pad = 1 if args.pad == 0 else args.pad
+        statics.page_len = args.page
+        statics.page_pad = 1 if args.pad == 0 else args.pad
+    if args.dives is not None:
+        statics.buddyDives = args.dives
 
-    # generate the output
-    buddyDives = args.dives
-    (trips, dives) = dumper.dumpLog(args.buddy)
+    # process each log file
+    buddy = args.buddy
+    for name in args.filename:
+        # instantiate the dumper
+        dumper = LogDump(name, statics)
+
+        # generate the output
+        (trips, dives) = dumper.dumpLog(buddy)
+
+        # Kinky - because of the way I use this program, I only want the
+        #         buddy argument to be used for the first file (assumed
+        #         to be mine.  The second file is dives I wasn't on, and
+        #         so the buddy argument would be inappropriate.
+        buddy = None
