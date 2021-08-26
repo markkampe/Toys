@@ -1,0 +1,34 @@
+#!/bin/bash
+#   figure out my window height/width
+# start with column numbers
+ones=""
+tens=""
+base="1234567890"
+
+for i in {0..16}
+do
+    ones="$ones$base"
+    let "t = $i + 1"
+    if [ $i -lt 9 ]
+    then
+	tens="$tens         $t"
+    else
+	tens="$tens        $t"
+    fi
+done
+echo "$tens"
+echo $ones
+echo
+
+# then line numbers
+if [ -n "$1" ]
+then
+    maxlines=$1
+else
+    maxlines=100
+fi
+
+for ((i=1; i <= $maxlines; i++));
+do
+    echo $i
+done
