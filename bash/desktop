@@ -1,0 +1,30 @@
+#!/bin/bash
+#	a single command to start up my standard desktop
+
+# large xterm parameters
+WIDE=140
+LONG=150
+
+
+# Home Screen browser tabs
+TABS="https://calendar.google.com/calendar/u/0/r/month https://mail.google.com/mail/u/0/#inbox https://mail.google.com/mail/u/1/#inbox"
+google-chrome-stable --new-window $TABS
+
+# per every window commands
+#    sadly I have not found a command to move a window to another workspace
+WINDOWS="Project School Work"
+for t in $WINDOWS
+do
+    echo "starting UXterms for $t"
+    uxterm -title $t-rhs&
+    uxterm -geometry "$WIDE"x"$LONG" -title $t-lhs &
+
+    echo "starting Chrome window for $t"
+    google-chrome --new-window -title $t
+done
+
+# single instance/home workspace commands
+for cmd in diary
+do
+    $cmd
+done
