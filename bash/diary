@@ -1,9 +1,13 @@
 #!/bin/bash
 
+HEIGHT=88
+WIDTH=80
+GEOMETRY="-geometry $WIDTH"x"$HEIGHT"
+
 MONTH=`date "+%b%y"`
 PATH="$HOME/Dropbox/Diary"
 EDITOR=/usr/bin/gvim
 
 FILE="$MONTH.txt"
 echo using $FILE in $PATH
-( cd $PATH; $EDITOR $MONTH.txt ) &
+( cd $PATH; $EDITOR $GEOMETRY $MONTH.txt ) &
