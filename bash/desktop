@@ -2,29 +2,43 @@
 #	a single command to start up my standard desktop
 
 # large xterm parameters
-WIDE=140
-LONG=150
-
+WIDE=710
+LONG=1600
+SHORT=1200
 
 # Home Screen browser tabs
+WS=0
+echo ... starting browser in home workspace
 TABS="https://calendar.google.com/calendar/u/0/r/month https://mail.google.com/mail/u/0/#inbox https://mail.google.com/mail/u/1/#inbox"
 google-chrome-stable --new-window $TABS
+
+# single instance/home workspace commands
+echo starting diary
+diary
+sleep 1
+#    move it far to the right
+id=`wmctrl -l | grep Diary | cut -c -10`
+wmctrl -r $id -e 0,3600,0,-1,-1
 
 # per every window commands
 #    sadly I have not found a command to move a window to another workspace
 WINDOWS="Project School Work"
 for t in $WINDOWS
 do
-    echo "starting UXterms for $t"
+    # move us to the appropriate workspace
+    # let "WS = $WS + 1"
+    # wmctrl -s $WS	 ...	I can't get this to work
+
+    echo "... starting UXterms for $WS: $t"
+    uxterm -title $t-lhs&
     uxterm -title $t-rhs&
-    uxterm -geometry "$WIDE"x"$LONG" -title $t-lhs &
 
-    echo "starting Chrome window for $t"
+    echo "... starting Chrome window for $t"
     google-chrome --new-window -title $t
+
+    sleep 1
+    echo "... resizing UXterms for $WS: $t"
+    wmctrl -r $t-lhs -e 0,0,0,$WIDE,$LONG
+    wmctrl -r $t-rhs -e 0,1420,-1,$WIDE,$SHORT
 done
 
-# single instance/home workspace commands
-for cmd in diary
-do
-    $cmd
-done
