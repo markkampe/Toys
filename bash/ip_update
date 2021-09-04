@@ -26,7 +26,7 @@ fi
 LOCAL='192.168.1.*'
 
 # and, in case my address has changed, one other is allowed
-OUTSIDE='knuth.cs.hmc.edu'
+OUTSIDE='knuth.cs.hmc.edu, 134.173.42.235'
 
 cat <<- EOF > hosts.allow
 	# /etc/hosts.allow: list of hosts that are allowed to access the system.
