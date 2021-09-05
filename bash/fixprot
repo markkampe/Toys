@@ -38,7 +38,7 @@ executable () {
 	    fi
 	fi
     else
-	chmod o+rx "$1"
+	chmod go+rx "$1"
 	upd=`stat --format="%a" "$1"`
 	if [ -d "$1" ]
 	then
@@ -61,7 +61,7 @@ readable () {
 	    echo -e "... file\t$1:\tok"
 	fi
     else
-	chmod o+r "$1"
+	chmod go+r "$1"
 	upd=`stat --format="%a" "$1"`
 	echo -e "... file\t$1:\t$modes -> $upd"
         changes=1
