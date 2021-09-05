@@ -1,0 +1,118 @@
+#!/bin/sh
+#
+#   Fix file protections in a (likely newly created) web-site
+#
+#   usage: fixprot directory ...
+#
+changes=0
+
+# see if we are verbose
+if [ -n "$1" -a "$1" == "-v" ]
+then
+    verbose=1
+    shift
+else
+    verbose=0
+fi
+
+# make sure we have arguments
+if [ -z "$1" ]
+then
+    echo "usage: fixprot [-v] directory ..." >& 2
+    exit -1
+fi
+
+# check whether or not a file is readable and executable
+executable () {
+    modes=`stat --format="%a" "$1"`
+    others=${modes:2:1}
+    if [ $others -ge 5 ]
+    then
+	if [ $verbose -gt 0 ]
+	then
+	    if [ -d "$1" ]
+	    then
+		echo -e "... directory\t$1:\tok"
+	    else
+		echo -e "... script\t$1:\tok"
+	    fi
+	fi
+    else
+	chmod o+rx "$1"
+	upd=`stat --format="%a" "$1"`
+	if [ -d "$1" ]
+	then
+	    echo -e "... directory\t$1:\t$modes -> $upd"
+	else
+	    echo -e "... script\t$1:\t$modes -> $upd"
+	fi
+        changes=1
+    fi
+}
+
+# check whether or not a file is readable
+readable () {
+    modes=`stat --format="%a" "$1"`
+    others=${modes:2:1}
+    if [ $others -ge 4 ]
+    then
+	if [ $verbose -gt 0 ]
+	then
+	    echo -e "... file\t$1:\tok"
+	fi
+    else
+	chmod o+r "$1"
+	upd=`stat --format="%a" "$1"`
+	echo -e "... file\t$1:\t$modes -> $upd"
+        changes=1
+    fi
+}
+
+# check and correct the file protections under a directory
+check_tree () {
+    for f in "$1"/*
+    do
+	if [ -d "$f" ]
+	then
+	    executable "$f"
+	    check_tree "$f"
+	else
+	    ext=`basename "$f" | cut -d'.' -f2`
+	    if [ "$ext" == "sh" ]
+	    then
+	        executable "$f"
+	    else
+	        readable "$f"
+	    fi
+        fi
+    done
+}
+
+# check and correct the file protections for a web site
+check_website () {
+    echo "Checking file protections under $1"
+    check_tree $1
+    if [ $changes -eq 0 ]
+    then
+        echo "   $1: OK"
+    else
+        echo "   $1: updated"
+	chamges=0
+    fi
+}
+
+
+# cycle through all named directories
+while [ -n "$1" ]
+do
+    if [ -d "$1" ]
+    then
+    	check_website "$1"
+    else
+    	echo "Unable to find directory $1" >& 2
+	err=1
+    fi
+
+    shift
+done
+exit $err
