@@ -3,33 +3,21 @@
 LOG=$HOME/desktop.log	# where to capture stardup stdout/stderr
 DELAY=2			# wait for window to be created
 
-# Workspaces to be populated
-WINDOWS="Home Project School Fin Work"
-
-# special commands to run in Home workspace
-HOME_CMDS="diary thunderbird"
-
-# standard browser tabs for each workspace
-Home="https://calendar.google.com/calendar/u/0/r/month https://drive.google.com/drive/u/0/my-drive"
-School_TABS="https:drive.google.com https://cs.hmc.edu/courses/2021/fall/cs181aa"
-Project_TABS="https://github.com/markkampe/Java_Terrain/projects/1"
-Fin_TABS="https://fidelity.com https://chase.com"
-Work_TABS="https://google.com"
-
-# directories in which to start uxterms in each workspace
+# default configuration
+WINDOWS="Home"
+HOME_CMDS="diary"
+Home_TABS="https://calendar.google.com/calendar/u/0/r/month"
 Home_DIR="/home/markk"
-School_DIR="/home/git/CourseWare/Website"
-Project_DIR="/home/git/Java_Terrain/src/worldBuilder"
-Fin_DIR="/home/markk/Dropbox/Fin"
-Work_DIR="/home/markk"
+WIDE=710	# xterm window width
+LONG=1600	# xterm length on vertical screen
+SHORT=1200	# xterm length on horizontal screen
+RIGHT=1040	# pixel offset of RHS screen
 
-# xterm parameters for left and right screens
-WIDE=710
-LONG=1600
-SHORT=1200
-
-# pixel offset of right-hand screen
-RIGHT=1040
+if [ -r $HOME/.desktop ]
+then
+    echo using desktop configuration from $HOME/.desktop >> $LOG
+    . $HOME/.desktop
+fi
 
 date > $LOG
 WS=0
