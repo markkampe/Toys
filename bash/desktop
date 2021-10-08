@@ -68,13 +68,14 @@ done
 # additional windows for the Home workspace
 WS=0
 t=`echo $WINDOWS | cut -d\  -f1`
-echo "... Additional windows for workspace $t ($WS)"
+echo "Additional windows for workspace $t ($WS)"
 DIR=`eval echo "$""$t""_DIR"`
 cd $DIR
 run "wmctrl -s $WS"
 sleep $DELAY
 for a in $HOME_CMDS
 do
+   echo "... starting $a for $t"
    if [ "$a"="diary" ]
    then
    	run diary
