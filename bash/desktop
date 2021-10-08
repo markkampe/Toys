@@ -65,9 +65,13 @@ do
     let "WS = $WS + 1"
 done
 
-echo "... starting home screen windows"
-cd $HOME
-run "wmctrl -s 0"
+# additional windows for the Home workspace
+WS=0
+t=`echo $WINDOWS | cut -d\  -f1`
+echo "... Additional windows for workspace $t ($WS)"
+DIR=`eval echo "$""$t""_DIR"`
+cd $DIR
+run "wmctrl -s $WS"
 sleep $DELAY
 for a in $HOME_CMDS
 do
