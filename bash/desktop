@@ -76,7 +76,7 @@ sleep $DELAY
 for a in $HOME_CMDS
 do
    echo "... starting $a for $t"
-   if [ "$a"="diary" ]
+   if [ "$a" = "diary" ]
    then
    	run diary
    else
