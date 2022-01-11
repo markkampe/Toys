@@ -38,6 +38,48 @@ def catFile(category):
 
 
 #
+# extract text from the wrapper Moodle puts around it
+#
+def rawText(line):
+    # strip off enclosing angle-brackets
+    if line.startswith('<') and line.endswith('>'):
+        line = line[1:-1]
+
+    # strip off CDATA encapsulation
+    if line.startswith('![CDATA[') and line.endswith(']]'):
+        line = line[8:-2]
+
+    # strip off HTML paragraph markers
+    if line.startswith('<p>') and line.endswith('</p>'):
+        line = line[3:-4]
+
+    # strip off any final HTML break
+    if line.endswith('<br>'):
+        line = line[0:-4]
+
+    return line
+
+#
+# there are several different feedback types, and any text in
+# them is not a question or answer
+#
+feedback = [ "feedback", "correctfeedback", "incorrectfeedback", "partiallycorrectfeedback" ]
+
+def isOpenFeedback(line):
+    """ see if this line begins a feedback section """
+    for token in feedback:
+        if '<' + token in line:
+            return True
+    return False
+
+def isCloseFeedback(line):
+    """ see if this line begins a feedback section """
+    for token in feedback:
+        if '</' + token in line:
+            return True
+    return False
+
+#
 # input processing state machine
 #   looks for categories and questions
 #   processes the categories, copies the questions
@@ -122,6 +164,127 @@ def list(line):
     if body != "":
         print body
 
+#
+# input processing state machine
+#   print out simple ASCII summaries of questions and answers
+#
+def simpleText(file, tags):
+    """ print questions and answers in straight text """
+
+    qType = None
+    qName = None
+    cName = None
+    inCategory = False
+    inQuestion = False
+    inSubquestion = False
+    inName = False
+    inAnswer = False
+    inFeedback = False
+    choiceNum = 0
+    choices = [ "(a)", "(b)", "(c)", "(d)", "(e)", "(f)", "(g)", "(h)", "(i)", "(j)" ]
+
+    input = open(file, 'rb')
+    for line in input:
+        if qType is None:
+            if '<question ' in line:
+                start = line.find('type="')
+                if start > 0:
+                    rest = line[start+6:]
+                    end = rest.find('"')
+                    if end > 0:
+                        qType = rest[0:end]
+                    else:
+                        qType = '!!!'
+                else:
+                    qType = '???'
+
+        # in a question and we have its name
+        elif '<name>' in line:
+            inName = True
+        elif '</name>' in line:
+            inName = False
+        elif inName and '<text>' in line:
+            start = line.find('<text>')
+            end = line.find('</text>')
+            if end > 0:
+                qName = line[start+6:end]
+
+        # in a question and we have its text
+        elif '<questiontext' in line:
+            inQuestion = True;
+        elif '</questiontext' in line:
+            inQuestion = False;
+        elif inQuestion and '<text>' in line:
+            start = line.find('<text>')
+            end = line.find('</text>')
+            if end > 0:
+                question = rawText(line[start+6:end])
+            if cName is not None:
+                print(cName)
+            print(qType + ": " + qName)
+            print("    " + question)
+
+        # in a sub-question and we have its text
+        elif '<subquestion' in line:
+            inSubquestion = True;
+            print
+        elif '</subquestion' in line:
+            inSubquestion = False;
+        elif inSubquestion and '<text>' in line:
+            start = line.find('<text>')
+            end = line.find('</text>')
+            if end > 0:
+                question = rawText(line[start+6:end])
+            print("    " + question)
+
+        # in a feedback section
+        elif isOpenFeedback(line):
+            inFeedback = True;
+        elif isCloseFeedback(line):
+            inFeedback = False
+
+        # in a question and we have an answer
+        elif '<answer' in line:
+            inAnswer = True;
+        elif '</answer>' in line:
+            inAnswer = False;
+        elif inAnswer and not inFeedback and '<text>' in line:
+            start = line.find('<text>')
+            end = line.find('</text>')
+            if end > 0:
+                answer = rawText(line[start+6:end])
+            if qType != "matching":
+                if tags:
+                    print("\n        " + choices[choiceNum] + ' ' + answer)
+                else:
+                    print("\n        " + answer)
+                choiceNum += 1
+            else:
+                print("        " + answer)
+
+        # in category section
+        elif '<category' in line:
+            inCategory = True
+        elif '</category' in line:
+            inCategory = False
+        elif inCategory and '<text>' in line:
+            # find the last pathname component
+            cat = category(line)
+            lastslash = cat.rfind('/')
+            if lastslash > 0:
+                cName = cat[lastslash + 1:]
+
+        # we have reached the end of a question
+        elif '</question>' in line:
+            # end of question
+            qType = None
+            qName = None
+            inQuestion = False
+            inName = False
+            inAnswer = False
+            inFeedback = False
+            choiceNum = 0
+            print("\n")
 
 #
 # input processing state machine
@@ -152,12 +315,18 @@ if __name__ == '__main__':
     # process arguments to get input file names
     umsg = "usage: %prog [options] READINGS.csv"
     parser = OptionParser(usage=umsg)
+    parser.add_option("-a", "--ascii", dest="ascii", action="store_true",
+                      default=False)
     parser.add_option("-s", "--summary", dest="summarize", action="store_true",
+                      default=False)
+    parser.add_option("-t", "--tags", dest="tags", action="store_true",
                       default=False)
     (opts, files) = parser.parse_args()
     for f in files:
         if opts.summarize:
             summarize(f)
+        elif opts.ascii:
+            simpleText(f, opts.tags)
         else:
             process(f)
     sys.exit(0)
