@@ -25,7 +25,6 @@ fi
 # anybody on the local network is allowed to try to log in
 LOCAL='192.168.1.*'
 
-# and, in case my address has changed, one other is allowed
 OUTSIDE='knuth.cs.hmc.edu, 134.173.42.235'
 
 cat <<- EOF > hosts.allow
@@ -39,7 +38,7 @@ cat <<- EOF > hosts.allow
 	# daemon name. See rpcbind(8) and rpc.mountd(8) for further information.
 	#
 EOF
-echo "# SSH connections from LA, TP, the local network, and one trusted host" >> hosts.allow
+echo "# SSH connections from LA, TP, the local network, and a few truster hosts" >> hosts.allow
 echo "sshd: $HOD, $BINAH, $LOCAL, $OUTSIDE"	>> hosts.allow
 
 cat hosts.allow
