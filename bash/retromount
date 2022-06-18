@@ -1,0 +1,112 @@
+#!/bin/bash
+#	Mount ancient UNIX file system images, with a FUSE interpreter,
+#	for examination and update under current Linux systems.
+#
+#	Jay Logue modified old 1.5-1.7, BSD code to create a FUSE for 
+#	those file systems.  I am not yet aware of any such  implementation
+#	for the System III/System V file systems.
+#
+#	Post-1.6 releases supported (often hard coded) partitioning of
+#	larger disks.  This script knows the (hard-coded) offsets of 
+#	each partition in each of Oscar	Vermeulen's images.
+#
+IMAGE_HOME="/opt/pidp11/systems"
+MOUNT_BASE="/mnt/retro"
+
+if [ -z "$1" ]
+then
+	>&2 echo "Usage: $0 version"
+	>&2 echo "       supported versions: v6, v7, bsd211"
+	exit 1
+fi
+    
+#
+# perform the actual fuse mount command
+#
+# usage: do_mount type volume target [offset [size]]
+#
+do_mount () {
+    fstype=$1
+    volume=$IMAGE_HOME/$2
+    target=$MOUNT_BASE/$3
+    opts="-o allow_other"
+
+    # offset and size arguments are optional
+    if [ -n "$4" ]
+    then
+	opts="$opts,fsoffset=$4"
+    	if [ -n "$5" ]
+	then
+	    opts="$opts,fssize=$5"
+	fi
+    fi
+
+    sudo mount -t fuse.$fstype $opts $volume $target
+    if [ $? -eq 0 ]
+    then
+	echo "... mounted $volume on $target"
+    else
+	>&2 echo "Error mounting $volume on $target"
+    fi
+}
+
+if [ $1 == "v6" ]
+then
+	#
+	# RK05s were very small, so each file system was distributed
+	# on a separate volume.
+	#
+	do_mount v6fs unix6/disk0.rk root
+	do_mount v6fs unix6/disk1.rk src
+	do_mount v6fs unix6/disk2.rk man
+	exit 0
+fi
+
+if [ $1 == "v7" ]
+then
+	# compiled-in (hp.c) disk partitioning
+	#
+	#    dev nblocks   cyloff  blk-off
+	#    --- -------   ------  -------
+	#    rp0:   9614   0	         0	root file system
+	#    rp2:   8778   23		 0	swap partition
+	#    rp3: 161348   44	     18392	/usr file system
+	do_mount v7fs unix7/disk0.hp root
+	do_mount v7fs unix7/disk0.hp usr 18392
+        exit 0
+fi
+
+if [ $1 == "bsd211" ]
+then
+	# standard partitioning for RA70 series disks
+	#
+	#   dev  sct-off   blk-off
+	#   ---  -------   -------
+	#   ra0a       0	 0	root file system
+	#   ra0b   15884      7942	swap partition
+	#   ra0g   32604     16302	/usr file system
+	#   ra0h  851804    425902	/home file system
+	do_mount bsd211fs 211bsd/2.11BSD_rq.dsk root
+	do_mount bsd211fs 211bsd/2.11BSD_rq.dsk usr 16302
+	do_mount bsd211fs 211bsd/2.11BSD_rq.dsk home 425902
+	exit 0
+fi
+
+if [ $1 == "s3" ]
+then
+	VOL="$IMAGE_HOME/sysiii/disk.hp"
+	TGT="$MOUNT_BASE/root"
+	>& 2 echo "We do not yet have a FUSE for System III file system ($VOL)"
+	exit -1
+fi
+
+if [ $1 == "s5" ]
+then
+	VOL="$IMAGE_HOME/sysv/disk.hp"
+	TGT="$MOUNT_BASE/root"
+	>& 2 echo "We do not yet have a FUSE for System V file system ($VOL)"
+	exit -1
+fi
+
+>& 2 echo "Unrecognized system version: $1"
+exit -1
