@@ -59,7 +59,12 @@ do
 
     # ... placing and sizing XTERMs for $WS: $t
     sleep $DELAY
-    run "wmctrl -r $t-lhs -e 0,0,0,$WIDE,$LONG"
+
+    if [ $WS -ne 0 ]
+    then
+	# this was created manually in WS0
+	run "wmctrl -r $t-lhs -e 0,0,0,$WIDE,$LONG"
+    fi
     run "wmctrl -r $t-rhs -e 0,$RIGHT,0,$WIDE,$SHORT"
 
     let "WS = $WS + 1"
