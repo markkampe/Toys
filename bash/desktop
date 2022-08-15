@@ -49,7 +49,7 @@ do
         run "uxterm -title $t-lhs &"
     else
 	# title the xterm in which we are runnin
-    	echo -ne '\033];2Home-lhs\007'
+    	echo -ne '\033]2;Home-lhs\007'
     fi
     run "uxterm -title $t-rhs &"
 
