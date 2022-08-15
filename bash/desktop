@@ -87,6 +87,9 @@ do
    if [ "$a" = "diary" ]
    then
    	run diary
+	# let FAR_RIGHT=RIGHT+WIDE+WIDE
+	# sleep $DELAY 
+   	# run "wmctrl -r GVIM -e 0,FAR_RIGHT"
    else
    	run "$a >> $LOG 2>> $LOG &"
    fi
