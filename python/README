@@ -10,6 +10,11 @@ teaching tools:
 Diving tools:
     LogDump.py ... create one line/dive summary from XML dive log
 
+Household tools:
+    AcuRite_reduce.py ... process (31 day) AcuRite download
+    		(for specified sensors) to yield daily min/max
+		temperatures (for subsequent processing by other tools)
+
 Playing around:
     blurr.py ... test program to understand Gaussian blurring
     csv_to_vector.py ... turn a csv file into per-column vectors
