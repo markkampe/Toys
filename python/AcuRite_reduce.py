@@ -1,6 +1,8 @@
 """
 This program reads (csv) AcuRite downloads, and reduces them to daily
 max and min temperatures and humidities (for a specified sensor)
+
+usage:  python3 accurite_reduce.py -s sensor [-v] rawdata.csv
 """
 import sys
 import os.path

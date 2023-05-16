@@ -14,10 +14,11 @@ Household tools:
     AcuRite_reduce.py ... process AcuRite download
     		(for specified sensors) to yield daily min/max
 		temperatures (for subsequent processing by other tools)
-	MyAcurite -> Charts -> 31 days -> Download
-	pgm -s "Front Portch" download.csv > outside.csv
-	pgm -s "Loft Bedroom" download.csv > inside.csv
-	import add to current sheet
+	MyAcurite -> Charts (right side) -> 31 days -> Download
+		I will get email with a URL for the csv
+	% python3 Acurite_reduce.py -s "Front Porch" download.csv > outside.csv
+	% python3 Acurite_reduce.py -s "Loft Bedroom" download.csv > inside.csv
+	GoogleSheets: import, add to current sheet
 
 Playing around:
     blurr.py ... test program to understand Gaussian blurring
