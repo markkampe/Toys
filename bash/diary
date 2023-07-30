@@ -4,10 +4,18 @@ HEIGHT=88
 WIDTH=80
 GEOMETRY="-geometry $WIDTH"x"$HEIGHT"
 
-MONTH=`date "+%b%y"`
-PATH="$HOME/Dropbox/Diary"
 EDITOR=/usr/bin/gvim
 
+MONTH=`date "+%b%y"`
+YEAR=`date "+%Y"`
+PATH="$HOME/Diaries/$YEAR"
 FILE="$MONTH.txt"
-echo using $FILE in $PATH
+
+if [ -f $PATH/$FILE ]
+then
+    echo using existing $FILE in $PATH
+else
+    echo creating new $FILE in $PATH
+fi
+
 ( cd $PATH; $EDITOR $GEOMETRY $MONTH.txt ) &
