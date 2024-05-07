@@ -22,8 +22,9 @@ else
     BINAH=`dig TXT +short o-o.myaddr.1.google.com @ns1.google.com | tr -d '"'`
 fi
 
-# anybody on the local network is allowed to try to log in
-LOCAL='192.168.1.*'
+# anybody on the local network(s) is allowed to try to log in
+LOCAL1='192.168.1.*'
+LOCAL1='192.168.4.*'
 
 OUTSIDE='knuth.cs.hmc.edu, 134.173.42.235'
 
@@ -38,7 +39,7 @@ cat <<- EOF > hosts.allow
 	# daemon name. See rpcbind(8) and rpc.mountd(8) for further information.
 	#
 EOF
-echo "# SSH connections from LA, TP, the local network, and a few truster hosts" >> hosts.allow
-echo "sshd: $HOD, $BINAH, $LOCAL, $OUTSIDE"	>> hosts.allow
+echo "# SSH connections from LA, TP, the local network, and a few trusted hosts" >> hosts.allow
+echo "sshd: $HOD, $BINAH, $LOCAL1, $LOCAL4, $OUTSIDE"	>> hosts.allow
 
 cat hosts.allow
