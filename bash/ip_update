@@ -24,7 +24,7 @@ fi
 
 # anybody on the local network(s) is allowed to try to log in
 LOCAL1='192.168.1.*'
-LOCAL1='192.168.4.*'
+LOCAL4='192.168.4.*'
 
 OUTSIDE='knuth.cs.hmc.edu, 134.173.42.235'
 
