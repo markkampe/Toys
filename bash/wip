@@ -1,0 +1,23 @@
+# 
+# push work in progress back and forth between Hod and Binah
+#
+
+# script parameters
+PORT=777
+DIR=~/WIP
+USER=markk
+
+# figure out to whom I should push
+if [ `hostname` == "Hod" ]
+then
+    partner="binah.ddns.net"
+else
+    partner="sagredo.ddns.net"
+fi
+
+echo "pushing $DIR to $USER@$partner (port=$PORT)"
+#	-r 	recursive
+#	-t	preserve times
+#	-z	compress files for transfer
+#	-v	verbose
+rsync -rtvz -e "ssh -p $PORT" $DIR $USER@$partner:
