@@ -16,8 +16,4 @@ else
 fi
 
 echo "pushing $DIR to $USER@$partner (port=$PORT)"
-#	-r 	recursive
-#	-t	preserve times
-#	-z	compress files for transfer
-#	-v	verbose
-rsync -rtvz -e "ssh -p $PORT" $DIR $USER@$partner:
+rsync --recursive --times --comnpress --delete --verbose -e "ssh -p $PORT" $DIR $USER@$partner:
