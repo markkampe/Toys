@@ -16,4 +16,4 @@ else
 fi
 
 echo "pushing $DIR to $USER@$partner (port=$PORT)"
-rsync --recursive --times --comnpress --delete --verbose -e "ssh -p $PORT" $DIR $USER@$partner:
+rsync --recursive --times --delete --verbose -z -e "ssh -p $PORT" $DIR $USER@$partner:
