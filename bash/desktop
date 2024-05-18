@@ -5,7 +5,6 @@ DELAY=2			# wait for window to be created
 
 # default configuration
 WINDOWS="Home"
-HOME_CMDS="diary"
 Home_TABS="https://calendar.google.com/calendar/u/0/r/month"
 Home_DIR="/home/markk"
 WIDE=710	# xterm window width
