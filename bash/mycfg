@@ -1,10 +1,10 @@
 #!/bin/bash
 
 HOST=`hostname | tr '[:upper:]' '[:lower:]'`
-ARCHIVE=snap_$HOST.gz
+ARCHIVE=save_$HOST.gz
 
 PERSONAL=".profile .bash_aliases .bashrc .bcrc .desktop .gitconfig .vimrc"
-SYMS="bin/desktop bin/Positions.py bin/colsum bin/diary bin/git_check bin/ip_update bin/jarup bin/LogDump.py bin/mycfg bin/ssh_forget bin/wip"
+BINPGMS="desktop Positions.py colsum diary git_check ip_update jarup LogDump.py mycfg ssh_forget wip"
 KEYS=".ssh/id_rsa .ssh/id_rsa.pub .ssh/authorized_keys"
 ID_PIX="Pictures/ID/peabody.gif Pictures/ID/MK_PW_small.jpg Pictures/ID/mk_idc13.jpg"
 BG_PIX="Pictures/Wallpapers/hic_jacet_Tom.jpg Pictures/Wallpapers/TP_spring.jpg Pictures/Wallpapers/TP_winter.jpg"
@@ -14,7 +14,17 @@ REPOS="/home/git"
 echo "Creating a personal configuation snapshot for $USER@$HOST from $HOME"
 cd $HOME
 
-echo "... Saving system configuration files: $SYSTEM"
+# figure out which of the desired script symlinks actually exist in ~/bin
+SYMS=""
+for f in $BINPGMS
+do
+    if [ -x bin/$f ]
+    then
+    	SYMS="$SYMS bin/$f"
+    fi
+done
+
+# make copies of system configuration files that we can put in the archive
 COPIES=""
 for f in $SYSTEM
 do
@@ -40,7 +50,7 @@ tar czf $ARCHIVE $PERSONAL $ID_PIX $BG_PIX $SYMS $KEYS $COPIES
 tar tzvf $ARCHIVE
 echo
 
-echo "... Removing local copies of system configuration files:"
+# remove the local copies we created just to get them in the archive
 for f in $COPIES
 do
     rm $f
