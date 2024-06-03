@@ -1,0 +1,51 @@
+#!/bin/bash
+
+HOST=`hostname | tr '[:upper:]' '[:lower:]'`
+ARCHIVE=snap_$HOST.gz
+
+PERSONAL=".profile .bash_aliases .bashrc .bcrc .desktop .gitconfig .vimrc"
+SYMS="bin/desktop bin/Positions.py bin/colsum bin/diary bin/git_check bin/ip_update bin/jarup bin/LogDump.py bin/mycfg bin/ssh_forget bin/wip"
+KEYS=".ssh/id_rsa .ssh/id_rsa.pub .ssh/authorized_keys"
+ID_PIX="Pictures/ID/peabody.gif Pictures/ID/MK_PW_small.jpg Pictures/ID/mk_idc13.jpg"
+BG_PIX="Pictures/Wallpapers/hic_jacet_Tom.jpg Pictures/Wallpapers/TP_spring.jpg Pictures/Wallpapers/TP_winter.jpg"
+SYSTEM="/etc/hosts /etc/ssh/sshd_config /etc/hosts.allow"
+REPOS="/home/git"
+
+echo "Creating a personal configuation snapshot for $USER@$HOST from $HOME"
+cd $HOME
+
+echo "... Saving system configuration files: $SYSTEM"
+COPIES=""
+for f in $SYSTEM
+do
+	cp $f .
+	COPIES="$COPIES `basename $f`"
+done
+
+echo "... noting locally cloned repos"
+rm -f CLONED_REPOS
+for d in $REPOS/*
+do
+    if [ -r $d/.git/config ]
+    then
+	REPO=`grep "url =" $d/.git/config | cut -d' ' -f3`
+    	echo "       $REPO"
+	echo $REPO >> CLONED_REPOS
+    fi
+done
+COPIES="$COPIES CLONED_REPOS"
+
+echo "... Creating gzip tarball of configuration files: $ARCHIVE"
+tar czf $ARCHIVE $PERSONAL $ID_PIX $BG_PIX $SYMS $KEYS $COPIES 
+tar tzvf $ARCHIVE
+echo
+
+echo "... Removing local copies of system configuration files:"
+for f in $COPIES
+do
+    rm $f
+done
+
+echo
+ls -l $ARCHIVE
+
