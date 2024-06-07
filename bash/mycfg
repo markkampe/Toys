@@ -3,7 +3,7 @@
 HOST=`hostname | tr '[:upper:]' '[:lower:]'`
 ARCHIVE=save_$HOST.gz
 
-PERSONAL=".profile .bash_aliases .bashrc .bcrc .desktop .gitconfig .vimrc"
+PERSONAL=".profile .bash_aliases .bashrc .bcrc .desktop .gitconfig .vimrc .Xresources"
 BINPGMS="desktop Positions.py colsum diary git_check ip_update jarup LogDump.py mycfg ssh_forget wip"
 KEYS=".ssh/id_rsa .ssh/id_rsa.pub .ssh/authorized_keys"
 ID_PIX="Pictures/ID/peabody.gif Pictures/ID/MK_PW_small.jpg Pictures/ID/mk_idc13.jpg"
