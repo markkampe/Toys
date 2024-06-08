@@ -59,11 +59,13 @@ def rawText(line):
 
     return line
 
+
 #
 # there are several different feedback types, and any text in
 # them is not a question or answer
 #
-feedback = [ "feedback", "correctfeedback", "incorrectfeedback", "partiallycorrectfeedback" ]
+feedback = ["feedback", "correctfeedback", "incorrectfeedback", "partiallycorrectfeedback"]
+
 
 def isOpenFeedback(line):
     """ see if this line begins a feedback section """
@@ -72,12 +74,14 @@ def isOpenFeedback(line):
             return True
     return False
 
+
 def isCloseFeedback(line):
     """ see if this line begins a feedback section """
     for token in feedback:
         if '</' + token in line:
             return True
     return False
+
 
 #
 # input processing state machine
@@ -164,6 +168,7 @@ def list(line):
     if body != "":
         print body
 
+
 #
 # input processing state machine
 #   print out simple ASCII summaries of questions and answers
@@ -181,7 +186,7 @@ def simpleText(file, tags):
     inAnswer = False
     inFeedback = False
     choiceNum = 0
-    choices = [ "(a)", "(b)", "(c)", "(d)", "(e)", "(f)", "(g)", "(h)", "(i)", "(j)" ]
+    choices = ["(a)", "(b)", "(c)", "(d)", "(e)", "(f)", "(g)", "(h)", "(i)", "(j)"]
 
     input = open(file, 'rb')
     for line in input:
@@ -211,9 +216,9 @@ def simpleText(file, tags):
 
         # in a question and we have its text
         elif '<questiontext' in line:
-            inQuestion = True;
+            inQuestion = True
         elif '</questiontext' in line:
-            inQuestion = False;
+            inQuestion = False
         elif inQuestion and '<text>' in line:
             start = line.find('<text>')
             end = line.find('</text>')
@@ -226,10 +231,10 @@ def simpleText(file, tags):
 
         # in a sub-question and we have its text
         elif '<subquestion' in line:
-            inSubquestion = True;
+            inSubquestion = True
             print
         elif '</subquestion' in line:
-            inSubquestion = False;
+            inSubquestion = False
         elif inSubquestion and '<text>' in line:
             start = line.find('<text>')
             end = line.find('</text>')
@@ -239,15 +244,15 @@ def simpleText(file, tags):
 
         # in a feedback section
         elif isOpenFeedback(line):
-            inFeedback = True;
+            inFeedback = True
         elif isCloseFeedback(line):
             inFeedback = False
 
         # in a question and we have an answer
         elif '<answer' in line:
-            inAnswer = True;
+            inAnswer = True
         elif '</answer>' in line:
-            inAnswer = False;
+            inAnswer = False
         elif inAnswer and not inFeedback and '<text>' in line:
             start = line.find('<text>')
             end = line.find('</text>')
@@ -285,6 +290,7 @@ def simpleText(file, tags):
             inFeedback = False
             choiceNum = 0
             print("\n")
+
 
 #
 # input processing state machine

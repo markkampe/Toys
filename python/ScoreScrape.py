@@ -17,6 +17,7 @@ maxScore = {}       # per item, max possible
 itemComments = {}   # per item, comments
 studentName = ""
 
+
 def digest(rubric, tag):
     """ read rubric file and accumulate a score model """
     if os.path.exists(rubric):
@@ -133,25 +134,25 @@ def total():
     maxScore["TOTAL"] = maxtotal
 
 
-def interpolate(comments = False):
+def interpolate(comments=False):
     """ produce the standard template output, interpolating scores """
-    for l in template:
-        if "$" in l:
-            for i in range(0, len(l)):
-                if l[i:i+1] == "$":
+    for line in template:
+        if "$" in line:
+            for i in range(0, len(line)):
+                if line[i:i+1] == "$":
                     # find the end of the identifier
                     start = i+1
                     end = i+1
                     while l[start:end+1].isalnum():
                         end += 1
-                    id = l[start:end]
+                    id = line[start:end]
                     if id in itemScore.keys():
                         sys.stdout.write(l[0:start-1])
                         sys.stdout.write("%.1f/%.1f" %
                                          (itemScore[id], maxScore[id]))
                         sys.stdout.write(l[end:])
                         if comments and id in itemComments.keys():
-                            for l in itemComments[id]:
+                            for line in itemComments[id]:
                                 sys.stdout.write("\t" + l)
                     elif id == "STUDENTNAME":
                         sys.stdout.write(studentName + "\n")
