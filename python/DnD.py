@@ -6,6 +6,7 @@ import json
 from optparse import OptionParser
 from sys import stderr, exit
 
+
 def read_characters(filename):
     """
     read an json format input file into a list
@@ -19,8 +20,9 @@ def read_characters(filename):
             infile.close()
             return characters
     except Exception as e:
-            stderr.write("ERROR: unable to read characters from file " + filename + "\n")
-            stderr.write(e.message + "\n")
+        stderr.write("ERROR: unable to read characters from file " +
+                     filename + "\n")
+        stderr.write(e.message + "\n")
     return None
 
 
@@ -37,8 +39,9 @@ def write_characters(characters, filename):
             outfile.write("\n")
             outfile.close()
     except Exception as e:
-            stderr.write("ERROR: unable to write characters to file " + filename + "\n")
-            stderr.write(e.message + "\n")
+        stderr.write("ERROR: unable to write characters to file " +
+                     filename + "\n")
+        stderr.write(e.message + "\n")
 
 
 if __name__ == "__main__":

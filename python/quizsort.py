@@ -64,7 +64,8 @@ def rawText(line):
 # there are several different feedback types, and any text in
 # them is not a question or answer
 #
-feedback = ["feedback", "correctfeedback", "incorrectfeedback", "partiallycorrectfeedback"]
+feedback = ["feedback", "correctfeedback", "incorrectfeedback",
+            "partiallycorrectfeedback"]
 
 
 def isOpenFeedback(line):
@@ -186,7 +187,8 @@ def simpleText(file, tags):
     inAnswer = False
     inFeedback = False
     choiceNum = 0
-    choices = ["(a)", "(b)", "(c)", "(d)", "(e)", "(f)", "(g)", "(h)", "(i)", "(j)"]
+    choices = ["(a)", "(b)", "(c)", "(d)", "(e)", "(f)", "(g)",
+               "(h)", "(i)", "(j)"]
 
     input = open(file, 'rb')
     for line in input:

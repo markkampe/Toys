@@ -1,6 +1,7 @@
 import sys
 import csv
 
+
 def process(file, fields):
     """
     read the specified CSV file, producing static initializations for
@@ -22,13 +23,15 @@ def process(file, fields):
         for row in csv_reader:
             if len(row) < fields:
                 # if it has too few lines, ignore it
-                print("ignoring line " + str(line) + ": only " + str(len(row)) + " fields")
+                print("ignoring line " + str(line) + ": only " +
+                      str(len(row)) + " fields")
             else:
                 # make sure all fields are non-empty
                 good = True
                 for col in range(fields):
                     if row[col] == "":
-                        # print("Ignoring line " + str(line) + ": field " + str(col) + " is empty")
+                        # print("Ignoring line " + str(line) + ": field " +
+                        #       str(col) + " is empty")
                         good = False
                         break
 
@@ -60,6 +63,7 @@ def main():
         print("Usage: python csv_to_vector.py csvfile")
     else:
         process(sys.argv[1], 4)
+
 
 if __name__ == "__main__":
     main()
