@@ -1,0 +1,59 @@
+#! /bin/bash
+#
+#  This is a script to copy (or verify the copying of) music to an MP3 player
+#
+MUSIC=/mnt/music
+
+if [ -z "$1" ] 
+then
+    echo "Usage: $0 uSD-mountpoint < list" >& 2
+    exit 1
+else
+    MP3="$1"
+    if [ ! -d "$MP3" ]
+    then
+    	echo "Error: Unable to find uSD card at $MP3" >& 2
+	exit 1
+    fi
+fi
+
+while read TITLE
+do
+    if [ -n "$TITLE" ]
+    then
+	if [ -d "$MUSIC/$TITLE" ]
+	then
+	    #
+	    # Note: if I list only one album from an artist
+	    #	this will only create the album directory, and
+	    #	will not create the intermediate artist directory.
+	    #
+	    if [ -d "$MP3/$TITLE" ]
+	    then
+	        echo "Directory $MUSIC/$TITLE already present"
+	    else
+	        echo "Copy directory: $MUSIC/$TITLE"
+	    	cp -R "$MUSIC/$TITLE" $MP3
+	    fi
+	elif [ -f "$MUSIC/$TITLE" ]
+	then
+	    if [ -f "$MP3/$TITLE" ]
+	    then
+	        echo "File $MUSIC/$TITLE already present"
+	    else
+	        echo "Copy File: $MUSIC/$TITLE"
+		parent=`dirname "$TITLE"`
+	    	mkdir -p "$MP3/$parent"
+	    	cp "$MUSIC/$TITLE" "$MP3/$parent"
+	    fi
+	else
+	    echo '*** INVALID ENTRY: ' $MUSIC/$TITLE >& 2
+	fi
+        echo
+    fi
+done
+
+# we probably copied more than just mp3 files
+find $MP3 -name @eaDir -exec rm -rf {} \;
+find $MP3 -name desktop.ini -exec rm {} \;
+find $MP3 -name '*.jpg' -exec rm {} \;
