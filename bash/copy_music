@@ -4,9 +4,19 @@
 #
 MUSIC=/mnt/music
 
+# see if we are just testing
+testing=0
+if [ -n "$1" -a "$1" == "--testing" ]
+then
+    testing=1
+    echo "JUST TESTING"
+    shift
+fi
+
+# make sure a target has been specified
 if [ -z "$1" ] 
 then
-    echo "Usage: $0 uSD-mountpoint < list" >& 2
+    echo "Usage: $0 [--testing] uSD-mountpoint < list" >& 2
     exit 1
 else
     MP3="$1"
@@ -17,34 +27,50 @@ else
     fi
 fi
 
+# copy each specified Artist, Album, or Track
 while read TITLE
 do
     if [ -n "$TITLE" ]
     then
 	if [ -d "$MUSIC/$TITLE" ]
 	then
-	    #
-	    # Note: if I list only one album from an artist
-	    #	this will only create the album directory, and
-	    #	will not create the intermediate artist directory.
-	    #
 	    if [ -d "$MP3/$TITLE" ]
 	    then
 	        echo "Directory $MUSIC/$TITLE already present"
 	    else
-	        echo "Copy directory: $MUSIC/$TITLE"
-	    	cp -R "$MUSIC/$TITLE" $MP3
+		# are we copying an artist or an album
+		parent=`dirname "$TITLE"`
+		if [ "$parent" == "." ]
+		then
+		    echo "Copy Artist directory \"$MUSIC/$TITLE\" to \"$MP3\""
+		    if [ $testing -eq 0 ]
+		    then
+	    	        cp -R "$MUSIC/$TITLE" "$MP3"
+	    	    fi
+		else
+		    target="$MP3/$parent"
+		    echo "Copy Album directory \"$MUSIC/$TITLE\" to \"$target\""
+		    if [ $testing -eq 0 ]
+		    then
+		        mkdir -p "$target"
+	    	        cp -R "$MUSIC/$TITLE" "$target"
+	    	    fi
+		fi
 	    fi
 	elif [ -f "$MUSIC/$TITLE" ]
 	then
+	    # we are copying a single track
 	    if [ -f "$MP3/$TITLE" ]
 	    then
 	        echo "File $MUSIC/$TITLE already present"
 	    else
-	        echo "Copy File: $MUSIC/$TITLE"
 		parent=`dirname "$TITLE"`
-	    	mkdir -p "$MP3/$parent"
-	    	cp "$MUSIC/$TITLE" "$MP3/$parent"
+	        echo "Copy Track: \"$MUSIC/$TITLE\" to $MP3/$parent"
+		if [ $testing -eq 0 ]
+		then
+		    mkdir -p "$MP3/$parent"
+		    cp "$MUSIC/$TITLE" "$MP3/$parent"
+	    	fi
 	    fi
 	else
 	    echo '*** INVALID ENTRY: ' $MUSIC/$TITLE >& 2
@@ -54,6 +80,9 @@ do
 done
 
 # we probably copied more than just mp3 files
-find $MP3 -name @eaDir -exec rm -rf {} \;
-find $MP3 -name desktop.ini -exec rm {} \;
-find $MP3 -name '*.jpg' -exec rm {} \;
+if [ $testing -eq 0 ]
+then
+    find $MP3 -name @eaDir -exec rm -rf {} \;	2>/dev/null
+    find $MP3 -name desktop.ini -exec rm {} \;	2>/dev/null
+    find $MP3 -name '*.jpg' -exec rm {} \;	2>/dev/null
+fi
