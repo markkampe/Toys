@@ -2,29 +2,20 @@
  * colsum ... sum columns of numerical data
  *
  * usage:
- *	colsum [file ...]
+ *	colsum [-v] [--verbose] -p#] [--places=#][file ...]
  */
 
-// TODO - add -v option
-//		print each processed line
-//		figure out how to align columns
-//		print totals line
-//		print totals
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <getopt.h>
 #include <stdbool.h>
 
 /* input and output format parameters				*/
 #define MAXCOLS	20	/* max supported columns per line	*/
 #define	MAXLINE	512	/* maximum width input line		*/
-
-#define	COLWID	8	/* output column width			*/
-#define	PLACES	2	/* number of FP decimal places		*/
-#define	COLSEP	2	/* output inter-column separation	*/
-#define	MAXFMT	(COLSEP+10)	/* maximum format width		*/
-
-#define	TOTAL_TITLE "Grand Total"
+#define PADDING 2	/* sum is wider than largest addend	*/
+#define MINSEP	1	/* minimum distance between columns	*/
 
 /* what we know about the data in each column	*/
 struct column {
@@ -33,10 +24,12 @@ struct column {
 	int values;	// number of numerical values found
 	int left_edge;	// left-most position in this col
 	int right_edge;	// right-most position in this col
+	char format[10]; // output format
 };
 
+int places = 2;		// number of decimal places to print
 bool echo_lines = 0;	// echo each tallied input line
-bool debug = 0;		// diagnostic output
+bool debug = 0;		// enable diagnostic output
 
 /*
  * parse off a single white-space delimited token,
@@ -109,6 +102,8 @@ bool add_parse( const char *s, struct column *col ) {
 	// did not hit digits or field contained unreasonable characters
     	return false;
     }
+    // end of string w/o reasonable delimiter
+    return false;
 }
 
 /*
@@ -131,9 +126,9 @@ int process_file( const char *name, int numcol, struct column *cols ) {
 
     int lines, c;
     char *s;
-    for( lines = 0; s = fgets(inbuf, sizeof inbuf, input); lines++ ) {
+    for( lines = 0; (s = fgets(inbuf, sizeof inbuf, input)); lines++ ) {
 	c = 0;
-	int good_cols = 0;
+	int good_cols = 0;	// # cols containing numerical data
 	while( c < numcol ) {
 	    // skip to the start of the next column
 	    if (*s == ' ' || *s == '\t') {
@@ -146,24 +141,25 @@ int process_file( const char *name, int numcol, struct column *cols ) {
 	    if (*s == '\n' || *s == 0)
 		break;
 
-	    // try to parse off the value
+	    // try to parse a numerical value
 	    bool got_some = add_parse( s, &cols[c] );
 	    if (got_some && (s - inbuf) < cols[c].left_edge)
 	    	cols[c].left_edge = s - inbuf;
 
-	    // skip to the end of this field
-	    do {
+	    do {	 // skip to the end of this field
 		s++;
 	    } while( *s != ' ' && *s != '\t' && *s != '\n' && *s != 0 );
-	    if (got_some && (s - inbuf) > cols[c].right_edge)
-	    	cols[c].right_edge = s - inbuf;
-
-	    if (got_some)
+	    if (got_some) {
+		int last_col = (s - inbuf) - 1;
+	    	if (last_col > cols[c].right_edge)
+	    		cols[c].right_edge = last_col;
 	        good_cols++;
+	    }
 	}
 
+	// if there were any numerical columns, this should be printed
     	if (good_cols && echo_lines)
-	    fwrite(inbuf, 1, strlen(inbuf), stdout);
+	    fputs(inbuf, stdout);
     }
 
     if (input != stdin)
@@ -171,76 +167,106 @@ int process_file( const char *name, int numcol, struct column *cols ) {
     return( 0 );
 }
 
-char n_fmt[MAXFMT+1] = "%s";	/* output format for names		*/
-char i_fmt[MAXFMT+1] = "%f";	/* output format for integers		*/
-char f_fmt[MAXFMT+1] = "%f";	/* output format for decimal numbers	*/
-
 /*
  * print out a vector of numbers, perhaps with a file name
  */
-void print_vector( const char *name, int numcol, struct column *cols ) {
+void print_vector( int numcol, struct column *cols ) {
 
-    /* output the name if we have one	*/
-    if (name != 0)
-	fprintf(stdout, n_fmt, name);
+    int outcol = 0;
+
+    if (echo_lines) {	// print a vinculum under each numerical column
+    	for(int c = 0; c < numcol; c++) {
+    	    if (cols[c].values == 0)
+		continue;
+
+	    // move us to the left edge position
+	    while(outcol < cols[c].left_edge) {
+		fputc(' ', stdout);
+		outcol++;
+	    }
+	    // output the right number of underline characters
+	    while(outcol <= cols[c].right_edge) {
+		fputc('-', stdout);
+		outcol++;
+	    }
+    	}
+
+	fputc('\n', stdout);
+	outcol = 0;
+    }
 
     /* print out a sum for each valid column	*/
     for(int c = 0; c < numcol; c++) {
+	if (cols[c].values == 0)
+	    continue;
+
+	if (echo_lines) {
+	    // move us to a reasonable left edge position
+	    int start_col = cols[c].left_edge - PADDING;
+	    if (start_col < outcol + MINSEP)
+		start_col = outcol + MINSEP;
+	    while(outcol < start_col) {
+		fputc(' ', stdout);
+		outcol++;
+	    }
+	} else if (outcol != 0) {	// one space between columns
+	    fputc(' ', stdout);
+	    outcol++;
+	}
+
+	if (echo_lines) {
+	    // figure out a reasonable output format
+	    int width =  PADDING + (cols[c].right_edge + 1) - cols[c].left_edge;
+	    if (cols[c].coltype == integer)
+		sprintf(cols[c].format, "%%%dd", width);
+	    else if (cols[c].coltype == decimal)
+		sprintf(cols[c].format, "%%%d.%df", width, places);
+    	    outcol += width;
+	} else {
+	    // what ever size fits
+	    if (cols[c].coltype == integer)
+		sprintf(cols[c].format, "%%d");
+	    else if (cols[c].coltype == decimal)
+		sprintf(cols[c].format, "%%.%df", places);
+	    outcol++;	// doesn't matter
+	}
+
+	// print the column sum
 	if (cols[c].coltype == integer)
-	    fprintf(stdout, i_fmt, cols[c].colsum);
-	else if (cols[c].coltype == decimal)
-	    fprintf(stdout, f_fmt, cols[c].colsum);
+	    fprintf(stdout, cols[c].format, (int) cols[c].colsum);
+	else
+	    fprintf(stdout, cols[c].format, cols[c].colsum);
     }
     fputc('\n', stdout);
 
     if (debug) {
 	for(int c = 0; c < numcol; c++) {
     	    if (cols[c].values > 0)
-	    	fprintf(stderr, "DEBUG: col %d: %d-%d, %d values\n",
-			c, cols[c].left_edge, cols[c].right_edge, cols[c].values);
+	    	fprintf(stderr, "DEBUG: col %d: %d-%d, %d values, format: %s\n",
+			c, cols[c].left_edge, cols[c].right_edge, 
+			cols[c].values, cols[c].format);
     	}
     }
 }
 
-/*
- * create a set of output formats for the requested field widths
- */
- void make_formats( int colwid, int decimals, int colsep ) {
-    int i;
+/* supported command line arguments	*/
+struct option args[] = {
+ /*	 switch       has arg	...   return value */
+	{"verbose",	0,	NULL, 'v'},	/* print every counted line	*/
+	{"places",	1,	NULL, 'p'},	/* decimal places to print	*/
+	{"debug",	0,	NULL, 'D'},	/* enable debug output		*/
+	{ 0, 0, 0, 0 }
+};
 
-    /* the numerical formats	*/
-    for( i = 0; i < colsep; i++ ) {
-	i_fmt[i] = ' ';
-	f_fmt[i] = ' ';
-    }
-    i_fmt[i] = '%';
-    f_fmt[i++] = '%';
-    if (colwid > 9) {
-	i_fmt[i] = '0' + (colwid/10);
-	f_fmt[i++] = '0' + (colwid/10);
-    }
-    i_fmt[i] = '0' + (colwid%10);
-    f_fmt[i++] = '0' + (colwid%10);
-    i_fmt[i] = '.';
-    f_fmt[i++] = '.';
-    i_fmt[i] = '0';
-    f_fmt[i++] = '0' + (decimals%10);
-    i_fmt[i] = 'f';
-    f_fmt[i++] = 'f';
-    i_fmt[i] = 0;
-    f_fmt[i] = 0;
- }
+const char *usage = "[--verbose] [--places=#] [filename ...]";
 
 /*
  * if file names are specified, process each listed file
  *	followed by a grand total
  * else
  *	process stdin
- *
- * If I ever care, I should accept a parameter for the number of floating
- *	point decimal places desired in the columnar sum ouput.
  */
-int main( int argc, const char *argv[] ) {
+int main( int argc, char *argv[] ) {
 
     int numcol = MAXCOLS;	/* not worth computing dynamically	*/
     int retcode = 0;
@@ -251,72 +277,84 @@ int main( int argc, const char *argv[] ) {
 	sums[c].coltype = none;
 	sums[c].colsum = 0.0;
 	sums[c].values = 0;
-	sums[c].left_edge = 999;
-	sums[c].right_edge = 0;
+	sums[c].left_edge = MAXLINE;	// any column start will be less
+	sums[c].right_edge = -1;	// any column end will be more
     }
-
-    /* initialize the column output formats	*/
-    make_formats(COLWID, PLACES, COLSEP);
 
     /* see if we have any command line switches */
-    int first_arg = 1;
-    while( argc > first_arg && argv[first_arg][0] == '-') {
-	const char *arg = argv[first_arg];
-	if (strcmp(arg, "-v") == 0 || strcmp(arg, "--verbose") == 0) {
-	    echo_lines = true;
-	    first_arg++;
-	    continue;
-	} else if (strcmp(arg, "--debug") == 0) {
-	    debug = true;
-	    first_arg++;
-	} else {
-	    fprintf(stderr, "Unrecognized argument: %s\n", arg);
-	    exit(-1);
+    while( true ) {
+    	int i = getopt_long(argc, argv, "vp:D", args, NULL);
+	if (i < 0)		// end of switches
+	    break;
+
+        switch (i) {
+	    case 'v':		// --verbose
+	    	echo_lines = true;
+		break;
+	    case 'p':		// --places=#
+	    	places = atoi(optarg);
+		break;
+	    case 'D':		// --DEBUG
+	    	debug = true;
+		break;
+
+	    default:
+		fprintf(stderr, "Usage: %s %s\n", argv[0], usage);
+		exit(-1);
 	}
     }
-    if (argc == first_arg) {	/* process stdin	*/
+
+    if (optind >= argc) {	/* process stdin	*/
 	if (process_file(0, numcol, sums) == 0)
-	    print_vector(0, numcol, sums);
+	    print_vector(numcol, sums);
 	else
 	    retcode = 1;
     } else {		/* process named input files */
-
-	/* figure out how wide a file name needs to be	*/
-	int nwid = strlen(TOTAL_TITLE);
-	for( int i = first_arg; i < argc; i++ ) {
-	    int n = strlen(argv[i]);
-	    if (n > nwid)
-		nwid = n;
-	}
-	snprintf(n_fmt, MAXFMT, "%%-%ds", nwid);
-
-	/* accumulate a grand total	*/
+	/* create a grand total	accumulation */
 	struct column *grand = (struct column *) malloc( numcol * sizeof(struct column));
 	for ( int c = 0; c < numcol; c++ ) {
 	    grand[c].coltype = none;
 	    grand[c].colsum = 0.0;
 	}
+	int num_files = 0;
 
 	/* process each input file	*/
-	for( int i = 1; i < argc; i++ ) {
+	for( int i = optind; i < argc; i++ ) {
+	    printf("%s:\n", argv[i]);
 	    if (process_file(argv[i], numcol, sums) == 0) {
-		print_vector(argv[i], numcol, sums);
+		print_vector( numcol, sums);
 		fputs("\n", stdout);
+	    	num_files++;
 	    } else
 		retcode = 1;
 
 	    /* add it to grand total, and reset sums */
 	    for ( int c = 0; c < numcol; c++ ) {
+		if (sums[c].values == 0)
+		    continue;
+
 		if (sums[c].coltype > grand[c].coltype)
 		    grand[c].coltype = sums[c].coltype;
 		grand[c].colsum += sums[c].colsum;
+		grand[c].coltype = sums[c].coltype;
+		grand[c].values += sums[c].values;
+		grand[c].left_edge = sums[c].left_edge;
+		grand[c].right_edge = sums[c].right_edge;
+
+		// reset all collumn info for next file
 		sums[c].coltype = none;
-		sums[c].colsum = 0;
+		sums[c].colsum = 0.0;
+		sums[c].values = 0;
+		sums[c].left_edge = MAXLINE;
+		sums[c].right_edge = -1;
 	    }
 
 	}
 
-	print_vector(TOTAL_TITLE, numcol, grand);
+	if (num_files > 1) {
+	    printf("GRAND TOTAL:\n");
+	    print_vector(numcol, grand);
+	}
 	free(grand);
     }
 
