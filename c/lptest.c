@@ -1,3 +1,5 @@
+#include <unistd.h>
+
 #define MIN_CHAR	33
 #define MAX_CHAR	126
 #define MIN_COLS	80
@@ -21,7 +23,7 @@ void printline(int lineno, int width) {
 
 	buf[col++] = '\n';
 	buf[col] = 0;
-	write(1, buf, col);
+	(void) write(1, buf, col);
 }
 
 void widthTest(int cols) {
@@ -47,10 +49,10 @@ void widthTest(int cols) {
 		buf[c] = '0' + c % 10;
 	buf[c++] = '\n';
 	buf[c] = 0;
-	write(1, buf, c);
+	(void) write(1, buf, c);
 }
 
-int main(argc, argv) {
+int main(int argc, char **argv) {
 
 	int l;
 	for(l = 0; l < MAX_LINES; l++) {

@@ -148,7 +148,7 @@ int check_access(char *filename) {
         if (is_directory) {
                 /* can I create and delete files within the directory   */
                 strncpy(namebuf, filename, sizeof namebuf);
-                strncat(namebuf, "/!!!STUPID_TEST_FILE!!!", sizeof namebuf);
+                strncat(namebuf, "/!!!STUPID_TEST_FILE!!!", 30);
                 fd = creat(namebuf, 0666);
                 if (fd < 0) {
                         printf(", NO CREATE/DELETE");
@@ -180,7 +180,7 @@ int check_access(char *filename) {
         if (is_directory) {
                 /* check directory searching */
                 strncpy(namebuf, filename, sizeof namebuf);
-                strncat(namebuf, "/.", sizeof namebuf);
+                strncat(namebuf, "/.", 3);
                 fd = open(namebuf, O_RDONLY);
                 if (fd >= 0) {
                         if (verbose)
