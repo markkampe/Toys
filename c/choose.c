@@ -21,7 +21,7 @@ char *use[] = {
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
-
+#include <string.h>
 
 
 /* routine declarations 						*/
@@ -126,7 +126,7 @@ void usage()
 {	int i;
 	
 	for( i = 0; use[i]; i++ )
-		fprintf(stderr, use[i]);
+		fputs(use[i], stderr);
 
 	exit(0);
 }
@@ -246,7 +246,6 @@ int strtonum( char *s, char **end  )
 
 
 #include <time.h>
-#include <sys/timeb.h>
 
 /*
  * initrand
@@ -258,11 +257,11 @@ int strtonum( char *s, char **end  )
  *	number generator seed
  */
 void initrand( unsigned int s ) {
-	struct timeb buf;
+	struct timespec buf;
 
 	if (s == 0) {
-		ftime( &buf );
-		s = buf.time + buf.millitm;
+		clock_gettime(CLOCK_REALTIME, &buf );
+		s = buf.tv_sec + buf.tv_nsec;
 	}
 
 	if (debug)
