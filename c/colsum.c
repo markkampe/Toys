@@ -29,6 +29,7 @@ struct column {
 
 int places = 2;		// number of decimal places to print
 bool echo_lines = 0;	// echo each tallied input line
+bool space_output = 0;	// line up output under columns
 bool debug = 0;		// enable diagnostic output
 
 /*
@@ -200,7 +201,7 @@ void print_vector( int numcol, struct column *cols ) {
 	if (cols[c].values == 0)
 	    continue;
 
-	if (echo_lines) {
+	if (space_output) {
 	    // move us to a reasonable left edge position
 	    int start_col = cols[c].left_edge - PADDING;
 	    if (start_col < outcol + MINSEP)
@@ -214,7 +215,7 @@ void print_vector( int numcol, struct column *cols ) {
 	    outcol++;
 	}
 
-	if (echo_lines) {
+	if (space_output) {
 	    // figure out a reasonable output format
 	    int width =  PADDING + (cols[c].right_edge + 1) - cols[c].left_edge;
 	    if (cols[c].coltype == integer)
@@ -290,6 +291,7 @@ int main( int argc, char *argv[] ) {
         switch (i) {
 	    case 'v':		// --verbose
 	    	echo_lines = true;
+		space_output = true;
 		break;
 	    case 'p':		// --places=#
 	    	places = atoi(optarg);
@@ -352,7 +354,10 @@ int main( int argc, char *argv[] ) {
 	}
 
 	if (num_files > 1) {
-	    printf("GRAND TOTAL:\n");
+	    if (echo_lines) 
+		echo_lines = false;	// no vincula for this one
+	    else
+	    	printf("GRAND TOTAL:\n");
 	    print_vector(numcol, grand);
 	}
 	free(grand);
