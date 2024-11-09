@@ -194,7 +194,7 @@ if __name__ == '__main__':
     if file is None:
         parser.print_help()
     else:
-        for f in files:
+        for f in file:
             score_reset()
             process(f, args.tag, args.name)
             total()
