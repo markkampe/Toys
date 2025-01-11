@@ -1,5 +1,5 @@
 ALL=colsum choose check_access lptest roll xterm-title interpose.o
-DFLT=colsum
+DFLT=colsum roll
 CFLAGS= -Dwall -Dextra
 
 default: $(DFLT)
