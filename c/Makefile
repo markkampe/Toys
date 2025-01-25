@@ -1,5 +1,5 @@
-ALL=colsum choose check_access lptest roll xterm-title interpose.o
-DFLT=colsum roll
+ALL=colsum choose check_access lptest roll xterm-title unixtime interpose.o
+DFLT=colsum roll unixtime
 CFLAGS= -Dwall -Dextra
 
 default: $(DFLT)
@@ -19,6 +19,8 @@ colsum: colsum.c
 lptest: lptest.c
 
 roll: roll.c
+
+unixtime: unixtime.c
 
 # for testing system call interception
 interpose.o: interpose.c
