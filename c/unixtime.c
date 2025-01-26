@@ -15,7 +15,7 @@
 #define TIMELEN 32				// maximum length of a time string
 
 /* supported command line arguments	*/
-char *usage = "[--offset=#] [seconds (decimal) ...]";
+char *usage = "[--offset=hours] [seconds (decimal) ...]";
 char *error = "Invalid input: %s ... expected (10-digit) decimal integer\n";
 struct option args[] = {
     /* switch	hasarg	flag	retval	*/
