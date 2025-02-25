@@ -1,11 +1,21 @@
 #!/bin/bash
 
-GIT_DIR="/home/git"
+if [ -d "/home/git" ]
+then
+    GIT_DIR="/home/git"
+elif [ -d "$HOME/git" ]
+then
+    GIT_DIR="$HOME/git"
+else
+    echo "UNABLE TO FIND git repo copies"
+    exit 1
+fi
 
 untracked=""
 uncommitted=""
 unpulled=""
 
+echo "checking all repos in $GIT_DIR"
 cd $GIT_DIR
 for file in *
 do
