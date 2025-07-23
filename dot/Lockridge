@@ -1,0 +1,188 @@
+#!/bin/bash rundot.sh
+#
+# This script uses dot to create a .png of a directed graph representing the 
+#	property ownership/transfers within Lockridge.
+#
+# Basis:
+#	I reconstructed this from a poster of founders and members shown
+#	to me by Bryan and Joanna Bomberg.
+#
+# Problems:
+#	The original poster was more about community than property.  It
+#	tries to list all people who have entered the community, but is
+#	incomplete on transfers:
+#	  - a few people are mentioned without lots, perhaps because
+#	    Wilbea rd is was not part of the original purchase?
+#	  - a few sellers are mentioned who were never listed as
+#	    having purchased the property, perhaps because they
+#	    did not really become members of the community?
+#	  - the poster ends in 2013 (and I inferred that Jennifer
+#	    bought lot 10 from the Meads)
+#
+# Validation vs current membership:
+#	1. all people shown as current owners appear on the current
+#	   membership spreadhseet.
+#	2. no body who is shown as having sold their property is
+#	   listed in the current spreadhseet, except for a DeBoer
+#	   on Wilbea rd (which I infer to be out of this picture)
+#
+
+digraph members {
+	// transfers run from left to right
+	rankdir=LR;
+	
+	// general parameters for all nodes
+	node [ fixedsize = true, height = 0.7, fontsize = 10 ];
+
+	// nodes for the lots (in inverse order of date of 1st transfer)
+	node [ shape = doublecircle color = darkgreen ];
+		"West 10"
+		"East 12"
+		"West 1"
+		"East 1"
+		"West ?"	// could not figure out which lot the Mallings bought
+		"West 7"
+		"East 11"
+		"West 5"
+		"West 6"
+		"West 9"
+		"West 8"
+		"West 4"
+		"West 2"
+		"East 2"
+		"West 3"
+		"East 13"
+		"East 10"
+		"East 14"
+		"East 6/7"
+		"East 15"
+		"East 9"
+		"East 8"
+		"East 5"
+		"East 3/4"
+
+	// nodes for the original founders
+	node [ shape = circle height = 1.0 color = green ];
+		"Gwyn"
+		"McFadden"
+		"Seaton"
+		"Ostram"
+		"McGaughay"
+	// founders listed in 1972 who never acquired any property
+	//	"Lennon"
+	//	"Murrells"
+	//	"Putman"
+
+	// nodes for pre-1980 members
+	node [ shape = circle height = 1.0 color = green ];
+		"Bomberg"
+		"Keher"
+		"DeBoer"
+		"Hagans"
+		"Pederson"
+		"Benson"
+		"McConahay"
+		"Stack"
+		"Triplett"
+		"Filonowitz"
+		"Katz"
+		"Fleishman"
+		"Shaw"
+		"Roseman"
+		"Kirkley"
+
+	// nodes for later members are in a lighter color
+	node [ shape = circle height = 1.0 color = aqua ];
+		"Schoenwalter"
+		"Matthews"
+		"Rubin/Blose"
+		"Rogers"
+		"Pinner"
+		"Hardy"
+		"Gruell"
+		"Libby"
+		"Johnson"
+		"Beatrous"
+		"Alexander"
+		"Mead"
+		"Windsor"
+		"Lawrence"
+		"Krohn"
+		"J Kampe"
+		"M/L Kampe"
+		"Delaney"
+		"Bates"
+		"Coyle/Hall"
+		"Pope"
+		"Del Corso"
+		"Gotwals"
+		"Marcus"
+		"Wells"
+		"DeGraff"
+
+	// original purchases
+	"East 15" -> "McGaughay"		[ label = "1972", fontsize = 10 ];
+	"East 9" -> "Seaton"			[ label = "1972", fontsize = 10 ];
+	"East 8" -> "McFadden"			[ label = "1972", fontsize = 10 ];
+	"East 5" -> "Gwyn"			[ label = "1972", fontsize = 10 ];
+	"East 3/4" -> "Ostram"			[ label = "1972", fontsize = 10 ];
+
+	// subsequent sales from top-left page
+	"East 6/7" -> "Bomberg"			[ label = "1973", fontsize = 10 ];
+	"East 14" -> "Keher"			[ label = "1973", fontsize = 10 ];
+	"East 10" -> "DeBoer"			[ label = "1975", fontsize = 10 ];
+	"East 13" -> "Hagans"			[ label = "1975", fontsize = 10 ];
+	"McGaughay" -> "Pederson"		[ label = "1975", fontsize = 10 ];
+	"Seaton" -> "Benson"			[ label = "1975", fontsize = 10 ];
+	"West 3" -> "McConahay"			[ label = "1976", fontsize = 10 ];
+	"East 2" -> "Stack"			[ label = "1976", fontsize = 10 ];
+	"West 2" -> "Triplett"			[ label = "1977", fontsize = 10 ];
+	"West 4" -> "Filonowitz"		[ label = "1977", fontsize = 10 ];
+
+	// subsequent sales from bottom-left page
+	"West 8" -> "Katz"			[ label = "1978", fontsize = 10 ];
+	"West 9" -> "Roseman"			[ label = "1978", fontsize = 10 ];
+	"West 6" -> "Shaw"			[ label = "1978", fontsize = 10 ];
+	"East 11" -> "Fleishman"		[ label = "1978", fontsize = 10 ];
+	"East 12" -> "Fleishman "		[ label = "1978", fontsize = 10 ];
+	"West 5" -> "Kirkley"			[ label = "1978", fontsize = 10 ];
+	"Pederson" -> "Rubin/Blose"		[ label = "1979", fontsize = 10 ];
+	"West ?" -> "Malling"			[ label = "1980", fontsize = 10 ];
+	"Kirkley" -> "Rogers"			[ label = "1981", fontsize = 10 ];
+	"Libby" -> "Pinner"			[ label = "1982", fontsize = 10 ];
+	"Fleishman" -> "Hardy"			[ label = "1983", fontsize = 10 ];
+	"East 1" -> "Beatrous"			[ label = "1984", fontsize = 10 ];
+
+	// subsequent sales from top-right page
+	"Filonowitz" -> "Marcus"		[ label = "1987", fontsize = 10 ];
+	"DeBoer" -> "Del Corso"			[ label = "1987", fontsize = 10 ];
+	"Hagans" -> "Madison"			[ label = "1988", fontsize = 10 ];
+	"Matthews" -> "Patterson"		[ label = "1990", fontsize = 10 ];
+	"Bates" -> "Coyle/Hall"			[ label = "1993", fontsize = 10 ];
+	"Fleishman " -> "Klein"			[ label = "1994", fontsize = 10 ];
+
+	// subsequent sales from bottom-right page
+	"Kirkley " -> "Alexander"		[ label = "1997", fontsize = 10 ];
+	"DeGraff" -> "Mead" 			[ label = "1997", fontsize = 10 ];
+	"Windsor" -> "Lawrence"			[ label = "2008", fontsize = 10 ];
+	"Johnson" -> "Krohn" 			[ label = "2013", fontsize = 10 ];
+
+	// sales I added
+	"Mead" -> "J Kampe"			[ label = "2022", fontsize = 10 ];
+	"Triplett" -> "M/L Kampe"		[ label = "2025", fontsize = 10 ];
+
+	// tansfers mentioned but not listed
+	"West 7" -> "Kirkley "			[ label = "197?", fontsize = 10];
+	"West 10" -> "Wells"			[ label = "????", fontsize = 10];
+	"Wells" -> "DeGraff"			[ label = "????", fontsize = 10];
+	"Keher" -> "Gruell"			[ label = "????", fontsize = 10];
+	"Gruell" -> "Johnson"			[ label = "????", fontsize = 10];
+	"Gwyn" -> "Schoenwalter"		[ label = "????", fontsize = 10];
+	"Schoenwalter" -> "Windsor"		[ label = "????", fontsize = 10];
+	"McFadden" -> "Libby"			[ label = "????", fontsize = 10];
+	"Ostram" -> "Delaney"			[ label = "????", fontsize = 10];
+	"Rubin/Blose" -> "Gotwals"		[ label = "????", fontsize = 10];
+	"Del Corso" -> "Pope"			[ label = "????", fontsize = 10];
+	"West 1" -> "Matthews"			[ label = "????", fontsize = 10];
+	"Delaney" -> "Bates"			[ label = "????", fontsize = 10];
+}
