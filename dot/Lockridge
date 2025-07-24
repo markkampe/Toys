@@ -38,6 +38,8 @@ digraph members {
 	node [ shape = doublecircle color = darkgreen ];
 	  //	parcel		   address		mshp
 	  //	------		   -------		----
+		"H26b"		// 1001 Wilbea Rd	H26
+	  	"H26a"		// 1000 Wilbea Rd	H26
 		"West 10"	// 3218 Other Duck ln	H24
 		"East 12"	// 5617 Community Dr	H11
 		"West 1"	// 3219 Tipi Ln		H15
@@ -62,8 +64,6 @@ digraph members {
 		"East 8"	// 5622 Community Dr	H7
 		"East 5"	// 5602 Lockridge Rd	H5
 		"East 3/4"	// 5520 Lockridge Rd?	H4
-	  //	none		// 1000 Wilbea Rd	H26
-	  //	none		// 1001 Wilbea Rd	H26
 
 	// nodes for the original founders
 	node [ shape = circle height = 1.0 color = green ];
@@ -82,6 +82,7 @@ digraph members {
 		"Bomberg"	// Jayne & Brian, Joanna
 		"Benson"	// Ron
 		"DeBoer"	// R. Dean
+		"DeBoer "	// same on Wilbea
 		"Filonowitz"	// Joe -> George 
 		"Fleishman"	// Bob -> Andy
 		"Hagans"	// Walker & Linda
@@ -105,6 +106,7 @@ digraph members {
 		"DeGraff"	// Sally + Bruce Winterhalter
 		"Del Corso"	// Daniel
 		"Delaney"
+		"Godar"		// Godi
 		"Gotwals"	// Chris & Lisa
 		"Gruell"	// Kit
 		"Hardy"		// Albert
@@ -181,6 +183,8 @@ digraph members {
 	"Mead" -> "J Kampe"			[ label = "2022", fontsize = 10 ];
 	"Triplett" -> "M/L Kampe"		[ label = "2025", fontsize = 10 ];
 	"Coyle/Hall" -> "Lucia"			[ label = "????", fontsize = 10 ];	// my hypothesis
+	"H26a" -> "Godar"			[ label = "1988", fontsize = 10 ];
+	"H26b" -> "DeBoer "			[ label = "????", fontsize = 10 ];
 
 	// tansfers mentioned but not listed
 	"West 7" -> "Kirkley "			[ label = "197?", fontsize = 10];
