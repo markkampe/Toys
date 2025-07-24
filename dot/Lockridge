@@ -36,89 +36,94 @@ digraph members {
 
 	// nodes for the lots (in inverse order of date of 1st transfer)
 	node [ shape = doublecircle color = darkgreen ];
-		"West 10"
-		"East 12"
-		"West 1"
-		"East 1"
-		"West ?"	// could not figure out which lot the Mallings bought
-		"West 7"
-		"East 11"
-		"West 5"
-		"West 6"
-		"West 9"
-		"West 8"
-		"West 4"
-		"West 2"
-		"East 2"
-		"West 3"
-		"East 13"
-		"East 10"
-		"East 14"
-		"East 6/7"
-		"East 15"
-		"East 9"
-		"East 8"
-		"East 5"
-		"East 3/4"
+		"West 10"	// 3218 Other Duck ln
+		"East 12"	// 5617 Community Dr
+		"West 1"	// 3219 Tipi Ln
+		"East 1"	// 5500 Lockridge Rd
+		"West ?"	// 3200 Wined Elm Ln
+		"West 7"	// 3207 Winged Elm Ln
+		"East 11"	// 5619 Community Dr
+		"West 5"	// 3222 Tipi Ln
+		"West 6"	// 3221 Winged Elm Ln
+		"West 9"	// 3219 Other Duck Ln
+		"West 8"	// 3201 Winged Elm Ln
+		"West 4"	// 3201 Tipi Ln
+		"West 2"	// 3211 Tipi Ln
+		"East 2"	// 5506 Lockridge Rd
+		"West 3"	// 3205 Tipi Ln
+		"East 13"	// 5728 Turkey Farm Rd
+		"East 10"	// 5621 Community Dr
+		"East 14"	// 5622 Turkey Farm Rd
+		"East 6/7"	// 5616 Community Dr
+		"East 15"	// 5518 Turkey Farm Rd
+		"East 9"	// 5623 Community Dr
+		"East 8"	// 5622 Community Dr
+		"East 5"	// 5602 Lockridge Rd
+		"East 3/4"	// ? merged into 5500 Lockridge ?
 
 	// nodes for the original founders
 	node [ shape = circle height = 1.0 color = green ];
-		"Gwyn"
-		"McFadden"
-		"Seaton"
-		"Ostram"
-		"McGaughay"
+		"Gwyn"		// Martha & Bob
+		"McFadden"	// David
+		"Seaton"	// Kathy & Sandy
+		"Ostram"	// Carolyn & Karl
+		"McGaughay"	// Val & Skip
 	// founders listed in 1972 who never acquired any property
-	//	"Lennon"
+	//	"Lennon"	// Thelma & John
 	//	"Murrells"
-	//	"Putman"
+	//	"Putman"	// Steve
 
 	// nodes for pre-1980 members
 	node [ shape = circle height = 1.0 color = green ];
-		"Bomberg"
-		"Keher"
-		"DeBoer"
-		"Hagans"
-		"Pederson"
-		"Benson"
-		"McConahay"
-		"Stack"
-		"Triplett"
-		"Filonowitz"
-		"Katz"
-		"Fleishman"
-		"Shaw"
-		"Roseman"
-		"Kirkley"
+		"Bomberg"	// Jayne & Brian, Joanna
+		"Benson"	// Ron
+		"DeBoer"	// R. Dean
+		"Filonowitz"	// Joe -> George 
+		"Fleishman"	// Bob -> Andy
+		"Hagans"	// Walker & Linda
+		"Katz"		// Svea & Arnie
+		"Keher"		// Carol & Bill
+		"Kirkley"	// Patty
+		"Kirkley "	// Patty (2nd lot)
+		"McConahay"	// Shirley & John
+		"Pederson"	// Barbara & Lee
+		"Stack"		// Carol + Ken WIlliams, Bob De Loach
+		"Triplett"	// Bill
+		"Shaw"		// Deborah
+		"Roserman"	// Sara & Jeff
 
 	// nodes for later members are in a lighter color
 	node [ shape = circle height = 1.0 color = aqua ];
-		"Schoenwalter"
-		"Matthews"
-		"Rubin/Blose"
-		"Rogers"
-		"Pinner"
-		"Hardy"
-		"Gruell"
-		"Libby"
-		"Johnson"
-		"Beatrous"
-		"Alexander"
-		"Mead"
-		"Windsor"
-		"Lawrence"
-		"Krohn"
-		"J Kampe"
-		"M/L Kampe"
-		"Delaney"
+		"Alexander"	// Erika & Josh
 		"Bates"
-		"Coyle/Hall"
-		"Pope"
-		"Del Corso"
-		"Gotwals"
-		"Marcus"
-		"Wells"
+		"Beatrous"	// Marni & Steve, Donna Bravo
+		"Coyle/Hall"	// Sally + Ted
 		"DeGraff"
+		"Del Corso"	// Daniel
+		"Delaney"
+		"Gotwals"	// Chris & Lisa
+		"Gruell"	// Kit
+		"Hardy"		// Albert
+		"Johnson"	// Max & Marsha
+		"J Kampe"	// Jennifer
+		"M/L Kampe"	// Mark & Lynnette
+		"Klein"		// Mary + Fritz
+		"Krohn"		// Christine
+		"Lawrence"	// Deborah
+		"Libby"		// Coleen & Gil
+		"Madison"	// Jane & Roger
+		"Malling"	// Martha & Heinrich
+		"Marcus"	// Cheryl + Roy Schoenberg
+		"Matthews"
+		"Mead"		// Sabine & Mark
+		"Patterson"	// Trisha
+		"Pinner"	// Bepi & Forest
+		"Pope"		// Cheryl & Michael
+		"Rogers"	// Hellen & David
+		"Rubin/Blose"	// Sara, Jim
+		"Schoenwalter"
+		"Wells"
+		"Windsor"
 
 	// original purchases
 	"East 15" -> "McGaughay"		[ label = "1972", fontsize = 10 ];
@@ -141,7 +146,7 @@ digraph members {
 
 	// subsequent sales from bottom-left page
 	"West 8" -> "Katz"			[ label = "1978", fontsize = 10 ];
-	"West 9" -> "Roseman"			[ label = "1978", fontsize = 10 ];
+	"West 9" -> "Roserman"			[ label = "1978", fontsize = 10 ];
 	"West 6" -> "Shaw"			[ label = "1978", fontsize = 10 ];
 	"East 11" -> "Fleishman"		[ label = "1978", fontsize = 10 ];
 	"East 12" -> "Fleishman "		[ label = "1978", fontsize = 10 ];
