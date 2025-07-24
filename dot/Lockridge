@@ -44,7 +44,7 @@ digraph members {
 		"East 12"	// 5617 Community Dr	H11
 		"West 1"	// 3219 Tipi Ln		H15
 		"East 1"	// 5500 Lockridge Rd	H2
-		"West ?"	// 3200 Wined Elm Ln	H21
+		"H21"		// 3200 Wined Elm Ln	H21
 		"West 7"	// 3207 Winged Elm Ln	H19
 		"East 11"	// 5619 Community Dr	H10
 		"West 5"	// 3222 Tipi Ln		H14
@@ -159,7 +159,7 @@ digraph members {
 	"East 12" -> "Fleishman "		[ label = "1978", fontsize = 10 ];
 	"West 5" -> "Kirkley"			[ label = "1978", fontsize = 10 ];
 	"Pederson" -> "Rubin/Blose"		[ label = "1979", fontsize = 10 ];
-	"West ?" -> "Malling"			[ label = "1980", fontsize = 10 ];
+	"H21" -> "Malling"			[ label = "1980", fontsize = 10 ];
 	"Kirkley" -> "Rogers"			[ label = "1981", fontsize = 10 ];
 	"Libby" -> "Pinner"			[ label = "1982", fontsize = 10 ];
 	"Fleishman" -> "Hardy"			[ label = "1983", fontsize = 10 ];
