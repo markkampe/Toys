@@ -12,21 +12,19 @@
 #	tries to list all people who have entered the community, but is
 #	incomplete on transfers:
 #	  - a few people are mentioned without lots, perhaps because
-#	    Wilbea rd is was not part of the original purchase?
+#	    those lots had not yet been given numbers.
 #	  - a few sellers are mentioned who were never listed as
-#	    having purchased the property, perhaps because they
-#	    did not really become members of the community?
-#	  - the poster ends in 2013 (and I inferred that Jennifer
-#	    bought lot 10 from the Meads)
+#	    having purchased the property.
+#	  - the poster ends in 2013, but I was able to consult Orange
+#	    county property records to find the most recent transfers.
 #
 # Validation vs current membership:
 #	1. all people shown as current owners appear on the current
 #	   membership spreadhseet.
 #	2. no body who is shown as having sold their property is
-#	   listed in the current spreadhseet, except for DeBoer,
-#	   who still lives in the area
+#	   listed in the current spreadhseet, except for DeBoer
+#	   who still lives in the area (w/Godar)
 #
-
 digraph members {
 	// transfers run from left to right
 	rankdir=LR;
@@ -177,24 +175,24 @@ digraph members {
 	"Windsor" -> "Lawrence"			[ label = "2008", fontsize = 10 ];
 	"Johnson" -> "Krohn" 			[ label = "2013", fontsize = 10 ];
 
-	// sales I added
+	// added w/info from NC property records or direct knowledge
+	"H26" -> "Godar"			[ label = "1988", fontsize = 10 ];
+	"Del Corso" -> "Pope"			[ label = "1999", fontsize = 10 ];
+	"Rubin/Blose" -> "Gotwals"		[ label = "2014", fontsize = 10 ];
+	"Coyle/Hall" -> "Lucia"			[ label = "2020", fontsize = 10 ];
 	"Mead" -> "J Kampe"			[ label = "2022", fontsize = 10 ];
 	"Triplett" -> "M/L Kampe"		[ label = "2025", fontsize = 10 ];
-	"Coyle/Hall" -> "Lucia"			[ label = "????", fontsize = 10 ];	// my hypothesis
-	"H26" -> "Godar"			[ label = "1988", fontsize = 10 ];
 
 	// tansfers mentioned but not listed
-	"West 7" -> "Kirkley "			[ label = "197?", fontsize = 10];
-	"West 10" -> "Wells"			[ label = "????", fontsize = 10];
-	"Wells" -> "DeGraff"			[ label = "????", fontsize = 10];
-	"Keher" -> "Gruell"			[ label = "????", fontsize = 10];
-	"Gruell" -> "Johnson"			[ label = "????", fontsize = 10];
-	"Gwyn" -> "Schoenwalter"		[ label = "????", fontsize = 10];
-	"Schoenwalter" -> "Windsor"		[ label = "????", fontsize = 10];
-	"McFadden" -> "Libby"			[ label = "????", fontsize = 10];
-	"Ostram" -> "Delaney"			[ label = "????", fontsize = 10];
-	"Rubin/Blose" -> "Gotwals"		[ label = "????", fontsize = 10];
-	"Del Corso" -> "Pope"			[ label = "????", fontsize = 10];
-	"West 1" -> "Matthews"			[ label = "????", fontsize = 10];
-	"Delaney" -> "Bates"			[ label = "????", fontsize = 10];
+	"West 7" -> "Kirkley "			[ label = "????", fontsize = 10 ];
+	"Ostram" -> "Delaney"			[ label = "????", fontsize = 10 ];
+	"Delaney" -> "Bates"			[ label = "????", fontsize = 10 ];
+	"Gwyn" -> "Schoenwalter"		[ label = "????", fontsize = 10 ];
+	"Schoenwalter" -> "Windsor"		[ label = "????", fontsize = 10 ];
+	"Keher" -> "Gruell"			[ label = "????", fontsize = 10 ];
+	"Gruell" -> "Johnson"			[ label = "????", fontsize = 10 ];
+	"West 10" -> "Wells"			[ label = "????", fontsize = 10 ];
+	"Wells" -> "DeGraff"			[ label = "????", fontsize = 10 ];
+	"McFadden" -> "Libby"			[ label = "????", fontsize = 10 ];
+	"West 1" -> "Matthews"			[ label = "????", fontsize = 10 ];
 }
