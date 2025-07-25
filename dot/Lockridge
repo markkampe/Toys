@@ -23,8 +23,8 @@
 #	1. all people shown as current owners appear on the current
 #	   membership spreadhseet.
 #	2. no body who is shown as having sold their property is
-#	   listed in the current spreadhseet, except for a DeBoer
-#	   on Wilbea rd (which I infer to be out of this picture)
+#	   listed in the current spreadhseet, except for DeBoer,
+#	   who still lives in the area
 #
 
 digraph members {
@@ -38,8 +38,7 @@ digraph members {
 	node [ shape = doublecircle color = darkgreen ];
 	  //	parcel		   address		mshp
 	  //	------		   -------		----
-		"H26b"		// 1001 Wilbea Rd	H26
-	  	"H26a"		// 1000 Wilbea Rd	H26
+	  	"H26"		// 1000/1001 Wilbea Rd	H26
 		"West 10"	// 3218 Other Duck ln	H24
 		"West 1"	// 3219 Tipi Ln		H15
 		"East 1"	// 5500 Lockridge Rd	H2
@@ -81,8 +80,7 @@ digraph members {
 	node [ shape = circle height = 1.0 color = green ];
 		"Bomberg"	// Jayne & Brian, Joanna
 		"Benson"	// Ron
-		"DeBoer"	// R. Dean
-		"DeBoer "	// same on Wilbea
+		"DeBoer"	// Ronald Dean
 		"Filonowitz"	// Joe -> George 
 		"Fleishman"	// Bob -> Andy
 		"Hagans"	// Walker & Linda
@@ -106,7 +104,7 @@ digraph members {
 		"DeGraff"	// Sally + Bruce Winterhalter
 		"Del Corso"	// Daniel
 		"Delaney"
-		"Godar"		// Godi
+		"Godar"		// Godi Godar (and now Dean DeBoer)
 		"Gotwals"	// Chris & Lisa
 		"Gruell"	// Kit
 		"Hardy"		// Albert
@@ -183,8 +181,7 @@ digraph members {
 	"Mead" -> "J Kampe"			[ label = "2022", fontsize = 10 ];
 	"Triplett" -> "M/L Kampe"		[ label = "2025", fontsize = 10 ];
 	"Coyle/Hall" -> "Lucia"			[ label = "????", fontsize = 10 ];	// my hypothesis
-	"H26a" -> "Godar"			[ label = "1988", fontsize = 10 ];
-	"H26b" -> "DeBoer "			[ label = "????", fontsize = 10 ];
+	"H26" -> "Godar"			[ label = "1988", fontsize = 10 ];
 
 	// tansfers mentioned but not listed
 	"West 7" -> "Kirkley "			[ label = "197?", fontsize = 10];
