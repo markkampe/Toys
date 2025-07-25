@@ -1,7 +1,7 @@
 #!/bin/bash rundot.sh
 #
-# This script uses dot to create a .png of a directed graph representing the 
-#	property ownership/transfers within Lockridge.
+# This script uses graphviz/dot to create a .png of a directed graph 
+#	representing the property ownership/transfers within Lockridge.
 #
 # Basis:
 #	I reconstructed this from a poster of founders and members shown
@@ -64,135 +64,137 @@ digraph members {
 
 	// nodes for the original founders
 	node [ shape = circle height = 1.0 color = green ];
-		"Gwyn"		// Martha & Bob
-		"McFadden"	// David
-		"Seaton"	// Kathy & Sandy
-		"Ostram"	// Carolyn & Karl
-		"McGaughay"	// Val & Skip
+		"Martha+Bob\nGwyn"
+		"David\nMcFadden"
+		"Kathy+Sandy\nSeaton"
+		"Carolyn+Karl\nOstram"
+		"Val+Skip\nMcGaughay"
 	// founders listed in 1972 who never acquired any property
-	//	"Lennon"	// Thelma & John
+	//	"Thelma/John\nLennon"
 	//	"Murrells"
-	//	"Putman"	// Steve
+	//	"Stece\nPutman"
 
 	// nodes for pre-1980 members
 	node [ shape = circle height = 1.0 color = green ];
-		"Bomberg"	// Jayne & Brian, Joanna
-		"Benson"	// Ron
-		"DeBoer"	// Ronald Dean
-		"Filonowitz"	// Joe -> George 
-		"Fleishman"	// Bob -> Andy
-		"Hagans"	// Walker & Linda
-		"Katz"		// Svea & Arnie
-		"Keher"		// Carol & Bill
-		"Kirkley"	// Patty
-		"Kirkley "	// Patty (2nd lot)
-		"McConahay"	// Shirley & John
-		"Pederson"	// Barbara & Lee
-		"Stack"		// Carol + Ken WIlliams, Bob De Loach
-		"Triplett"	// Bill
-		"Shaw"		// Deborah
-		"Roseman"	// Sara & Jeff
+		"Jayne+Bryan\nBomberg"	// Jayne & Brian, Joanna
+		"Ron\nBenson"
+		"R.Dean\nDeBoer"
+		"Joe\nFilonowitz"
+		"George\nFilonowitz"
+		"Bob\nFleishman"
+		"Walker\nLinda\nHagans"
+		"Svea+Arnie\nKatz"
+		"Carol+Bill\nKeher"
+		"Patty\nKirkley"
+		"Patty\nKirkley "
+		"Shirley+John\nMcConahay"
+		"Barbara+Lee\nPederson"
+		"Carol Stack\nKen Williams"
+		"Bill\nTriplett"
+		"Deborah\nShaw"
+		"Sara+Jeff\nRoseman"
 
 	// nodes for later members are in a lighter color
 	node [ shape = circle height = 1.0 color = aqua ];
-		"Alexander"	// Erika & Josh
-		"Bates"
-		"Beatrous"	// Marni & Steve, Donna Bravo
-		"Coyle/Hall"	// Sally + Ted
-		"DeGraff"	// Sally + Bruce Winterhalter
-		"Del Corso"	// Daniel
-		"Delaney"
-		"Godar"		// Godi Godar (and now Dean DeBoer)
-		"Gotwals"	// Chris & Lisa
-		"Gruell"	// Kit
-		"Hardy"		// Albert
-		"Johnson"	// Max & Marsha
-		"J Kampe"	// Jennifer
-		"M/L Kampe"	// Mark & Lynnette
-		"Klein"		// Mary + Fritz
-		"Krohn"		// Christine
-		"Lawrence"	// Deborah
-		"Libby"		// Coleen & Gil
-		"Lucia"		// Chris + Alyssa Bernanke
-		"Madison"	// Jane & Roger
-		"Malling"	// Martha & Heinrich
-		"Marcus"	// Cheryl + Roy Schoenberg
-		"Matthews"
-		"Mead"		// Sabine & Mark
-		"Patterson"	// Trisha
-		"Pinner"	// Bepi & Forest
-		"Pope"		// Cheryl & Michael
-		"Rogers"	// Hellen & David
-		"Rubin/Blose"	// Sara, Jim
-		"Schoenwalter"	// Ken
-		"Wells"
-		"Windsor"
+		"Erika+Josh\nAlexander"
+		"Bates"			// only mentioned as intermediary
+		"Marni+Steve\nBeatrous"
+		"Sallye Coyle\nTed Hall"
+		"Sally DeGraff\nBruce\nWinterhalter"
+		"Daniel\nDel Corso"
+		"Delaney"		// only mentioned as intermediary
+		"Godi\nGodar"
+		"Chris+Lissa\nGotwals"
+		"Kit\nGruell"
+		"Albert\nHardy"
+		"Max+Marsha\nJohnson"
+		"Jennifer\nKampe"
+		"Mark\nLynnette\nKampe"
+		"Mary+Fritz\nKlein"
+		"Christine\nKrohn"
+		"Deborah\nLawrence"
+		"Coleen+Gil\nLibby"
+		"Chris Lucia\nAlyssa\nBernanke"
+		"Jane+Roger\nMadison"
+		"Martha\nHeinrich\nMalling"
+		"Cheryl\nMarcus\nRoy\nSchoenberg"
+		"Matthews"		// only mentioned as intermediary
+		"Sabine+Mark\nMead"
+		"Tricia\nPatterson"
+		"Bepi+Forest\nPinner"
+		"Cheryl\nMichael\nPope"
+		"Helen+David\nRogers"
+		"Sara Rubin\nJim Blose"
+		"Ken\nSchoenwalter"
+		"Wells"			// only mentioned as intermediary
+		"Windsor"		// only mentioned as intermediary
 
 	// original purchases
-	"East 15" -> "McGaughay"		[ label = "1972", fontsize = 10 ];
-	"East 9" -> "Seaton"			[ label = "1972", fontsize = 10 ];
-	"East 8" -> "McFadden"			[ label = "1972", fontsize = 10 ];
-	"East 5" -> "Gwyn"			[ label = "1972", fontsize = 10 ];
-	"East 3/4" -> "Ostram"			[ label = "1972", fontsize = 10 ];
+	"East 15" -> "Val+Skip\nMcGaughay"			[ label = "1972", fontsize = 10 ];
+	"East 9" -> "Kathy+Sandy\nSeaton"			[ label = "1972", fontsize = 10 ];
+	"East 8" -> "David\nMcFadden"				[ label = "1972", fontsize = 10 ];
+	"East 5" -> "Martha+Bob\nGwyn"				[ label = "1972", fontsize = 10 ];
+	"East 3/4" -> "Carolyn+Karl\nOstram"			[ label = "1972", fontsize = 10 ];
 
 	// subsequent sales from top-left page
-	"East 6/7" -> "Bomberg"			[ label = "1973", fontsize = 10 ];
-	"East 14" -> "Keher"			[ label = "1973", fontsize = 10 ];
-	"East 10" -> "DeBoer"			[ label = "1975", fontsize = 10 ];
-	"East 13" -> "Hagans"			[ label = "1975", fontsize = 10 ];
-	"McGaughay" -> "Pederson"		[ label = "1975", fontsize = 10 ];
-	"Seaton" -> "Benson"			[ label = "1975", fontsize = 10 ];
-	"West 3" -> "McConahay"			[ label = "1976", fontsize = 10 ];
-	"East 2" -> "Stack"			[ label = "1976", fontsize = 10 ];
-	"West 2" -> "Triplett"			[ label = "1977", fontsize = 10 ];
-	"West 4" -> "Filonowitz"		[ label = "1977", fontsize = 10 ];
+	"East 6/7" -> "Jayne+Bryan\nBomberg"			[ label = "1973", fontsize = 10 ];
+	"East 14" -> "Carol+Bill\nKeher"			[ label = "1973", fontsize = 10 ];
+	"East 10" -> "R.Dean\nDeBoer"				[ label = "1975", fontsize = 10 ];
+	"East 13" -> "Walker\nLinda\nHagans"			[ label = "1975", fontsize = 10 ];
+	"Val+Skip\nMcGaughay" -> "Barbara+Lee\nPederson"	[ label = "1975", fontsize = 10 ];
+	"Kathy+Sandy\nSeaton" -> "Ron\nBenson"			[ label = "1975", fontsize = 10 ];
+	"West 3" -> "Shirley+John\nMcConahay"			[ label = "1976", fontsize = 10 ];
+	"Joe\nFilonowitz" -> "Carol Stack\nKen Williams"	[ label = "1976", fontsize = 10 ];
+	"West 2" -> "Bill\nTriplett"				[ label = "1977", fontsize = 10 ];
+	"West 4" -> "George\nFilonowitz"			[ label = "1977", fontsize = 10 ];
 
 	// subsequent sales from bottom-left page
-	"West 8" -> "Katz"			[ label = "1978", fontsize = 10 ];
-	"West 9" -> "Roseman"			[ label = "1978", fontsize = 10 ];
-	"West 6" -> "Shaw"			[ label = "1978", fontsize = 10 ];
-	"East 11" -> "Fleishman"		[ label = "1978", fontsize = 10 ];
-	"East 12" -> "Fleishman "		[ label = "1978", fontsize = 10 ];
-	"West 5" -> "Kirkley"			[ label = "1978", fontsize = 10 ];
-	"Pederson" -> "Rubin/Blose"		[ label = "1979", fontsize = 10 ];
-	"H21" -> "Malling"			[ label = "1980", fontsize = 10 ];
-	"Kirkley" -> "Rogers"			[ label = "1981", fontsize = 10 ];
-	"Libby" -> "Pinner"			[ label = "1982", fontsize = 10 ];
-	"Fleishman" -> "Hardy"			[ label = "1983", fontsize = 10 ];
-	"East 1" -> "Beatrous"			[ label = "1984", fontsize = 10 ];
+	"West 8" -> "Svea+Arnie\nKatz"				[ label = "1978", fontsize = 10 ];
+	"West 9" -> "Sara+Jeff\nRoseman"			[ label = "1978", fontsize = 10 ];
+	"West 6" -> "Deborah\nShaw"				[ label = "1978", fontsize = 10 ];
+	"East 11" -> "Bob\nFleishman"				[ label = "1978", fontsize = 10 ];
+	"East 12" -> "Bob\nFleishman "				[ label = "1978", fontsize = 10 ];
+	"West 5" -> "Patty\nKirkley"				[ label = "1978", fontsize = 10 ];
+	"Barbara+Lee\nPederson" -> "Sara Rubin\nJim Blose"	[ label = "1979", fontsize = 10 ];
+	"H21" -> "Martha\nHeinrich\nMalling"			[ label = "1980", fontsize = 10 ];
+	"Patty\nKirkley" -> "Helen+David\nRogers"		[ label = "1981", fontsize = 10 ];
+	"Coleen+Gil\nLibby" -> "Bepi+Forest\nPinner"		[ label = "1982", fontsize = 10 ];
+	"Bob\nFleishman" -> "Albert\nHardy"			[ label = "1983", fontsize = 10 ];
+	"East 1" -> "Marni+Steve\nBeatrous"			[ label = "1984", fontsize = 10 ];
 
 	// subsequent sales from top-right page
-	"Filonowitz" -> "Marcus"		[ label = "1987", fontsize = 10 ];
-	"DeBoer" -> "Del Corso"			[ label = "1987", fontsize = 10 ];
-	"Hagans" -> "Madison"			[ label = "1988", fontsize = 10 ];
-	"Matthews" -> "Patterson"		[ label = "1990", fontsize = 10 ];
-	"Bates" -> "Coyle/Hall"			[ label = "1993", fontsize = 10 ];
-	"Fleishman " -> "Klein"			[ label = "1994", fontsize = 10 ];
+	"George\nFilonowitz" -> "Cheryl\nMarcus\nRoy\nSchoenberg"	[ label = "1987", fontsize = 10 ];
+	"R.Dean\nDeBoer" -> "Daniel\nDel Corso"			[ label = "1987", fontsize = 10 ];
+	"Walker\nLinda\nHagans" -> "Jane+Roger\nMadison"	[ label = "1988", fontsize = 10 ];
+	"Matthews" -> "Tricia\nPatterson"			[ label = "1990", fontsize = 10 ];
+	"Bates" -> "Sallye Coyle\nTed Hall"			[ label = "1993", fontsize = 10 ];
+	"Bob\nFleishman " -> "Mary+Fritz\nKlein"		[ label = "1994", fontsize = 10 ];
 
 	// subsequent sales from bottom-right page
-	"Kirkley " -> "Alexander"		[ label = "1997", fontsize = 10 ];
-	"DeGraff" -> "Mead" 			[ label = "1997", fontsize = 10 ];
-	"Windsor" -> "Lawrence"			[ label = "2008", fontsize = 10 ];
-	"Johnson" -> "Krohn" 			[ label = "2013", fontsize = 10 ];
+	"Patty\nKirkley " -> "Erika+Josh\nAlexander"		[ label = "1997", fontsize = 10 ];
+	"Sally DeGraff\nBruce\nWinterhalter" -> "Sabine+Mark\nMead"	[ label = "1997", fontsize = 10 ];
+	"Windsor" -> "Deborah\nLawrence"			[ label = "2008", fontsize = 10 ];
+	"Max+Marsha\nJohnson" -> "Christine\nKrohn" 		[ label = "2013", fontsize = 10 ];
 
 	// added w/info from NC property records or direct knowledge
-	"H26" -> "Godar"			[ label = "1988", fontsize = 10 ];
-	"Del Corso" -> "Pope"			[ label = "1999", fontsize = 10 ];
-	"Rubin/Blose" -> "Gotwals"		[ label = "2014", fontsize = 10 ];
-	"Coyle/Hall" -> "Lucia"			[ label = "2020", fontsize = 10 ];
-	"Mead" -> "J Kampe"			[ label = "2022", fontsize = 10 ];
-	"Triplett" -> "M/L Kampe"		[ label = "2025", fontsize = 10 ];
+	"H26" -> "Godi\nGodar"					[ label = "1988", fontsize = 10 ];
+	"Daniel\nDel Corso" -> "Cheryl\nMichael\nPope"		[ label = "1999", fontsize = 10 ];
+	"Sara Rubin\nJim Blose" -> "Chris+Lissa\nGotwals"	[ label = "2014", fontsize = 10 ];
+	"Sallye Coyle\nTed Hall" -> "Chris Lucia\nAlyssa\nBernanke"	[ label = "2020", fontsize = 10 ];
+	"Sabine+Mark\nMead" -> "Jennifer\nKampe"		[ label = "2022", fontsize = 10 ];
+	"Bill\nTriplett" -> "Mark\nLynnette\nKampe"		[ label = "2025", fontsize = 10 ];
 
 	// tansfers mentioned but not listed
-	"West 7" -> "Kirkley "			[ label = "????", fontsize = 10 ];
-	"Ostram" -> "Delaney"			[ label = "????", fontsize = 10 ];
-	"Delaney" -> "Bates"			[ label = "????", fontsize = 10 ];
-	"Gwyn" -> "Schoenwalter"		[ label = "????", fontsize = 10 ];
-	"Schoenwalter" -> "Windsor"		[ label = "????", fontsize = 10 ];
-	"Keher" -> "Gruell"			[ label = "????", fontsize = 10 ];
-	"Gruell" -> "Johnson"			[ label = "????", fontsize = 10 ];
-	"West 10" -> "Wells"			[ label = "????", fontsize = 10 ];
-	"Wells" -> "DeGraff"			[ label = "????", fontsize = 10 ];
-	"McFadden" -> "Libby"			[ label = "????", fontsize = 10 ];
-	"West 1" -> "Matthews"			[ label = "????", fontsize = 10 ];
+	"East 2" -> "Joe\nFilonowitz"				[ label = "197?", fontsize = 10 ];
+	"West 7" -> "Patty\nKirkley "				[ label = "????", fontsize = 10 ];
+	"Carolyn+Karl\nOstram" -> "Delaney"			[ label = "????", fontsize = 10 ];
+	"Delaney" -> "Bates"					[ label = "????", fontsize = 10 ];
+	"Martha+Bob\nGwyn" -> "Ken\nSchoenwalter"		[ label = "????", fontsize = 10 ];
+	"Ken\nSchoenwalter" -> "Windsor"			[ label = "????", fontsize = 10 ];
+	"Carol+Bill\nKeher" -> "Kit\nGruell"			[ label = "????", fontsize = 10 ];
+	"Kit\nGruell" -> "Max+Marsha\nJohnson"			[ label = "????", fontsize = 10 ];
+	"West 10" -> "Wells"					[ label = "????", fontsize = 10 ];
+	"Wells" -> "Sally DeGraff\nBruce\nWinterhalter"		[ label = "????", fontsize = 10 ];
+	"David\nMcFadden" -> "Coleen+Gil\nLibby"		[ label = "????", fontsize = 10 ];
+	"West 1" -> "Matthews"					[ label = "????", fontsize = 10 ];
 }
