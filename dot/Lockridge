@@ -4,8 +4,14 @@
 #	representing the property ownership/transfers within Lockridge.
 #
 # Basis:
-#	I reconstructed this from a poster of founders and members shown
-#	to me by Bryan and Joanna Bomberg.
+#	I started this from a poster of founders and members shown
+#	to me by Bryan and Joanna Bomberg. There were many missing
+#	dates and names, so I found a few other sources for more
+#	complete/correct information:
+#	    NC OneMap Parcels Viewer:
+#		https://experience.arcgis.com/experience/268c396eb28b445b9a188e2097429c5d
+#	    Orange County Register of Deeds:
+#		https://rod.orangecountync.gov/orangenc/
 #
 # Problems:
 #	The original poster was more about community than property.  It
@@ -29,38 +35,39 @@ digraph members {
 	// transfers run from left to right
 	rankdir=LR;
 	
-	// general parameters for all nodes
-	node [ fixedsize = true, height = 0.7, fontsize = 10 ];
+	// general parameters for all nodes and edges
+	node [ fixedsize = true, fontsize = 10 ];
+	edge [ fontsize = 10 ];
 
 	// nodes for the lots (in inverse order of date of 1st transfer)
-	node [ shape = doublecircle color = darkgreen ];
-	  //	parcel		   address		mshp
-	  //	------		   -------		----
-	  	"H26"		// 1000/1001 Wilbea Rd	H26
-		"West 10"	// 3218 Other Duck ln	H24
-		"West 1"	// 3219 Tipi Ln		H15
-		"East 1"	// 5500 Lockridge Rd	H2
-		"H21"		// 3200 Wined Elm Ln	H21
-		"East 12"	// 5617 Community Dr	H11
-		"West 7"	// 3207 Winged Elm Ln	H19
-		"East 11"	// 5619 Community Dr	H10
-		"West 5"	// 3222 Tipi Ln		H14
-		"West 6"	// 3221 Winged Elm Ln	H22
-		"West 9"	// 3219 Other Duck Ln	H23
-		"West 8"	// 3201 Winged Elm Ln	H20
-		"West 4"	// 3201 Tipi Ln		H18
-		"West 2"	// 3211 Tipi Ln		H16
-		"East 2"	// 5506 Lockridge Rd	H3
-		"West 3"	// 3205 Tipi Ln		H17
-		"East 13"	// 5728 Turkey Farm Rd	H13
-		"East 10"	// 5621 Community Dr	H9
-		"East 14"	// 5622 Turkey Farm Rd	H12
-		"East 6/7"	// 5616 Community Dr	H6
-		"East 15"	// 5518 Turkey Farm Rd	H1
-		"East 9"	// 5623 Community Dr	H8
-		"East 8"	// 5622 Community Dr	H7
-		"East 5"	// 5602 Lockridge Rd	H5
-		"East 3/4"	// 5520 Lockridge Rd?	H4
+	node [ shape = doublecircle, color = darkgreen, height = 0.7 ];
+	  //	parcel		   address		mshp	map ref
+	  //	------		   -------		----	-------
+	  	"H26"		// 1000/1001 Wilbea Rd	H26	P46/1
+		"West 10"	// 3218 Other Duck ln	H24	P31/74
+		"West 1"	// 3219 Tipi Ln		H15	P31/74
+		"East 1"	// 5500 Lockridge Rd	H2	P28/80
+		"West B"	// 3200 Winged Elm Ln	H21	P31/74
+		"East 12"	// 5617 Community Dr	H11	P28/80
+		"West 7"	// 3207 Winged Elm Ln	H19	P31/74
+		"East 11"	// 5619 Community Dr	H10	P28/80
+		"West 5"	// 3222 Tipi Ln		H14	P31/74
+		"West 6"	// 3221 Winged Elm Ln	H22	P31/74
+		"West 9"	// 3219 Other Duck Ln	H23	P31/74
+		"West 8"	// 3201 Winged Elm Ln	H20	P31/74
+		"West 4"	// 3201 Tipi Ln		H18	P31/74
+		"West 2"	// 3211 Tipi Ln		H16	P31/74
+		"East 2"	// 5506 Lockridge Rd	H3	P28/80
+		"West 3"	// 3205 Tipi Ln		H17	P31/74
+		"East 13"	// 5728 Turkey Farm Rd	H13	P28/80
+		"East 10"	// 5621 Community Dr	H9	P28/80
+		"East 14"	// 5622 Turkey Farm Rd	H12	P28/80
+		"East 6/7"	// 5616 Community Dr	H6	P28/80
+		"East 15"	// 5518 Turkey Farm Rd	H1	P28/80
+		"East 9"	// 5623 Community Dr	H8	P28/80
+		"East 8"	// 5622 Community Dr	H7	P28/80
+		"East 5"	// 5602 Lockridge Rd	H5	P28/80
+		"East 3/4"	// 5520 Lockridge Rd	H4	P28/80
 
 	// nodes for the original founders
 	node [ shape = circle height = 1.0 color = green ];
@@ -69,7 +76,7 @@ digraph members {
 		"Kathy+Sandy\nSeaton"
 		"Carolyn+Karl\nOstrom"
 		"Val+Skip\nMcGaughay"
-	// founders listed in 1972 who never acquired any property
+	// founders listed in 1972 who never seem to have acquired property
 	//	"Thelma/John\nLennon"
 	//	"Murrells"
 	//	"Stece\nPutman"
@@ -81,11 +88,11 @@ digraph members {
 		"R.Dean\nDeBoer"
 		"George\nFilonowicz"
 		"Bob\nFleishman"
-		"Walker\nLinda\nHagans"
+		"Walker+\nLinda\nHagans"
 		"Svea+Arnie\nKatz"
 		"Carol+Bill\nKehrer"
-		"Patty\nKirkley"
-		"Patty\nKirkley "
+		"Patty\nKirkley"		// West 5
+		"Patty\nKirkley "		// West 7
 		"Shirley+John\nMcConahay"
 		"Barbara+Lee\nPederson"
 		"Carol Stack\nKen\nWilliamson"
@@ -108,20 +115,20 @@ digraph members {
 		"Albert\nHardy"
 		"Max+Marsha\nJohnson"
 		"Jennifer\nKampe"
-		"Mark\nLynnette\nKampe"
+		"Mark+\nLynnette\nKampe"
 		"Mary+Fritz\nKlein"
 		"Christine\nKrohn"
 		"Deborah\nLawrence"
 		"Coleen+Gil\nLibby"
 		"Chris Lucia\nAlyssa\nBernanke"
 		"Jane+Roger\nMadison"
-		"Martha\nHeinrich\nMalling"
+		"Martha+\nHeinrich\nMalling"
 		"Cheryl\nMarcus\nRoy\nSchonberg"
 		"William\nMatthews"
 		"Sabine+Mark\nMead"
 		"Tricia\nPatterson"
 		"Bepi+Forest\nPinner"
-		"Cheryl\nMichael\nPope"
+		"Cheryl+\nMichael\nPope"
 		"Helen+David\nRogers"
 		"Sara Rubin\nJim Blose"
 		"Ken\nSchonwalter"
@@ -129,70 +136,62 @@ digraph members {
 		"Wells\n(Chrysalis)"
 		"Roger\nWindsor"
 
-	// original purchases
-	"East 15" -> "Val+Skip\nMcGaughay"			[ label = "1972", fontsize = 10 ];
-	"East 9" -> "Kathy+Sandy\nSeaton"			[ label = "1972", fontsize = 10 ];
-	"East 8" -> "David\nMcFadden"				[ label = "1972", fontsize = 10 ];
-	"East 5" -> "Martha+Bob\nGwyn"				[ label = "1972", fontsize = 10 ];
-	"East 3/4" -> "Carolyn+Karl\nOstrom"			[ label = "1972", fontsize = 10 ];
+	// founder purchases
+	"East 15" -> "Val+Skip\nMcGaughay"			[ label = "1972" ];
+	"East 9" -> "Kathy+Sandy\nSeaton"			[ label = "1972" ];
+	"East 8" -> "David\nMcFadden"				[ label = "1972" ];
+	"East 5" -> "Martha+Bob\nGwyn"				[ label = "1972" ];
+	"East 3/4" -> "Carolyn+Karl\nOstrom"			[ label = "1972" ];
 
-	// subsequent sales from top-left page
-	"East 6/7" -> "Jayne+Bryan\nBomberg"			[ label = "1973", fontsize = 10 ];
-	"East 14" -> "Carol+Bill\nKehrer"			[ label = "1973", fontsize = 10 ];
-	"East 10" -> "R.Dean\nDeBoer"				[ label = "1975", fontsize = 10 ];
-	"East 13" -> "Walker\nLinda\nHagans"			[ label = "1975", fontsize = 10 ];
-	"Val+Skip\nMcGaughay" -> "Barbara+Lee\nPederson"	[ label = "1975", fontsize = 10 ];
-	"Kathy+Sandy\nSeaton" -> "Ron\nBenson"			[ label = "1975", fontsize = 10 ];
-	"West 3" -> "Shirley+John\nMcConahay"			[ label = "1976", fontsize = 10 ];
-	"East 2" -> "Carol Stack\nKen\nWilliamson"		[ label = "1980", fontsize = 10 ];
-	"West 2" -> "Bill\nTriplett"				[ label = "1977", fontsize = 10 ];
-	"West 4" -> "George\nFilonowicz"			[ label = "1979", fontsize = 10 ];
-
-	// subsequent sales from bottom-left page
-	"West 8" -> "Svea+Arnie\nKatz"				[ label = "1978", fontsize = 10 ];
-	"West 9" -> "Sara+Jeff\nRoseman"			[ label = "1978", fontsize = 10 ];
-	"West 6" -> "Deborah\nShaw"				[ label = "1978", fontsize = 10 ];
-	"East 11" -> "Bob\nFleishman"				[ label = "1978", fontsize = 10 ];
-	"East 12" -> "Bob\nFleishman "				[ label = "1978", fontsize = 10 ];
-	"West 5" -> "Patty\nKirkley"				[ label = "1978", fontsize = 10 ];
-	"Barbara+Lee\nPederson" -> "Sara Rubin\nJim Blose"	[ label = "1979", fontsize = 10 ];
-	"H21" -> "Martha\nHeinrich\nMalling"			[ label = "1980", fontsize = 10 ];
-	"Patty\nKirkley" -> "Helen+David\nRogers"		[ label = "1981", fontsize = 10 ];
-	"Coleen+Gil\nLibby" -> "Bepi+Forest\nPinner"		[ label = "1982", fontsize = 10 ];
-	"Bob\nFleishman" -> "Albert\nHardy"			[ label = "1983", fontsize = 10 ];
-	"East 1" -> "Marni+Steve\nBeatrous"			[ label = "1984", fontsize = 10 ];
-
-	// subsequent sales from top-right page
-	"George\nFilonowicz" -> "Cheryl\nMarcus\nRoy\nSchonberg" [ label = "1988", fontsize = 10 ];
-	"R.Dean\nDeBoer" -> "Daniel\nDel Corso"			[ label = "1987", fontsize = 10 ];
-	"Walker\nLinda\nHagans" -> "Jane+Roger\nMadison"	[ label = "1988", fontsize = 10 ];
-	"William\nMatthews" -> "Tricia\nPatterson"		[ label = "1990", fontsize = 10 ];
-	"Robert\nBates" -> "Sallye Coyle\nTed Hall"		[ label = "1993", fontsize = 10 ];
-	"Bob\nFleishman " -> "Mary+Fritz\nKlein"		[ label = "1994", fontsize = 10 ];
-
-	// subsequent sales from bottom-right page
-	"Patty\nKirkley " -> "Erika+Josh\nAlexander"		[ label = "1997", fontsize = 10 ];
-	"Sally DeGraff\nBruce\nWinterhalter" -> "Sabine+Mark\nMead"	[ label = "1997", fontsize = 10 ];
-	"Roger\nWindsor" -> "Deborah\nLawrence"			[ label = "2008", fontsize = 10 ];
-	"Max+Marsha\nJohnson" -> "Christine\nKrohn" 		[ label = "2013", fontsize = 10 ];
-
-	// added w/info from NC property records or direct knowledge
-	"Carolyn+Karl\nOstrom" -> "David\nDelany"		[ label = "1977" fontsize = 10 ];
-	"West 7" -> "Patty\nKirkley "				[ label = "1980", fontsize = 10 ];
-	"West 1" -> "William\nMatthews"				[ label = "1980", fontsize = 10 ];
-	"David\nDelany" -> "Robert\nBates"			[ label = "1986", fontsize = 10 ];
-	"Carol+Bill\nKehrer" -> "Elizabeth\nTurner"		[ label = "1985", fontsize = 10 ];
-	"Elizabeth\nTurner" -> "Kit\nGruelle"			[ label = "1987", fontsize = 10 ];
-	"H26" -> "Godi\nGodar"					[ label = "1988", fontsize = 10 ];
-	"Daniel\nDel Corso" -> "Cheryl\nMichael\nPope"		[ label = "1999", fontsize = 10 ];
-	"Martha+Bob\nGwyn" -> "Ken\nSchonwalter"		[ label = "1999", fontsize = 10 ];
-	"Ken\nSchonwalter" -> "Roger\nWindsor"			[ label = "1999", fontsize = 10 ];
-	"Sara Rubin\nJim Blose" -> "Chris+Lissa\nGotwals"	[ label = "2014", fontsize = 10 ];
-	"Sallye Coyle\nTed Hall" -> "Chris Lucia\nAlyssa\nBernanke" [ label = "2020", fontsize = 10 ];
-	"Kit\nGruelle" -> "Max+Marsha\nJohnson"			[ label = "1988", fontsize = 10 ];
-	"Sabine+Mark\nMead" -> "Jennifer\nKampe"		[ label = "2022", fontsize = 10 ];
-	"Bill\nTriplett" -> "Mark\nLynnette\nKampe"		[ label = "2025", fontsize = 10 ];
-	"West 10" -> "Wells\n(Chrysalis)"			[ label = "1979", fontsize = 10 ];
-	"Wells\n(Chrysalis)" -> "Sally DeGraff\nBruce\nWinterhalter" [ label = "1981" fontsize = 10 ];
-	"David\nMcFadden" -> "Coleen+Gil\nLibby"		[ label = "1978", fontsize = 10 ];
+	// Subsequent purchases
+	"East 6/7" -> "Jayne+Bryan\nBomberg"			[ label = "1973" ];
+	"East 14" -> "Carol+Bill\nKehrer"			[ label = "1973" ];
+	"East 10" -> "R.Dean\nDeBoer"				[ label = "1975" ];
+	"East 13" -> "Walker+\nLinda\nHagans"			[ label = "1975" ];
+	"Val+Skip\nMcGaughay" -> "Barbara+Lee\nPederson"	[ label = "1975" ];
+	"Kathy+Sandy\nSeaton" -> "Ron\nBenson"			[ label = "1975" ];
+	"West 3" -> "Shirley+John\nMcConahay"			[ label = "1976" ];
+	"West 2" -> "Bill\nTriplett"				[ label = "1977" ];
+	"Carolyn+Karl\nOstrom" -> "David\nDelany"		[ label = "1977" ];
+	"David\nMcFadden" -> "Coleen+Gil\nLibby"		[ label = "1978" ];
+	"West 8" -> "Svea+Arnie\nKatz"				[ label = "1978" ];
+	"West 9" -> "Sara+Jeff\nRoseman"			[ label = "1978" ];
+	"West 6" -> "Deborah\nShaw"				[ label = "1978" ];
+	"East 11" -> "Bob\nFleishman"				[ label = "1978" ];
+	"East 12" -> "Bob\nFleishman "				[ label = "1978" ];
+	"West 5" -> "Patty\nKirkley"				[ label = "1978" ];
+	"West 4" -> "George\nFilonowicz"			[ label = "1979" ];
+	"Barbara+Lee\nPederson" -> "Sara Rubin\nJim Blose"	[ label = "1979" ];
+	"West 10" -> "Wells\n(Chrysalis)"			[ label = "1979" ];
+	"West B" -> "Martha+\nHeinrich\nMalling"		[ label = "1980" ];
+	"East 2" -> "Carol Stack\nKen\nWilliamson"		[ label = "1980" ];
+	"Patty\nKirkley" -> "Helen+David\nRogers"		[ label = "1981" ];
+	"Wells\n(Chrysalis)" -> "Sally DeGraff\nBruce\nWinterhalter" [ label = "1981" ];
+	"Coleen+Gil\nLibby" -> "Bepi+Forest\nPinner"		[ label = "1982" ];
+	"Bob\nFleishman" -> "Albert\nHardy"			[ label = "1983" ];
+	"East 1" -> "Marni+Steve\nBeatrous"			[ label = "1984" ];
+	"George\nFilonowicz" -> "Cheryl\nMarcus\nRoy\nSchonberg" [ label = "1988" ];
+	"R.Dean\nDeBoer" -> "Daniel\nDel Corso"			[ label = "1987" ];
+	"Walker+\nLinda\nHagans" -> "Jane+Roger\nMadison"	[ label = "1988" ];
+	"Kit\nGruelle" -> "Max+Marsha\nJohnson"			[ label = "1988" ];
+	"William\nMatthews" -> "Tricia\nPatterson"		[ label = "1990" ];
+	"Robert\nBates" -> "Sallye Coyle\nTed Hall"		[ label = "1993" ];
+	"Bob\nFleishman " -> "Mary+Fritz\nKlein"		[ label = "1994" ];
+	"Patty\nKirkley " -> "Erika+Josh\nAlexander"		[ label = "1997" ];
+	"Sally DeGraff\nBruce\nWinterhalter" -> "Sabine+Mark\nMead"	[ label = "1997" ];
+	"Max+Marsha\nJohnson" -> "Christine\nKrohn" 		[ label = "2013" ];
+	"West 7" -> "Patty\nKirkley "				[ label = "1980" ];
+	"West 1" -> "William\nMatthews"				[ label = "1980" ];
+	"David\nDelany" -> "Robert\nBates"			[ label = "1986" ];
+	"Carol+Bill\nKehrer" -> "Elizabeth\nTurner"		[ label = "1985" ];
+	"Elizabeth\nTurner" -> "Kit\nGruelle"			[ label = "1987" ];
+	"H26" -> "Godi\nGodar"					[ label = "1988" ];
+	"Daniel\nDel Corso" -> "Cheryl+\nMichael\nPope"		[ label = "1999" ];
+	"Martha+Bob\nGwyn" -> "Ken\nSchonwalter"		[ label = "1999" ];
+	"Ken\nSchonwalter" -> "Roger\nWindsor"			[ label = "1999" ];
+	"Roger\nWindsor" -> "Deborah\nLawrence"			[ label = "2008" ];
+	"Sara Rubin\nJim Blose" -> "Chris+Lissa\nGotwals"	[ label = "2014" ];
+	"Sallye Coyle\nTed Hall" -> "Chris Lucia\nAlyssa\nBernanke" [ label = "2020" ];
+	"Sabine+Mark\nMead" -> "Jennifer\nKampe"		[ label = "2022" ];
+	"Bill\nTriplett" -> "Mark+\nLynnette\nKampe"		[ label = "2025" ];
 }
