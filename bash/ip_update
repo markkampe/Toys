@@ -15,11 +15,11 @@
 MYNAME=`hostname`
 if [ "$MYNAME" == "Hod" ] 
 then
-    HOD=`dig TXT +short o-o.myaddr.1.google.com @ns1.google.com | tr -d '"'`
+    HOD=`curl ifconfig.me`
     BINAH=`host binah.ddns.net | cut -d" " -f 4`
 else
     HOD=`host sagredo.ddns.net | cut -d" " -f 4`
-    BINAH=`dig TXT +short o-o.myaddr.1.google.com @ns1.google.com | tr -d '"'`
+    BINAH=`curl ifconfig.me`
 fi
 
 # anybody on the local network(s) is allowed to try to log in
