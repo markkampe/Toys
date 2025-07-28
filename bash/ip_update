@@ -16,7 +16,7 @@ HOD=`host sagredo.ddns.net | cut -d" " -f 4`
 
 # but the local address is likely to have changed recently
 MY_NAME=`hostname`
-if [ "$MYNAME" == "Hod" ] 
+if [ "$MY_NAME" == "Hod" ] 
 then
     HOD=`curl -s ifconfig.me`
 else
