@@ -10,16 +10,17 @@
 #     which is not yet listed in hosts.allow or known to ddns.net.
 #
 
-# ask Google what our current external IP address is
-# use DNS to look up the (hopefully still valid) address of our other home system.
-MYNAME=`hostname`
+# start with DNS addresses
+BINAH=`host binah.ddns.net | cut -d" " -f 4`
+HOD=`host sagredo.ddns.net | cut -d" " -f 4`
+
+# but the local address is likely to have changed recently
+MY_NAME=`hostname`
 if [ "$MYNAME" == "Hod" ] 
 then
-    HOD=`curl ifconfig.me`
-    BINAH=`host binah.ddns.net | cut -d" " -f 4`
+    HOD=`curl -s ifconfig.me`
 else
-    HOD=`host sagredo.ddns.net | cut -d" " -f 4`
-    BINAH=`curl ifconfig.me`
+    BINAH=`curl -s ifconfig.me`
 fi
 
 # anybody on the local network(s) is allowed to try to log in
@@ -38,8 +39,16 @@ cat <<- EOF > hosts.allow
 	# If you're going to protect the portmapper use the name "rpcbind" for the
 	# daemon name. See rpcbind(8) and rpc.mountd(8) for further information.
 	#
+	# SSH connections are only allowed from:
+	#     LA desktop, Tall Pines desktop
+	#     the local network
+	#     a few external trusted hosts 
 EOF
-echo "# SSH connections from LA, TP, the local network, and a few trusted hosts" >> hosts.allow
 echo "sshd: $HOD, $BINAH, $LOCAL1, $LOCAL4, $OUTSIDE"	>> hosts.allow
 
 cat hosts.allow
+
+echo
+echo "To install new version:"
+echo "  % sudo cp hosts.allow /etc"
+echo "  % sudo systemctl restart ssh"
