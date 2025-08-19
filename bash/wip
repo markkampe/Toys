@@ -8,12 +8,25 @@ DIR=~/WIP
 USER=markk
 
 # figure out to whom I should push
-if [ `hostname` == "Hod" ]
+MYNAME=`hostname`
+if [ $MYNAME == "Hod" ]
 then
     partner="binah.ddns.net"
-else
+    partner2="192.168.1.29"
+elif [ $MYNAME == "Binah" ]
+then
     partner="sagredo.ddns.net"
+elif [ $MYNAME == "sagredo" ]
+then
+    echo "Sagredo does not yet push"
+    exit
 fi
 
 echo "pushing $DIR to $USER@$partner (port=$PORT)"
 rsync --recursive --times --delete --verbose -z -e "ssh -p $PORT" $DIR $USER@$partner:
+
+if [ -n "$partner2" ]
+then
+	echo "pushing $DIR to $USER@$partner2 (port=$PORT)"
+	rsync --recursive --times --delete --verbose -z -e "ssh -p $PORT" $DIR $USER@$partner2:
+fi
