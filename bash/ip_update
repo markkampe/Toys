@@ -19,8 +19,12 @@ MY_NAME=`hostname`
 if [ "$MY_NAME" == "Hod" ] 
 then
     HOD=`curl -s ifconfig.me`
-else
+elif [ "$MY_NAME" == "Binah" ]
+then
     BINAH=`curl -s ifconfig.me`
+elif [ "$MY_NAME" == "Sagredo" ]
+then
+    SAGREDO=`curl -s ifconfig.me`
 fi
 
 # anybody on the local network(s) is allowed to try to log in
@@ -44,7 +48,7 @@ cat <<- EOF > hosts.allow
 	#     the local network
 	#     a few external trusted hosts 
 EOF
-echo "sshd: $HOD, $BINAH, $LOCAL1, $LOCAL4, $OUTSIDE"	>> hosts.allow
+echo "sshd: $HOD, $SAGREDO $BINAH, $LOCAL1, $LOCAL4, $OUTSIDE"	>> hosts.allow
 
 cat hosts.allow
 
