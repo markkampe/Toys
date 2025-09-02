@@ -9,17 +9,17 @@ USER=markk
 
 # figure out to whom I should push
 MYNAME=`hostname`
-if [ $MYNAME == "Hod" ]
+if [ $MYNAME == "Sagredo" ]
 then
     partner="binah.ddns.net"
-    partner2="192.168.1.29"
+#   partner2="192.168.1.201"
 elif [ $MYNAME == "Binah" ]
 then
     partner="sagredo.ddns.net"
-elif [ $MYNAME == "sagredo" ]
+elif [ $MYNAME == "Hod" ]
 then
-    echo "Sagredo does not yet push"
-    exit
+    partner="binah.ddns.net"
+    partner2="192.168.1.204"
 fi
 
 echo "pushing $DIR to $USER@$partner (port=$PORT)"
