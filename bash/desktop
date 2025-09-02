@@ -11,12 +11,21 @@ WIDE=710	# xterm window width
 LONG=1600	# xterm length on vertical screen
 SHORT=1200	# xterm length on horizontal screen
 RIGHT=1040	# pixel offset of RHS screen
+RWID=1920	# width of RHS screen
 
 if [ -r $HOME/.desktop ]
 then
     echo using desktop configuration from $HOME/.desktop >> $LOG
     . $HOME/.desktop
 fi
+
+# compute browser window size/position for LHS browsers
+B_WIDTH=$((95 * $RIGHT / 100))		# don't have full width on left
+B_LENGTH=$((8 * $LONG / 10))		# shorter than the xterm
+B_SIZE="--window-size=$B_WIDTH,$B_LENGTH"
+B_DOWN=2				# avoid full screen
+B_LEFT=2				# avoid app menu
+B_POS="--window-position=$B_LEFT,$B_DOWN"
 
 date > $LOG
 WS=0
@@ -56,7 +65,7 @@ do
     if [ -n "$TABS" ]
     then
 	echo "... starting Chrome window for $t"
-	run "google-chrome-stable --new-window $TABS >>$LOG 2>>$LOG &"
+	run "google-chrome-stable --new-window $B_SIZE $B_POS $TABS >>$LOG 2>>$LOG &"
     fi
 
     # ... placing and sizing XTERMs for $WS: $t
@@ -86,9 +95,17 @@ do
    if [ "$a" = "diary" ]
    then
    	run diary
-	# let FAR_RIGHT=RIGHT+WIDE+WIDE
-	# sleep $DELAY 
-   	# run "wmctrl -r GVIM -e 0,FAR_RIGHT"
+	# put it at the right edge of the RHS screen
+	W=$(($RWID * 2 / 7))
+	H=$(($SHORT * 3 / 4 ))
+	X=$(($RIGHT + $RWID - $W))
+	Y=5		# Y=0 gets full size
+	sleep 1
+   	wmctrl -r GVIM -e 0,$X,$Y,$W,$H
+   elif [ "$a" = "thunderbird" ]
+   then
+	# can I figure out how to size/position this
+   	run "thunderbird &"
    else
    	run "$a >> $LOG 2>> $LOG &"
    fi
