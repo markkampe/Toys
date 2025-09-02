@@ -1,7 +1,7 @@
 #!/bin/bash
 
-HEIGHT=88
-WIDTH=80
+HEIGHT=55	# usually on horizontal monitor
+WIDTH=72	# don't take up too much room
 GEOMETRY="-geometry $WIDTH"x"$HEIGHT"
 
 EDITOR=/usr/bin/gvim
