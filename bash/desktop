@@ -3,29 +3,45 @@
 LOG=$HOME/desktop.log	# where to capture stardup stdout/stderr
 DELAY=2			# wait for window to be created
 
-# default configuration
+# default screen sizes (may be changed by .desktop)
+L_WIDTH=1080	# vertical left monitor
+L_HEIGHT=1920	# vertical left monitor
+R_WIDTH=1920	# horizontal right monitor
+R_HEIGHT=1080	# horizontal right monitor
+L_MARGIN=20	# width of app menu bar
+
+# default configuration (likely to be changed by .desktop)
 WINDOWS="Home"
 Home_TABS="https://calendar.google.com/calendar/u/0/r/month"
 Home_DIR="/home/markk"
-WIDE=710	# xterm window width
-LONG=1600	# xterm length on vertical screen
-SHORT=1200	# xterm length on horizontal screen
-RIGHT=1040	# pixel offset of RHS screen
-RWID=1920	# width of RHS screen
 
 if [ -r $HOME/.desktop ]
 then
     echo using desktop configuration from $HOME/.desktop >> $LOG
     . $HOME/.desktop
 fi
+echo "    screens:  $L_WIDTH"x"$L_HEIGHT and $R_WIDTH"x"$R_HEIGHT"
+echo "    app bar:  $L_MARGIN wide"
+
+# compute x-term window sizes
+if [ $L_WIDTH -lt $R_WIDTH ]
+then
+    XT_WIDTH=$((6 * $L_WIDTH / 10))
+else
+    XT_WIDTH=$((6 * $R_WIDTH / 10))
+fi
+XT_LHIGH=$((4 * $L_HEIGHT / 5))
+XT_RHIGH=$((4 * $R_HEIGHT / 5))
+echo "    xterms:   $XT_WIDTH"x"$XT_LHIGH@<5,5> and $XT_WIDTH"x"$XT_RHIGH@<$L_WIDTH,5>"
 
 # compute browser window size/position for LHS browsers
-B_WIDTH=$((95 * $RIGHT / 100))		# don't have full width on left
-B_LENGTH=$((8 * $LONG / 10))		# shorter than the xterm
+B_WIDTH=$((95 * $L_WIDTH / 100 - $L_MARGIN)) # don't use full width
+B_LENGTH=$((2 * $L_HEIGHT / 3))		# don't use full height
 B_SIZE="--window-size=$B_WIDTH,$B_LENGTH"
 B_DOWN=2				# avoid full screen
 B_LEFT=2				# avoid app menu
 B_POS="--window-position=$B_LEFT,$B_DOWN"
+echo "    browsers: $B_WIDTH"x"$B_LENGTH@<$B_LEFT,$B_DOWN>"
 
 date > $LOG
 WS=0
@@ -74,9 +90,9 @@ do
     if [ $WS -ne 0 ]
     then
 	# this was created manually in WS0
-	run "wmctrl -r $t-lhs -e 0,0,0,$WIDE,$LONG"
+	run "wmctrl -r $t-lhs -e 0,5,5,$XT_WIDTH,$XT_LHIGH"
     fi
-    run "wmctrl -r $t-rhs -e 0,$RIGHT,0,$WIDE,$SHORT"
+    run "wmctrl -r $t-rhs -e 0,$L_WIDTH,5,$XT_WIDTH,$XT_RHIGH"
 
     let "WS = $WS + 1"
 done
@@ -96,15 +112,16 @@ do
    then
    	run diary
 	# put it at the right edge of the RHS screen
-	W=$(($RWID * 2 / 7))
-	H=$(($SHORT * 3 / 4 ))
-	X=$(($RIGHT + $RWID - $W))
+	W=$(($R_WIDTH * 2 / 7))
+	H=$(($R_HEIGHT * 4 / 5 ))
+	X=$(($L_WIDTH + $R_WIDTH - $W))
 	Y=5		# Y=0 gets full size
-	sleep 1
+	sleep $DELAY
    	wmctrl -r GVIM -e 0,$X,$Y,$W,$H
    elif [ "$a" = "thunderbird" ]
    then
 	# can I figure out how to size/position this
+	unset GTK_MODULES		# Thunderbird bug
    	run "thunderbird &"
    else
    	run "$a >> $LOG 2>> $LOG &"
