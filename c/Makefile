@@ -1,5 +1,5 @@
-ALL=colsum choose check_access lptest roll xterm-title unixtime interpose.o
-DFLT=colsum roll unixtime
+ALL=colsum choose check_access icalc linecount lptest roll xterm-title unixtime interpose.o
+DFLT=colsum icalc linecount roll unixtime
 CFLAGS= -Dwall -Dextra
 
 default: $(DFLT)
@@ -15,6 +15,10 @@ choose: choose.c
 check_access: check_access.c
 
 colsum: colsum.c
+
+icalc: icalc.c
+
+linecount: linecount.c
 
 lptest: lptest.c
 
