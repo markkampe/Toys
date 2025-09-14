@@ -73,6 +73,9 @@ do
 	rm /tmp/$$.out
 
 	cd $GIT_DIR
+    elif [ -d $file ]
+    then
+	echo "... IGNORING $GIT_DIR/$file   (no .git sub-directory)"
     fi
 done
 
