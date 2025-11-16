@@ -1,0 +1,64 @@
+#!/bin/bash
+#
+#	This script analyzes our screen geometry, which is normally trivia.
+#	But after an upgrade Ubuntu may have lost our Nvidea drivers, in 
+#	which case we are stuck with a single uslessly small window.
+#
+DFLT_WID=640
+DFLT_HT=480
+
+# get a list of all connected displays
+TEMP=/tmp/screens_$$
+xrandr | grep ' connected' > $TEMP
+screens=`cat /tmp/screens | wc -l`
+echo $screens screens
+
+
+# get the geometry and location of the primary
+l1=`grep primary $TEMP`
+d1=`echo $l1 | cut -d' ' -f1`
+s1=`echo $l1 | cut -d' ' -f4`
+h1=`echo $s1 | cut -dx -f1`
+w1=`echo $s1 | cut -dx -f2 | cut -d+ -f1`
+x1=`echo $s1 | cut -d+ -f2`
+y1=`echo $s1 | cut -d+ -f3`
+echo "   primary:   $d1 "$h1"x"$w1" @<$x1,$y1>"
+
+# get the geometry and location of the secondary (assume only 2 screens)
+if [ $screens -gt 1 ]
+then
+    l2=`grep -v primary $TEMP`
+    d2=`echo $l2 | cut -d' ' -f1`
+    h2=`echo $s2 | cut -dx -f1`
+    w2=`echo $s2 | cut -dx -f2 | cut -d+ -f1`
+    x2=`echo $s2 | cut -d+ -f2`
+    y2=`echo $s2 | cut -d+ -f3`
+    echo "   secondary: $d2 "$h2"x"$w2" @<$x2,$y2>"
+fi
+
+# look up and display the active graphics adaptor and associated driver
+echo
+echo "graphics adaptor and driver:"
+VGA=`lspci | grep VGA`
+if [ -n "$VGA" ]
+then
+    echo "    $VGA"
+else
+    echo "    we appear to have no graphics adaptor!!!"		>&2
+fi
+lshw -c video > $TEMP 2>/dev/null
+DRIVER=`grep configuration $TEMP | cut -d: -f2`
+echo "   $DRIVER"
+
+# check to see if we have reverted to VGA resolution
+if [ $h1 -eq $DFLT_WID ]
+then
+    echo
+    echo "Monitor resolution reverted <$DFLT_WID"x"$DFLT_HT>!!!"	>&2
+    echo "    If update has lost required video driver we need to run:"	>&2
+    echo "        sudo ubuntu-drivers autoinstall"			>&2
+    echo
+    echo "    After which, a reboot should restore graphics support"	>&2
+fi
+
+rm $TEMP
