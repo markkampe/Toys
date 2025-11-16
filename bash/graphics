@@ -29,6 +29,7 @@ if [ $screens -gt 1 ]
 then
     l2=`grep -v primary $TEMP`
     d2=`echo $l2 | cut -d' ' -f1`
+    s2=`echo $l2 | cut -d' ' -f3`
     h2=`echo $s2 | cut -dx -f1`
     w2=`echo $s2 | cut -dx -f2 | cut -d+ -f1`
     x2=`echo $s2 | cut -d+ -f2`
