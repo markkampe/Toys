@@ -12,7 +12,10 @@ TEMP=/tmp/screens_$$
 xrandr | grep ' connected' > $TEMP
 screens=`cat $TEMP | wc -l`
 echo $screens screens
-
+if [ $screens -eq 0 ]
+then
+    exit 1
+fi
 
 # get the geometry and location of the primary
 l1=`grep primary $TEMP`
