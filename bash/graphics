@@ -18,11 +18,11 @@ echo $screens screens
 l1=`grep primary $TEMP`
 d1=`echo $l1 | cut -d' ' -f1`
 s1=`echo $l1 | cut -d' ' -f4`
-h1=`echo $s1 | cut -dx -f1`
-w1=`echo $s1 | cut -dx -f2 | cut -d+ -f1`
+w1=`echo $s1 | cut -dx -f1`
+h1=`echo $s1 | cut -dx -f2 | cut -d+ -f1`
 x1=`echo $s1 | cut -d+ -f2`
 y1=`echo $s1 | cut -d+ -f3`
-echo "   primary:   $d1 "$h1"x"$w1" @<$x1,$y1>"
+echo "   primary:   $d1 "$w1"x"$h1" @<$x1,$y1>"
 
 # get the geometry and location of the secondary (assume only 2 screens)
 if [ $screens -gt 1 ]
@@ -30,11 +30,11 @@ then
     l2=`grep -v primary $TEMP`
     d2=`echo $l2 | cut -d' ' -f1`
     s2=`echo $l2 | cut -d' ' -f3`
-    h2=`echo $s2 | cut -dx -f1`
-    w2=`echo $s2 | cut -dx -f2 | cut -d+ -f1`
+    w2=`echo $s2 | cut -dx -f1`
+    h2=`echo $s2 | cut -dx -f2 | cut -d+ -f1`
     x2=`echo $s2 | cut -d+ -f2`
     y2=`echo $s2 | cut -d+ -f3`
-    echo "   secondary: $d2 "$h2"x"$w2" @<$x2,$y2>"
+    echo "   secondary: $d2 "$w2"x"$h2" @<$x2,$y2>"
 fi
 
 # look up and display the active graphics adaptor and associated driver
