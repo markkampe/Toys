@@ -10,7 +10,7 @@ DFLT_HT=480
 # get a list of all connected displays
 TEMP=/tmp/screens_$$
 xrandr | grep ' connected' > $TEMP
-screens=`cat /tmp/screens | wc -l`
+screens=`cat $TEMP | wc -l`
 echo $screens screens
 
 
