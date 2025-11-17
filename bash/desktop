@@ -3,12 +3,68 @@
 LOG=$HOME/desktop.log	# where to capture stardup stdout/stderr
 DELAY=2			# wait for window to be created
 
-# default screen sizes (may be changed by .desktop)
-L_WIDTH=1080	# vertical left monitor
-L_HEIGHT=1920	# vertical left monitor
-R_WIDTH=1920	# horizontal right monitor
-R_HEIGHT=1080	# horizontal right monitor
-L_MARGIN=20	# width of app menu bar
+# optional debug argument
+if [ -n "$1" ]
+then
+    DEBUG="True"
+else
+    DEBUG=""
+fi
+
+#figure out our screen geometry
+TEMP=/tmp/screens_$$
+xrandr | grep ' connected' > $TEMP
+screens=`cat $TEMP | wc -l`
+if [ $screens -ne 2 ]
+then
+    echo "ERROR: we seem to have $screens screens" >&2
+    exit -1
+fi
+
+# get the geometries and locations of our two screens
+l1=`grep primary $TEMP`
+d1=`echo $l1 | cut -d' ' -f1`
+s1=`echo $l1 | cut -d' ' -f4`
+w1=`echo $s1 | cut -dx -f1`
+h1=`echo $s1 | cut -dx -f2 | cut -d+ -f1`
+x1=`echo $s1 | cut -d+ -f2`
+y1=`echo $s1 | cut -d+ -f3`
+
+l2=`grep -v primary $TEMP`
+d2=`echo $l2 | cut -d' ' -f1`
+s2=`echo $l2 | cut -d' ' -f3`
+w2=`echo $s2 | cut -dx -f1`
+h2=`echo $s2 | cut -dx -f2 | cut -d+ -f1`
+x2=`echo $s2 | cut -d+ -f2`
+y2=`echo $s2 | cut -d+ -f3`
+
+# figure out which is left and which is right
+if [ $x1 -eq 0 ]
+then
+    if [ -n "$DEBUG" ]
+    then
+        echo "   primary:   $d1 "$w1"x"$h1" @<$x1,$y1>"
+    fi
+    L_WIDTH=$w1
+    L_HEIGHT=$h1
+    L_PRIMARY="(P)"
+    R_WIDTH=$w2
+    R_HEIGHT=$h2
+    R_PRIMARY=""
+else
+    if [ -n "$DEBUG" ]
+    then
+    i   echo "   secondary: $d2 "$w2"x"$h2" @<$x2,$y2>"		# DEBUG
+    fi
+    L_WIDTH=$w2
+    L_HEIGHT=$h2
+    L_PRIMARY=""
+    R_WIDTH=$w1
+    R_HEIGHT=$h1
+    R_PRIMARY="(p)"
+fi
+
+L_MARGIN=20	# width of app menu bar (on left side of primary)
 
 # default configuration (likely to be changed by .desktop)
 WINDOWS="Home"
@@ -20,7 +76,7 @@ then
     echo using desktop configuration from $HOME/.desktop >> $LOG
     . $HOME/.desktop
 fi
-echo "    screens:  $L_WIDTH"x"$L_HEIGHT and $R_WIDTH"x"$R_HEIGHT"
+echo "    screens:  $L_WIDTH"x"$L_HEIGHT""$L_PRIMARY and $R_WIDTH"x"$R_HEIGHT""$R_PRIMARH"
 echo "    app bar:  $L_MARGIN wide"
 
 # compute x-term window sizes
@@ -42,6 +98,11 @@ B_DOWN=2				# avoid full screen
 B_LEFT=2				# avoid app menu
 B_POS="--window-position=$B_LEFT,$B_DOWN"
 echo "    browsers: $B_WIDTH"x"$B_LENGTH@<$B_LEFT,$B_DOWN>"
+
+if [ -n "$DEBUG" ]
+then
+    exit 0
+fi
 
 date > $LOG
 WS=0
