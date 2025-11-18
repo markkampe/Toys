@@ -99,6 +99,7 @@ B_LEFT=2				# avoid app menu
 B_POS="--window-position=$B_LEFT,$B_DOWN"
 echo "    browsers: $B_WIDTH"x"$B_LENGTH@<$B_LEFT,$B_DOWN>"
 
+# if we are testing, don't actually start any processes
 if [ -n "$DEBUG" ]
 then
     exit 0
@@ -189,3 +190,7 @@ do
    fi
    # note: I have not figured out how to reposition these windows
 done
+
+# a Chrome recovery will leave all the new windows in the first workspace
+echo
+echo "To move a Chrome window to another workspace: select it and CTL-ALT-SHIFT ->"
