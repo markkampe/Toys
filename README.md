@@ -28,6 +28,10 @@ c:
    weighted) strings.
  - colsum.c ... a tool to read columnar data and compute a sum for any column
    that appears to be numeric.
+ - icalc ... present worth, future value, etc
+ - linecount ... count "lines of code" in files
+ - roll ... expression (e.g. 4D6) based dice roles
+ - unmixtime ... convert a unix seconds since 1970 into a date and time
  - lptest.c ... generate a file of pattern data to see how a printer handles
    pages of a certain width and length.
 
