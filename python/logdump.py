@@ -107,7 +107,7 @@ class Logdump:
         else:
             dive_num = dive.get('number')
         if dive_num is not None:
-            num = "%5d" % int(dive_num)
+            num = f"{int(dive_num):5d}"
         else:
             num = "  ???"
 
@@ -115,14 +115,14 @@ class Logdump:
         dive_date = dive.get('date')
         if dive_date is not None:
             (year, mon, day) = dive_date.split('-')
-            date = "%02d/%02d/%02d" % (int(mon), int(day), int(year) % 100)
+            date = f"{int(mon):02d}/{int(day):02d}/{int(year) % 100:02d}"
         else:
             date = "        "
 
         dive_time = dive.get('time')
         if dive_time is not None:
             (hr, mins, _) = dive_time.split(':')
-            time = "%02d:%02d" % (int(hr), int(mins))
+            time = f"{int(hr):02d}:{int(mins):02d}"
         else:
             time = "     "
 
@@ -130,19 +130,19 @@ class Logdump:
         if dive_dur is not None:
             (x, y) = dive_dur.split(' ')
             (m, s) = x.split(':')
-            dur = "%02d:%02d" % (int(m), int(s))
+            dur = f"{int(m):02d}:{int(s):02d}"
         else:
             dur = "   ??"
 
         dive_vis = dive.get('visibility')
         if dive_vis is not None:
-            viz = "%3d'" % to_viz(int(dive_vis))
+            viz = f"{to_viz(int(dive_vis)):3d}'"
         else:
             viz = " "
 
         dive_rating = dive.get('rating')
         if dive_rating is not None:
-            rate = "%1d*" % int(dive_rating)
+            rate = f"{int(dive_rating):1d}*"
         else:
             rate = "  "
 
@@ -167,7 +167,7 @@ class Logdump:
                 dive_max = dive_depth.get('max')
                 if dive_max is not None:
                     (x, y) = dive_max.split(' ')
-                    feet = " %3d'" % (to_feet(float(x)))
+                    feet = f" {to_feet(float(x)):3d}"
 
             # get the water temperature
             dive_temp = dive_comp.find('temperature')
@@ -175,7 +175,7 @@ class Logdump:
                 x = dive_temp.get('water')
                 (y, _) = x.split(' ')
                 deg_f = to_far(float(y))
-                temp = "%3dF" % deg_f
+                temp = f"{deg_f:3d}F"
 
         # now print it all out
         print(self.FORMAT % (num, date, time, feet, dur, temp, viz, rate, loc))
