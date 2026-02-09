@@ -6,6 +6,7 @@
 """
 
 import xml.etree.ElementTree as ET
+from dataclasses import dataclass
 
 
 def to_feet(meters):
@@ -24,12 +25,14 @@ def to_viz(stars):
     return visabilities[stars]
 
 
+@dataclass
 class Statics:
     """
         We create one Logdump instance per input file, but there are
         a few parameters that should continue from one file to the
         next
     """
+
     # formatting parameters that are the same for all instances
     page_len = 0    # number of lines per page
     page_pad = 0    # header/footer padding
@@ -59,12 +62,15 @@ class Logdump:
     # persistent instance state
     root = None         # root of the XML tree
 
-    def __init__(self, file, statics):
-        self.statics = statics
+    def __init__(self, file, parms):
+        self.statics = parms
         tree = ET.parse(file)
         self.root = tree.getroot()
         self.sitemap = {}
 
+    # pylint: disable=R0912, R0914, R0915
+    #   This code would be much harder to understand if I broke it
+    #   into 9 different routines to generate each output field.
     def dump_dive(self, dive, buddy):
         """
             print a record for a single dive
@@ -82,28 +88,28 @@ class Logdump:
                 return
 
         # see if we need to output a page footer
-        if statics.page_len > 0:
-            last = statics.page_len - statics.page_pad
-            if statics.line_count >= last:
-                while statics.line_count < statics.page_len:
+        if self.statics.page_len > 0:
+            last = self.statics.page_len - self.statics.page_pad
+            if self.statics.line_count >= last:
+                while self.statics.line_count < self.statics.page_len:
                     print("")
-                    statics.line_count += 1
-                statics.line_count = 0
+                    self.statics.line_count += 1
+                self.statics.line_count = 0
 
         # see if we need to output a new header
-        if statics.line_count == 0:
-            while statics.line_count < statics.page_pad:
+        if self.statics.line_count == 0:
+            while self.statics.line_count < self.statics.page_pad:
                 print("")
-                statics.line_count += 1
+                self.statics.line_count += 1
 
             print(self.FORMAT % self.f_title)
             print(self.FORMAT % self.f_lines)
-            statics.line_count += 2
+            self.statics.line_count += 2
 
         # dive number may be mine or buddy's
-        if buddy is not None or statics.buddy_dives > 0:
-            statics.buddy_dives = statics.buddy_dives + 1
-            dive_num = statics.buddy_dives
+        if buddy is not None or self.statics.buddy_dives > 0:
+            self.statics.buddy_dives = self.statics.buddy_dives + 1
+            dive_num = self.statics.buddy_dives
         else:
             dive_num = dive.get('number')
         if dive_num is not None:
@@ -179,7 +185,7 @@ class Logdump:
 
         # now print it all out
         print(self.FORMAT % (num, date, time, feet, dur, temp, viz, rate, loc))
-        statics.line_count += 1
+        self.statics.line_count += 1
 
     def dump_log(self, buddy):
         """
@@ -215,7 +221,7 @@ class Logdump:
         return (num_trips, num_dives)
 
 
-#
+# pylint: disable=W0511
 # TODO
 #     if I were cooler, when multiple file names were specified, I would
 #     accumulate them and then re-sort (and re-number) based on date and time
@@ -242,16 +248,16 @@ if __name__ == '__main__':
         statics.buddy_dives = args.dives
 
     # process each log file
-    buddy = args.buddy
+    buddy_name = args.buddy
     for name in args.filename:
         # instantiate the dumper
         dumper = Logdump(name, statics)
 
         # generate the output
-        (trips, dives) = dumper.dump_log(buddy)
+        (_trips, _dives) = dumper.dump_log(buddy_name)
 
         # Kinky - because of the way I use this program, I only want the
         #         buddy argument to be used for the first file (assumed
         #         to be mine.  The second file is dives I wasn't on, and
         #         so the buddy argument would be inappropriate.
-        buddy = None
+        buddy_name = None   # pylint: disable=C0103
