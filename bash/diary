@@ -6,16 +6,26 @@ GEOMETRY="-geometry $WIDTH"x"$HEIGHT"
 
 EDITOR=/usr/bin/gvim
 
-MONTH=`date "+%b%y"`
-YEAR=`date "+%Y"`
-PATH="$HOME/Diaries/$YEAR"
-FILE="$MONTH.txt"
-
-if [ -f $PATH/$FILE ]
+# figure out where today's diary should be
+if [ `hostname` == "Sagredo" ]
 then
-    echo using existing $FILE in $PATH
-else
-    echo creating new $FILE in $PATH
+	# Sagredo is where the real diaries live
+	MONTH=`date "+%b%y"`
+	YEAR=`date "+%Y"`
+	DIR="$HOME/Diaries/$YEAR"
+	FILE="$MONTH.txt"
+elif [ `hostname` == "Binah" ]
+then
+	# on Binah we just keep an rsync'd local changes file
+	DIR="$HOME/WIP"
+	FILE="TP_diary.txt"
 fi
 
-( cd $PATH; $EDITOR $GEOMETRY $MONTH.txt ) &
+if [ -f $DIR/$FILE ]
+then
+    echo using existing $FILE in $DIR
+else
+    echo creating new $FILE in $DIR
+fi
+
+( cd $DIR; $EDITOR $GEOMETRY $FILE ) &
