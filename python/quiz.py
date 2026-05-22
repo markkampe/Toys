@@ -13,6 +13,7 @@ from os import getenv, path
 # pylint: disable=invalid-name
 verbose = False     # info about quiz
 WIDTH = 14          # width of question column
+SUBDIR = "Quizzes"  # default place for quiz files
 
 
 class Quiz:
@@ -168,36 +169,50 @@ def main():
     """
 
     # parse the arguments
-    parser = argparse.ArgumentParser(description='Quiz program')
-    parser.add_argument("topics", nargs='*',
-                        help="quiz topics")
-    parser.add_argument("-q", "--quizfile", type=str,
-                        help="quiz qustion file")
+    parser = argparse.ArgumentParser(
+             description = "question/answer review program",
+             epilog = "environment variables: QUIZDIR, QUIZFILE")
+    parser.add_argument("names", nargs='*', type=str,
+                        help="quiz-file [topic ...]")
     parser.add_argument("-r", "--reverse", action='store_true',
                         help="reverse questions/answers")
     parser.add_argument("-v", "--verbose", action='store_true')
 
     args = parser.parse_args()
 
-    # see if we can find the quiz file
-    maybe = getenv("QUIZFILE") if args.quizfile is None else args.quizfile
-    if maybe is None:
-        sys.stderr.write("No --quizfile or QUIZFILE environment variable\n")
-        sys.exit(-1)
-    if path.isfile(maybe):
-        quiz_file_name = maybe
-    else:
-        maybe = getenv("HOME") + "/Quizzes/" + maybe
-        if not path.isfile(maybe):
-            sys.stderr.write(f"Unable to access Quiz file {maybe}\n")
-            sys.exit(-1)
+    # process the string arguments
+    quizname = None
+    topics = []
+    for name in args.names:
+        if quizname is None:
+            quizname = name
         else:
-            quiz_file_name = maybe
+            topics.append(name)
+
+    # if no args, look for a default quiz file
+    if quizname is None:
+        quizname = getenv("QUIZFILE")
+        if quizname is None:
+            sys.stderr.write("No quiz name or QUIZFILE in env\n")
+            sys.exit(-1)
+
+    # make sure that file exists
+    if path.isfile(quizname):
+        quiz_file_name = quizname
+    else:
+        # perhaps it is in user's Quiz directory
+        quiz_dir = getenv("QUIZDIR")
+        if quiz_dir is None:
+            quiz_dir = getenv("HOME") + '/' + SUBDIR
+        quiz_file_name = quiz_dir + '/' + quizname
+        if not path.isfile(quiz_file_name):
+            sys.stderr.write(f"Unable to access Quiz file {quiz_file_name}\n")
+            sys.exit(-1)
 
     # pylint: disable=global-statement
     global verbose
     verbose = args.verbose
-    quiz = Quiz(quiz_file_name, args.topics, args.reverse)
+    quiz = Quiz(quiz_file_name, topics, args.reverse)
     (correct, total) = quiz.session()
 
     print(f"score: {correct}/{total}")
