@@ -3,7 +3,6 @@
 This is a quiz utility that I wrote because I could not find the
 old Unix "quiz" application for Linux.
 """
-# TODO: multiword vs one-of answers
 # TODO handling ISO latin-1 files, output, input
 import argparse
 import sys
@@ -42,7 +41,7 @@ class Quiz:
         # read the file, parsing out the categories, questions, and answers
         line_num = 1
         try:
-            with open(quizfile, 'rt', encoding='ascii') as instream:
+            with open(quizfile, 'rt', encoding='Latin-1') as instream:
                 for line in instream:
                     # ignore blank and comment lines
                     if len(line) > 6 and line[0] != '#':
@@ -52,10 +51,14 @@ class Quiz:
                         else:
                             (cat, rest) = line.split(':')
 
-                            # there might be multiple tabs
+                            # there might be multiple tabs and a comment
                             tab = rest.find("\t")
                             quest = rest[0:tab].strip()
                             ans = rest[tab+1:].strip()
+                            if '#' in ans:
+                                ans = ans.split('#')[0].strip()
+
+                            # now we have the question and answer
                             entry = (cat, ans, quest) \
                                 if reverse else (cat, quest, ans)
 
@@ -74,9 +77,9 @@ class Quiz:
             sys.exit(-1)
 
         if verbose:
-            self.pylint_is_stupid(topics, reverse)
+            self.prologue(topics, reverse)
 
-    def pylint_is_stupid(self, topics, reverse):
+    def prologue(self, topics, reverse):
         """
         pylint says there are too many if statements in the above method
         :param topics ([string]): topics to be included
@@ -110,10 +113,9 @@ class Quiz:
             sys.stderr.write(f"line {line}")
         sys.stderr.write(f": {msg}\n")
 
-    def session(self, exact=False):
+    def session(self):
         """
         prompt with questions, read answers, and check results
-        :param exact (bool): multi-word answers must match perfectly
         :return score (int, int): correct out of total
         """
         # print out column headings
@@ -140,12 +142,15 @@ class Quiz:
                 break
 
             # check the answer
-            if len(reply) == 0:
-                ok = False
-            else:
-                ok = reply == answer if exact else reply in answer
-                correct += 1 if ok else 0
-                finished[choice] = ok
+            ok = False
+            if len(reply) > 0:
+                # are there multiple correct answers
+                answers = answer.split(',')
+                for ans in answers:
+                    if reply == ans.strip():
+                        ok = True
+                        correct += 1 if ok else 0
+                        finished[choice] = ok
 
             if verbose or not ok:
                 msg = "  CORRECT" if ok else "  INCORRECT"
@@ -170,8 +175,6 @@ def main():
                         help="quiz qustion file")
     parser.add_argument("-r", "--reverse", action='store_true',
                         help="reverse questions/answers")
-    parser.add_argument("-x", "--exact", action="store_true",
-                        help="multi-word exact match required")
     parser.add_argument("-v", "--verbose", action='store_true')
 
     args = parser.parse_args()
@@ -191,7 +194,7 @@ def main():
     global verbose
     verbose = args.verbose
     quiz = Quiz(quiz_file_name, args.topics, args.reverse)
-    (correct, total) = quiz.session(args.exact)
+    (correct, total) = quiz.session()
 
     print(f"score: {correct}/{total}")
     sys.exit(0 if correct == total else 1)
