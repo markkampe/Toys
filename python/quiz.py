@@ -180,15 +180,19 @@ def main():
     args = parser.parse_args()
 
     # see if we can find the quiz file
-    quiz_file_name = args.quizfile
-    if quiz_file_name is None:
-        quiz_file_name = getenv("QUIZFILE")
-    if quiz_file_name is None:
+    maybe = getenv("QUIZFILE") if args.quizfile is None else args.quizfile
+    if maybe is None:
         sys.stderr.write("No --quizfile or QUIZFILE environment variable\n")
         sys.exit(-1)
-    if not path.isfile(quiz_file_name):
-        sys.stderr.write(f"Unable to access Quiz file {quiz_file_name}\n")
-        sys.exit(-1)
+    if path.isfile(maybe):
+        quiz_file_name = maybe
+    else:
+        maybe = getenv("HOME") + "/Quizzes/" + maybe
+        if not path.isfile(maybe):
+            sys.stderr.write(f"Unable to access Quiz file {maybe}\n")
+            sys.exit(-1)
+        else:
+            quiz_file_name = maybe
 
     # pylint: disable=global-statement
     global verbose
