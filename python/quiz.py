@@ -13,7 +13,7 @@ from os import getenv, path
 # pylint: disable=invalid-name
 verbose = False     # info about quiz
 WIDTH = 14          # width of question column
-SUBDIR = "Quizzes"  # default place for quiz files
+SUBDIR = "Quizzes"  # default place (in $HOME) for quiz files
 
 
 class Quiz:
@@ -163,15 +163,43 @@ class Quiz:
         return (correct, asked)
 
 
+def quizFile(name):
+    """
+    Figure out whether or not this names a quiz file
+    :param name (string): suspected quiz file name
+    :return (string): full path to quiz file, or None
+    """
+    # is it the name of an existing file
+    if path.isfile(name):
+        return name
+
+    # is it the name of a file in a Quiz directory
+    quizdir = getenv("QUIZDIR")
+    if quizdir is None:
+        quizdir = getenv("HOME") + "/" + SUBDIR
+    maybe = quizdir + '/' + name
+    if path.isfile(maybe):
+        return maybe
+
+    return None
+
+
 def main():
     """
     process the arguments, read the quiz file, and conduct the quiz
+
+    Usage: quiz.py [-v] [-r] [quiz] [topics ...]
+        -r  prompt w/answers, expect question
+        -v  verboser output
+    environment:
+        QUIZFILE    default quiz file if none specified on CLI
+        QUIZDIR     directory to look in for quizzes
     """
 
     # parse the arguments
     parser = argparse.ArgumentParser(
-             description = "question/answer review program",
-             epilog = "environment variables: QUIZDIR, QUIZFILE")
+             description="question/answer review program",
+             epilog="environment variables: QUIZDIR, QUIZFILE")
     parser.add_argument("names", nargs='*', type=str,
                         help="quiz-file [topic ...]")
     parser.add_argument("-r", "--reverse", action='store_true',
@@ -181,33 +209,29 @@ def main():
     args = parser.parse_args()
 
     # process the string arguments
-    quizname = None
     topics = []
-    for name in args.names:
-        if quizname is None:
-            quizname = name
-        else:
-            topics.append(name)
+    quiz_file_name = None
+    for i, name in enumerate(args.names):
+        # first argument might be a quiz file name
+        if i == 0:
+            quiz_file_name = quizFile(name)
+            if quiz_file_name is not None:
+                continue
+            # perhaps the QUIZFILE environment variable
+            maybe = getenv("QUIZFILE")
+            if maybe is not None:
+                quiz_file_name = quizFile(maybe)
+                if quiz_file_name is None:
+                    sys.stderr.write(f"Cannot open QUIZFILE={maybe}\n")
+                    sys.exit(-1)
+
+        # name wasn't quiz, must have been a topic
+        topics.append(name)
 
     # if no args, look for a default quiz file
-    if quizname is None:
-        quizname = getenv("QUIZFILE")
-        if quizname is None:
-            sys.stderr.write("No quiz name or QUIZFILE in env\n")
-            sys.exit(-1)
-
-    # make sure that file exists
-    if path.isfile(quizname):
-        quiz_file_name = quizname
-    else:
-        # perhaps it is in user's Quiz directory
-        quiz_dir = getenv("QUIZDIR")
-        if quiz_dir is None:
-            quiz_dir = getenv("HOME") + '/' + SUBDIR
-        quiz_file_name = quiz_dir + '/' + quizname
-        if not path.isfile(quiz_file_name):
-            sys.stderr.write(f"Unable to access Quiz file {quiz_file_name}\n")
-            sys.exit(-1)
+    if quiz_file_name is None:
+        sys.stderr.write("No quiz name given, no QUIZFILE in env\n")
+        sys.exit(-1)
 
     # pylint: disable=global-statement
     global verbose
