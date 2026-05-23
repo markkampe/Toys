@@ -149,15 +149,13 @@ class Quiz:
                 break
 
             # check the answer
-            ok = False
             if len(reply) > 0:
-                # are there multiple correct answers
-                answers = answer.split(',')
-                for ans in answers:
-                    if reply == ans.strip():
-                        ok = True
-                        correct += 1 if ok else 0
-                        finished[choice] = ok
+                ok = self.check(reply, choice)
+                if ok:
+                    correct += 1
+                    finished[choice] = True
+            else:
+                ok = False
 
             if verbose or not ok:
                 msg = "  CORRECT" if ok else "  INCORRECT"
@@ -167,6 +165,41 @@ class Quiz:
 
         sys.stdout.write("\n")
         return (correct, asked)
+
+    def check(self, answer, choice):
+        """
+        check the correctess of an answer
+        :param answer (string): given answer
+        :param choice (int): question number
+        :return: boolean
+        """
+        # compare given answer with all correct ones
+        (_cat, _question, correct) = self.questions[choice]
+        possibilities = correct.split(',')
+        for ans in possibilities:
+            if answer == ans.strip() or answer == just_ascii(ans.strip()):
+                return True
+
+        return False
+
+
+def just_ascii(string):
+    """
+    replace non-ASCII characters with their closest ASCII equivalents
+    :param string: to be translated
+    return (string) ASCII equivalent
+    """
+    ascii_map = {225: 97, 233: 101, 237: 105, 243: 111, 250: 117, 241: 110}
+
+    # are there any non-ASCII characters?
+    simpler = ""
+    for _i, c in enumerate(string):
+        o = ord(c)
+        if o >= 128 and o in ascii_map:
+            simpler += chr(ascii_map[o])
+        else:
+            simpler += c
+    return simpler
 
 
 def quizFile(name):
