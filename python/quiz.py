@@ -3,7 +3,6 @@
 This is a quiz utility that I wrote because I could not find the
 old Unix "quiz" application for Linux.
 """
-# TODO handling ISO latin-1 files, output, input
 import argparse
 import sys
 from random import randrange
@@ -11,9 +10,10 @@ from os import getenv, path
 
 
 # pylint: disable=invalid-name
-verbose = False     # info about quiz
-WIDTH = 14          # width of question column
-SUBDIR = "Quizzes"  # default place (in $HOME) for quiz files
+verbose = False         # info about quiz
+WIDTH = 14              # width of question column
+SUBDIR = "Quizzes"      # default place (in $HOME) for quiz files
+ENCODING = "Latin-1"    # European languages
 
 
 class Quiz:
@@ -35,6 +35,8 @@ class Quiz:
         self.col2 = "Answer"
         self.bar2 = "------"
 
+        # make sure we can write the characters we read
+        sys.stdout.reconfigure(encoding=ENCODING)
         # report on what quiz will cover
         if verbose:
             sys.stdout.write(f"Quiz: {quizfile} ... ")
@@ -42,7 +44,7 @@ class Quiz:
         # read the file, parsing out the categories, questions, and answers
         line_num = 1
         try:
-            with open(quizfile, 'rt', encoding='Latin-1') as instream:
+            with open(quizfile, 'rt', encoding=ENCODING) as instream:
                 for line in instream:
                     # ignore blank and comment lines
                     if len(line) > 6 and line[0] != '#':
@@ -71,6 +73,10 @@ class Quiz:
                                 self.bar2 = '-' * len(self.col2)
                             elif not topics or cat in topics:
                                 self.questions.append(entry)
+                                # debugging encoding problems
+                                # for i, c in enumerate(quest):
+                                #     sys.stdout.write(f"{i:4d}: {c}," +
+                                #     f"{hex(ord(c))}\n")
                     line_num += 1
             # file is automatically closed at end of with
         except IOError:
@@ -230,7 +236,7 @@ def main():
 
     # if no args, look for a default quiz file
     if quiz_file_name is None:
-        sys.stderr.write("No quiz name given, no QUIZFILE in env\n")
+        sys.stderr.write("No quiz name specified, no QUIZFILE in env\n")
         sys.exit(-1)
 
     # pylint: disable=global-statement
