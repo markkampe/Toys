@@ -177,7 +177,12 @@ class Quiz:
         (_cat, _question, correct) = self.questions[choice]
         possibilities = correct.split(',')
         for ans in possibilities:
-            if answer == ans.strip() or answer == just_ascii(ans.strip()):
+            if answer == ans.strip():
+                return True
+            simpler = just_ascii(ans.strip())
+            # print out what it should have been
+            if answer == simpler:
+                sys.stdout.write(f"{' ':{WIDTH}}\t{ans.strip()}\n")
                 return True
 
         return False
