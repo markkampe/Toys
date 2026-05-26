@@ -5,6 +5,7 @@ old Unix "quiz" application for Linux.
 """
 import argparse
 import sys
+import unicodedata
 from random import randrange
 from os import getenv, path
 
@@ -14,6 +15,7 @@ verbose = False         # info about quiz
 WIDTH = 14              # width of question column
 SUBDIR = "Quizzes"      # default place (in $HOME) for quiz files
 ENCODING = "Latin-1"    # European languages
+HARD = "NEEDSWORK"      # tag for stuff I need to work on
 
 
 class Quiz:
@@ -73,10 +75,8 @@ class Quiz:
                                 self.bar2 = '-' * len(self.col2)
                             elif not topics or cat in topics:
                                 self.questions.append(entry)
-                                # debugging encoding problems
-                                # for i, c in enumerate(quest):
-                                #     sys.stdout.write(f"{i:4d}: {c}," +
-                                #     f"{hex(ord(c))}\n")
+                            elif HARD in topics and HARD in line:
+                                self.questions.append(entry)
                     line_num += 1
             # file is automatically closed at end of with
         except IOError:
@@ -179,7 +179,9 @@ class Quiz:
         for ans in possibilities:
             if answer == ans.strip():
                 return True
-            simpler = just_ascii(ans.strip())
+
+            # user may not be able to enter accents
+            simpler = strip_accents(ans.strip())
             # print out what it should have been
             if answer == simpler:
                 sys.stdout.write(f"{' ':{WIDTH}}\t{ans.strip()}\n")
@@ -188,23 +190,17 @@ class Quiz:
         return False
 
 
-def just_ascii(string):
+def strip_accents(string):
     """
     replace non-ASCII characters with their closest ASCII equivalents
     :param string: to be translated
     return (string) ASCII equivalent
     """
-    ascii_map = {225: 97, 233: 101, 237: 105, 243: 111, 250: 117, 241: 110}
 
-    # are there any non-ASCII characters?
-    simpler = ""
-    for _i, c in enumerate(string):
-        o = ord(c)
-        if o >= 128 and o in ascii_map:
-            simpler += chr(ascii_map[o])
-        else:
-            simpler += c
-    return simpler
+    # separate accents from characters
+    nfd_form = unicodedata.normalize('NFD', string)
+    # keep only the non-accent characters
+    return "".join([c for c in nfd_form if not unicodedata.combining(c)])
 
 
 def quizFile(name):
