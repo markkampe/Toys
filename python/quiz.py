@@ -143,7 +143,7 @@ class Quiz:
 
             # ask the question
             try:
-                reply = input(f"{question+':':{WIDTH}}\t")
+                reply = input(f"{question+':':{WIDTH}}\t").strip()
             except EOFError:
                 sys.stdout.write("\n")
                 break
