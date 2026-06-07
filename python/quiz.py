@@ -125,15 +125,15 @@ class Quiz:
         prompt with questions, read answers, and check results
         :return score (int, int): correct out of total
         """
+        # conduct the quiz until blank line or EOF
+        available = len(self.questions)
+        asked = 0
+        correct = 0
+        finished = [False] * len(self.questions)
+
         # print out column headings
         sys.stdout.write(f"{self.col1:{WIDTH}}\t{self.col2}\n")
         sys.stdout.write(f"{self.bar1:{WIDTH}}\t{self.bar2}\n")
-
-        # conduct the quiz until blank line or EOF
-        asked = 0
-        correct = 0
-        available = len(self.questions)
-        finished = [False] * len(self.questions)
         while correct < available:
             # choose a yet unanswered question
             choice = randrange(0, available)
@@ -277,8 +277,20 @@ def main():
     global verbose
     verbose = args.verbose
     quiz = Quiz(quiz_file_name, topics, args.reverse)
-    (correct, total) = quiz.session()
 
+    # make sure we have digested some questions
+    if len(quiz.questions) == 0:
+        sys.stderr.write("Quiz file " + quiz_file_name + " contains ")
+        sys.stderr.write("no questions")
+        if len(topics) > 0:
+            sys.stderr.write(" in categories:")
+            for t in topics:
+                sys.stderr.write(' ' + t)
+        sys.stderr.write('\n')
+        sys.exit(2)
+
+    # run the quiz
+    (correct, total) = quiz.session()
     print(f"score: {correct}/{total}")
     sys.exit(0 if correct == total else 1)
 
