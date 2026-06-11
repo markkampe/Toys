@@ -5,6 +5,7 @@ old Unix "quiz" application for Linux.
 """
 import argparse
 import sys
+import math
 import unicodedata
 from random import randrange
 from os import getenv, path
@@ -12,7 +13,8 @@ from os import getenv, path
 
 # pylint: disable=invalid-name
 verbose = False         # info about quiz
-WIDTH = 14              # width of question column
+WIDTH = 14              # min width of question column
+TAB_STOP = 4            # tab stop width
 SUBDIR = "Quizzes"      # default place (in $HOME) for quiz files
 ENCODING = "Latin-1"    # European languages
 HARD = "NEEDSWORK"      # tag for stuff I need to work on
@@ -36,6 +38,7 @@ class Quiz:
         self.bar1 = "--------"
         self.col2 = "Answer"
         self.bar2 = "------"
+        self.width = WIDTH
 
         # make sure we can write the characters we read
         sys.stdout.reconfigure(encoding=ENCODING)
@@ -52,7 +55,7 @@ class Quiz:
                     if len(line) > 6 and line[0] != '#':
                         # make sure it has a reasonable number of fields
                         if line.count(':') != 1 or line.count('\t') == 0:
-                            self.error(line_num, "not on colon/tab format")
+                            self.error(line_num, "not in colon/tab format")
                         else:
                             (cat, rest) = line.split(':')
 
@@ -66,6 +69,8 @@ class Quiz:
                             # now we have the question and answer
                             entry = (cat, ans, quest) \
                                 if reverse else (cat, quest, ans)
+                            if len(entry[1]) > self.width:
+                                self.width = self.tab_stop(len(entry[1]))
 
                             # one entry might be column headings
                             if cat == "Category":
@@ -132,8 +137,8 @@ class Quiz:
         finished = [False] * len(self.questions)
 
         # print out column headings
-        sys.stdout.write(f"{self.col1:{WIDTH}}\t{self.col2}\n")
-        sys.stdout.write(f"{self.bar1:{WIDTH}}\t{self.bar2}\n")
+        sys.stdout.write(f"{self.col1:{self.width}}\t{self.col2}\n")
+        sys.stdout.write(f"{self.bar1:{self.width}}\t{self.bar2}\n")
         while correct < available:
             # choose a yet unanswered question
             choice = randrange(0, available)
@@ -143,7 +148,7 @@ class Quiz:
 
             # ask the question
             try:
-                reply = input(f"{question+':':{WIDTH}}\t").strip()
+                reply = input(f"{question+':':{self.width}}\t").strip()
             except EOFError:
                 sys.stdout.write("\n")
                 break
@@ -159,7 +164,7 @@ class Quiz:
 
             if verbose or not ok:
                 msg = "  CORRECT" if ok else "  INCORRECT"
-                sys.stdout.write(f"{msg:{WIDTH}}\t{answer}\n")
+                sys.stdout.write(f"{msg:{self.width}}\t{answer}\n")
 
             asked += 1
 
@@ -184,10 +189,18 @@ class Quiz:
             simpler = strip_accents(ans.strip())
             # print out what it should have been
             if answer == simpler:
-                sys.stdout.write(f"{' ':{WIDTH}}\t{ans.strip()}\n")
+                sys.stdout.write(f"{' ':{self.width}}\t{ans.strip()}\n")
                 return True
 
         return False
+
+    def tab_stop(self, number):
+        """
+        round a number to a multiple of another (even tabs)
+        :param number (int): to be rounded
+        :param multiple (int): number to be a multiple of
+        """
+        return math.ceil(number / TAB_STOP) * TAB_STOP
 
 
 def strip_accents(string):
