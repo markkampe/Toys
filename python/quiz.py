@@ -18,6 +18,7 @@ TAB_STOP = 4            # tab stop width
 SUBDIR = "Quizzes"      # default place (in $HOME) for quiz files
 ENCODING = "Latin-1"    # European languages
 HARD = "NEEDSWORK"      # tag for stuff I need to work on
+MINLINE = 5             # word, colon, tab, word, newline
 
 
 class Quiz:
@@ -51,37 +52,26 @@ class Quiz:
         try:
             with open(quizfile, 'rt', encoding=ENCODING) as instream:
                 for line in instream:
-                    # ignore blank and comment lines
-                    if len(line) > 6 and line[0] != '#':
-                        # make sure it has a reasonable number of fields
-                        if line.count(':') != 1 or line.count('\t') == 0:
-                            self.error(line_num, "not in colon/tab format")
-                        else:
-                            (cat, rest) = line.split(':')
+                    # separate the text form any comment
+                    (cat, q, a, cmt) = self.parse(line, line_num, reverse)
+                    if cat and q and a:
+                        entry = (cat, q, a)
 
-                            # there might be multiple tabs and a comment
-                            tab = rest.find("\t")
-                            quest = rest[0:tab].strip()
-                            ans = rest[tab+1:].strip()
-                            if '#' in ans:
-                                ans = ans.split('#')[0].strip()
+                        # figure out good column widths
+                        if len(entry[1]) > self.width:
+                            self.width = self.tab_stop(len(entry[1]))
 
-                            # now we have the question and answer
-                            entry = (cat, ans, quest) \
-                                if reverse else (cat, quest, ans)
-                            if len(entry[1]) > self.width:
-                                self.width = self.tab_stop(len(entry[1]))
+                        # one entry might be column headings
+                        if cat == "Category":
+                            self.col1 = entry[1]
+                            self.bar1 = '-' * len(self.col1)
+                            self.col2 = entry[2]
+                            self.bar2 = '-' * len(self.col2)
+                        elif not topics or cat in topics:
+                            self.questions.append(entry)
+                        elif HARD in topics and HARD in cmt:
+                            self.questions.append(entry)
 
-                            # one entry might be column headings
-                            if cat == "Category":
-                                self.col1 = entry[1]
-                                self.bar1 = '-' * len(self.col1)
-                                self.col2 = entry[2]
-                                self.bar2 = '-' * len(self.col2)
-                            elif not topics or cat in topics:
-                                self.questions.append(entry)
-                            elif HARD in topics and HARD in line:
-                                self.questions.append(entry)
                     line_num += 1
             # file is automatically closed at end of with
         except IOError:
@@ -91,9 +81,41 @@ class Quiz:
         if verbose:
             self.prologue(topics, reverse)
 
+    def parse(self, line, linenum, reverse):
+        """
+        pylint says there are too many if statements in the above constructor
+        :param line (string): to be parsed
+        :param linenum (int): line number for error messages
+        :param reverse (bool): reverse questions and answers
+        :return (cat, question, answer, comment)
+        """
+        # separate out any comment
+        if line.count('#') > 0:
+            (text, comment) = line.split('#')
+        else:
+            text = line
+            comment = ""
+
+        # see if we have a question and answer
+        if len(text) < MINLINE:
+            return (None, None, None, None)
+        if text.count(':') != 1 or text.count('\t') == 0:
+            self.error(linenum, "not in colon/tab format")
+            return (None, None, None, None)
+
+        # lex off the category, question, and answer
+        (cat, rest) = text.split(':')
+        tab = rest.find("\t")
+        quest = rest[0:tab].strip()
+        ans = rest[tab+1:].strip()
+
+        if reverse:
+            return (cat, ans, quest, comment)
+        return (cat, quest, ans, comment)
+
     def prologue(self, topics, reverse):
         """
-        pylint says there are too many if statements in the above method
+        pylint says there are too many if statements in the above constructor
         :param topics ([string]): topics to be included
         :param reverse (bool): reverse questions and answers
         """
