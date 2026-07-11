@@ -12,13 +12,22 @@ from os import getenv, path
 
 
 # pylint: disable=invalid-name
+# pylint: disable=global-statement
 verbose = False         # info about quiz
 WIDTH = 14              # min width of question column
 TAB_STOP = 4            # tab stop width
 SUBDIR = "Quizzes"      # default place (in $HOME) for quiz files
 ENCODING = "Latin-1"    # European languages
-HARD = "NEEDSWORK"      # tag for stuff I need to work on
 MINLINE = 5             # word, colon, tab, word, newline
+
+class Filters:
+    """
+    arguments to filter questions based on comment strings
+    """
+    # pylint: disable=too-few-public-methods
+    HARD = "NEEDSWORK"      # tag for stuff I need to work on
+    EASY = "EASY"           # tag for stuff too easy to test
+    SELDOM = "SELDOM-USED"  # tag for stuff I likely don't care about
 
 
 class Quiz:
@@ -26,15 +35,36 @@ class Quiz:
     Read a file of quiz questions, and conduct a session of question promts
     and answer checking.
     """
-    def __init__(self, quizfile, topics, reverse=False):
+    # pylint: disable=too-many-instance-attributes
+
+    def __init__(self, quizfile, topics_args, reverse=False):
         """
         Digest the specified quiz file
         :param quizfile (string): name of quiz file
         :param topics ([string, ...]): topics to be quizzed on
         :param reverse (bool): prompt with answers rather than questions
         """
+        # input setup
         self.quizfile = quizfile
         self.questions = []
+        self.easy = False
+        self.seldom = False
+        self.hard = False
+
+        # process the incoming topics args into a list and attributes
+        topics = []
+        for t in topics_args:
+            match t:
+                case Filters.EASY:
+                    self.easy = True
+                case Filters.SELDOM:
+                    self.seldom = True
+                case Filters.HARD:
+                    self.hard = True
+                case _:
+                    topics.append(t)
+
+        # output setup
         self.col1 = "Question"
         self.bar1 = "--------"
         self.col2 = "Answer"
@@ -57,21 +87,17 @@ class Quiz:
                     if cat and q and a:
                         entry = (cat, q, a)
 
-                        # figure out good column widths
-                        if len(entry[1]) > self.width:
-                            self.width = self.tab_stop(len(entry[1]))
-
                         # one entry might be column headings
                         if cat == "Category":
                             self.col1 = entry[1]
                             self.bar1 = '-' * len(self.col1)
                             self.col2 = entry[2]
                             self.bar2 = '-' * len(self.col2)
-                        elif not topics or cat in topics:
+                        elif self.include(cat, topics, cmt):
                             self.questions.append(entry)
-                        elif HARD in topics and HARD in cmt:
-                            self.questions.append(entry)
-
+                            # figure out good column widths
+                            if len(entry[1]) > self.width:
+                                self.width = self.tab_stop(len(entry[1]))
                     line_num += 1
             # file is automatically closed at end of with
         except IOError:
@@ -135,6 +161,29 @@ class Quiz:
                 sys.stdout.write(t)
             sys.stdout.write("]")
         sys.stdout.write("\n")
+
+    def include(self, cat, topics, cmt):
+        """
+        pylint says there are too many if statements in the above constructor
+        :param cat (string): category for this question
+        :param topics ([string]): topics to be included
+        :param cmt (string) comments for this question
+        """
+        # is this question in a chosen category
+        if topics and cat not in topics:
+            return False
+
+        # filter out trivial and seldom used questions
+        if Filters.EASY in cmt and not self.easy:
+            return False
+        if Filters.SELDOM in cmt and not self.seldom:
+            return False
+
+        # are we specifically looking for HARD questions
+        if self.hard:
+            return Filters.HARD in cmt
+
+        return True
 
     def error(self, line, msg):
         """
@@ -216,6 +265,13 @@ class Quiz:
 
         return False
 
+    def dump(self):
+        """
+        dump the list of questions (to test election code)
+        """
+        for (_cat, question, correct) in self.questions:
+            sys.stdout.write(question + " ->\t" + correct + '\n')
+
     def tab_stop(self, number):
         """
         round a number to a multiple of another (even tabs)
@@ -279,6 +335,8 @@ def main():
                         help="quiz-file [topic ...]")
     parser.add_argument("-r", "--reverse", action='store_true',
                         help="reverse questions/answers")
+    parser.add_argument("--test", action="store_true",
+                        help="dump selected questions")
     parser.add_argument("-v", "--verbose", action='store_true')
 
     args = parser.parse_args()
@@ -308,7 +366,6 @@ def main():
         sys.stderr.write("No quiz name specified, no QUIZFILE in env\n")
         sys.exit(-1)
 
-    # pylint: disable=global-statement
     global verbose
     verbose = args.verbose
     quiz = Quiz(quiz_file_name, topics, args.reverse)
@@ -323,6 +380,11 @@ def main():
                 sys.stderr.write(' ' + t)
         sys.stderr.write('\n')
         sys.exit(2)
+
+    # see if we are just testing
+    if args.test:
+        quiz.dump()
+        sys.exit(0)
 
     # run the quiz
     (correct, total) = quiz.session()
