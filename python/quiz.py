@@ -180,8 +180,8 @@ class Quiz:
             return False
 
         # are we specifically looking for HARD questions
-        if self.hard:
-            return Filters.HARD in cmt
+        if self.hard and Filters.HARD not in cmt:
+            return False
 
         return True
 
