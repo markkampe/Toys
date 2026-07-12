@@ -269,8 +269,8 @@ class Quiz:
         """
         dump the list of questions (to test election code)
         """
-        for (_cat, question, correct) in self.questions:
-            sys.stdout.write(question + " ->\t" + correct + '\n')
+        for (cat, quest, ans) in self.questions:
+            sys.stdout.write(cat + ": " + quest + " ->\t" + ans + '\n')
 
     def tab_stop(self, number):
         """
