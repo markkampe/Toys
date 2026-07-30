@@ -1,32 +1,63 @@
 # 
-# push work in progress back and forth between Hod and Binah
+# push/pull Work-In-Progress back and forth between my desktops
 #
 
-# script parameters
-PORT=777
-DIR=~/WIP
-USER=markk
+# what to push/pull for whom
+DIR=WIP		# all replicated stuff is in a single directory
+USER=markk	# same user name on all desktops
+
+# rsync parameters
+ARGS="-v --recursive --times --update --compress --delete"
+	# everything in the tree under the WIP directory
+	# preserve modification times
+	# do not over-write newer targets
+	# compress transmitted files
+	# delete extraneous files on target
+	#    will do bad things if target is ahead of source
+PORT=777	# don't like to keep port 20 open to hackers
+CMD="ssh -p $PORT"
+
+
+# we normally push, but pulling is an option
+if [ -z "$1" ]
+then
+    DIRECTION="PUSH"
+else
+    if [ "$1" == "pull" -o "$1" == "--pull" ]
+    then
+	DIRECTION="PULL"
+    else
+    	echo "Unrecognized argument: $1" >&2
+	echo "Usage: wip [--pull]" >&2
+	exit -1
+    fi
+fi
 
 # figure out to whom I should push
 MYNAME=`hostname`
 if [ $MYNAME == "Sagredo" ]
 then
     partner="binah.ddns.net"
-#   partner2="192.168.1.201"
 elif [ $MYNAME == "Binah" ]
 then
     partner="sagredo.ddns.net"
-elif [ $MYNAME == "Hod" ]
+elif [ $MYNAME == "malchut" ]
 then
-    partner="binah.ddns.net"
-    partner2="192.168.1.204"
+    # this isn't really a desktop, but I like to keep copies of files just in case
+    partner="sagredo.ddns.net"
+    DIRECTION="PULL"
 fi
 
-echo "pushing $DIR to $USER@$partner (port=$PORT)"
-rsync --recursive --times --delete --verbose -z -e "ssh -p $PORT" $DIR $USER@$partner:
-
-if [ -n "$partner2" ]
+# set the source and destinations
+if [ $DIRECTION == "PUSH" ]
 then
-	echo "pushing $DIR to $USER@$partner2 (port=$PORT)"
-	rsync --recursive --times --delete --verbose -z -e "ssh -p $PORT" $DIR $USER@$partner2:
+    FROM="$HOME/$DIR"
+    TO="$USER@$partner:"
+    echo "push $FROM to $TO (port=$PORT)"
+else
+    FROM="$USER@$partner:$DIR"
+    TO="$HOME"
+    echo "pull $DIR from $FROM (port=$PORT)"
 fi
+
+rsync $ARGS -e "$CMD" $FROM $TO
