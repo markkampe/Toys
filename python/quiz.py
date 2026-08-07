@@ -82,6 +82,12 @@ class Quiz:
         try:
             with open(quizfile, 'rt', encoding=ENCODING) as instream:
                 for line in instream:
+                    # skip blank and comment lines
+                    if len(line) < MINLINE:
+                        continue
+                    if line[0] == '#':
+                        continue
+
                     # separate the text form any comment
                     (cat, q, a, cmt) = self.parse(line, line_num, reverse)
                     if cat and q and a:
