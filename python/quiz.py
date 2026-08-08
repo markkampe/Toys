@@ -84,8 +84,10 @@ class Quiz:
                 for line in instream:
                     # skip blank and comment lines
                     if len(line) < MINLINE:
+                        line_num += 1
                         continue
                     if line[0] == '#':
+                        line_num += 1
                         continue
 
                     # separate the text form any comment
@@ -122,11 +124,15 @@ class Quiz:
         :return (cat, question, answer, comment)
         """
         # separate out any comment
-        if line.count('#') > 0:
-            (text, comment) = line.split('#')
-        else:
+        sharps = line.count('#')
+        if sharps == 0:
             text = line
             comment = ""
+        elif sharps == 1:
+            (text, comment) = line.split('#')
+        else:
+            sys.stderr.write(f"ERROR: multiple sharps on line {linenum}\n")
+            sys.exit(-1)
 
         # see if we have a question and answer
         if len(text) < MINLINE:
