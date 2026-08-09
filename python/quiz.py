@@ -20,6 +20,7 @@ SUBDIR = "Quizzes"      # default place (in $HOME) for quiz files
 ENCODING = "Latin-1"    # European languages
 MINLINE = 5             # word, colon, tab, word, newline
 
+
 class Filters:
     """
     arguments to filter questions based on comment strings
@@ -124,15 +125,11 @@ class Quiz:
         :return (cat, question, answer, comment)
         """
         # separate out any comment
-        sharps = line.count('#')
-        if sharps == 0:
+        if line.count('#') == 0:
             text = line
             comment = ""
-        elif sharps == 1:
-            (text, comment) = line.split('#')
         else:
-            sys.stderr.write(f"ERROR: multiple sharps on line {linenum}\n")
-            sys.exit(-1)
+            (text, comment) = line.split('#', 1)
 
         # see if we have a question and answer
         if len(text) < MINLINE:
