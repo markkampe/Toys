@@ -1,0 +1,4 @@
+#!/bin/bash
+# set the title of the current xterm window
+echo "Changing window title: $1"
+echo -en "\033]0;$1\a"
