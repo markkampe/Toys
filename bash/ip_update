@@ -28,11 +28,11 @@ then
 fi
 
 # anybody on the local network(s) is allowed to try to log in
-LOCAL1='192.168.1.*'
-LOCAL4='192.168.4.*'
-LOCAL0='10.0.0.*'
+LOCAL1='192.168.1.*'	# most routers
+LOCAL4='192.168.4.*'	# TP Ero
+LOCAL0='10.0.0.*'		# LA: ATT Fiber router
 
-OUTSIDE='knuth.cs.hmc.edu, 134.173.42.235'
+OUTSIDE='knuth.cs.hmc.edu'
 
 cat <<- EOF > hosts.allow
 	# /etc/hosts.allow: list of hosts that are allowed to access the system.
