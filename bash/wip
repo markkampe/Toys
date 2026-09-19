@@ -19,19 +19,23 @@ CMD="ssh -p $PORT"
 
 
 # we normally push, but pulling is an option
-if [ -z "$1" ]
-then
-    DIRECTION="PUSH"
-else
+DIRECTION="PUSH"
+LOCAL=0
+while [ -n "$1" ]
+do
     if [ "$1" == "pull" -o "$1" == "--pull" ]
     then
-	DIRECTION="PULL"
+        DIRECTION="PULL"
+    elif [ "$1" == "local" -o "$1" == "--local" ]
+    then
+	LOCAL=1
     else
-    	echo "Unrecognized argument: $1" >&2
-	echo "Usage: wip [--pull]" >&2
-	exit -1
+        echo "Unrecognized argument: $1" >&2
+        echo "Usage: wip [--pull] [--local]" >&2
+        exit -1
     fi
-fi
+    shift
+done
 
 # figure out to whom I should push
 MYNAME=`hostname`
@@ -40,11 +44,21 @@ then
     partner="binah.ddns.net"
 elif [ $MYNAME == "Binah" ]
 then
-    partner="sagredo.ddns.net"
+    if [ "$LOCAL" == 0 ]
+    then
+	partner="sagredo.ddns.net"
+    else
+	partner="sagredo"
+    fi
 elif [ $MYNAME == "malchut" ]
 then
     # this isn't really a desktop, but I like to keep copies of files just in case
-    partner="sagredo.ddns.net"
+    if [ "$LOCAL" == 0 ]
+    then
+	partner="sagredo.ddns.net"
+    else
+	partner="sagredo"
+    fi
     DIRECTION="PULL"
 fi
 
