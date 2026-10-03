@@ -2,6 +2,8 @@
 #	a single command to start up my standard desktop
 LOG=$HOME/desktop.log	# where to capture stardup stdout/stderr
 DELAY=2			# wait for window to be created
+BROWSER="google-chrome-stable --new-window"
+
 
 # optional debug argument
 if [ -n "$1" ]
@@ -115,11 +117,10 @@ else
    run () { echo $1; }
 fi
 
-# browser args
-BROWSER="google-chrome-stable --new-window"
+# first Chrome has start-up problems in 26.04
 if [ -n "$SACRIFICIAL_CHROME" ]
 then
-	echo starting sacrificial browser
+	echo "!!! starting sacrificial browser"
 	run "$BROWSER >>$LOG 2>>$LOG &"
 fi
 
@@ -199,6 +200,10 @@ do
    # note: I have not figured out how to reposition these windows
 done
 
-# a Chrome recovery will leave all the new windows in the first workspace
+# reminder of (changed) Workspace Navigation sequence
 echo
-echo "To move a Chrome window to another workspace: select it and CTL-ALT-SHIFT ->"
+echo "To switch workspaces:"
+echo '     SUPER+{PgUp,PgDn,Home,End}'
+# a Chrome recovery will leave all the new windows in the first workspace
+echo "To move a window to another workspace:"
+echo '     select it and SHIFT+SUPER+Pg{Up,Dn}'
