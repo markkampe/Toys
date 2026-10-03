@@ -115,6 +115,14 @@ else
    run () { echo $1; }
 fi
 
+# browser args
+BROWSER="google-chrome-stable --new-window"
+if [ -n "$SACRIFICIAL_CHROME" ]
+then
+	echo starting sacrificial browser
+	run "$BROWSER >>$LOG 2>>$LOG &"
+fi
+
 # per every window commands
 for t in $WINDOWS
 do
@@ -143,7 +151,7 @@ do
     if [ -n "$TABS" ]
     then
 	echo "... starting Chrome window for $t"
-	run "google-chrome-stable --new-window $B_SIZE $B_POS $TABS >>$LOG 2>>$LOG &"
+	run "$BROWSER $B_SIZE $B_POS $TABS >>$LOG 2>>$LOG &"
     fi
 
     # ... placing and sizing XTERMs for $WS: $t
