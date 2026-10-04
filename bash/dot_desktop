@@ -1,0 +1,77 @@
+# set up expected workspace contents for this machine
+# 	: se ft=sh
+
+# standard browser tabs
+#	u=0: mark.kampe@gmail.com
+#	u=1: kampe@g.hmc.edu
+#	u=2: mark.kampe@encorpsfellows.org
+CAL_TAB="https://calendar.google.com/calendar/u/0/r/month"
+DRIVE_TAB="https://drive.google.com/drive/u/0/my-drive"
+MAIL_TAB="https://mail.google.com/mail/u/0/#inbox"
+MSG_TAB="https://messages.google.com/web"
+# other regularly used websites
+CHASE_TAB="https://chase.com"
+FIDO_TAB="https://fidelity.com"
+GIT_TAB="https://github.com/markkampe"
+# Standard Google Drive Folders
+FOLDER_FIN="https://drive.google.com/drive/u/0/folders/0B8f2cujmXkYXaC1EODJfSllodVU?resourcekey=0-_u-wQi2F2GoBkHsIXlBprw"
+FOLDER_GAMES="https://drive.google.com/drive/u/0/folders/1BZkRxxjFh1DjSq5XotRznhE-wUi6nPFC"
+
+if [ `hostname` == "Sagredo" ]
+then
+    # LA desktop
+    echo "Setting up desktop: Sagredo"
+
+    # Workspaces to be populated
+    WINDOWS="Home Project Games Fin Misc"
+
+    # special commands to run in Home workspace
+    HOME_CMDS="diary thunderbird"
+
+    # standard browser tabs for each workspace
+	Home_TABS="$CAL_TAB $DRIVE_TAB $MSG_TAB"
+elif [ `hostname` == "Binah" ]
+then
+    # Idyllwild desktop
+    echo "Setting up desktop: Binah"
+
+    # Workspaces to be populated
+    WINDOWS="Home Project Fin Misc"
+
+    # special commands to run in Home workspace
+    HOME_CMDS="gvim"
+
+    # standard browser tabs for each workspace
+	Home_TABS="$CAL_TAB $MAIL_TAB $DRIVE_TAB $MSG_TAB"
+    # if I want other mailboxes by default : https://mail.google.com/mail/u/1/#inbox"
+fi
+
+
+# standard browser tabs and working directory for each workspace
+Home_DIR="/home/markk"
+
+Project_DIR="/home/git/"
+Project_TABS="$GIT_TAB"
+
+if [ -d "/home/markk/Documents/Finances" ]
+then
+    # Sagredo has everything
+    Fin_DIR="/home/markk/Documents/Finances"
+elif [ -d "/home/markk/Documents/Taxes" ]
+then
+    # Binah just tracks taxes
+    Fin_DIR="/home/markk/Documents/Taxes"
+else
+    Fin_DIR="/home/markk"
+fi
+Fin_TABS="$FOLDER_FIN $FIDO_TAB $CHASE_TAB"
+
+Games_DIR="/home/markk/fun"
+Games_TABS="$FOLDER_GAMES"
+
+Misc_DIR="/home/markk"
+Misc_TABS="https://google.com"
+
+# (sadly) no longer using
+School_DIR="/home/git/CourseWare/Website"
+School_TABS="https:drive.google.com https://cs.hmc.edu/~markk"
