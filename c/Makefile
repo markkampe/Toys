@@ -26,6 +26,8 @@ roll: roll.c
 
 unixtime: unixtime.c
 
+xterm-title: xterm-title.c
+
 # for testing system call interception
 interpose.o: interpose.c
 	gcc -c $(CFLAGS) $<
