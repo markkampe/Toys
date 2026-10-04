@@ -4,6 +4,8 @@ LOG=$HOME/desktop.log	# where to capture stardup stdout/stderr
 DELAY=2			# wait for window to be created
 BROWSER="google-chrome-stable --new-window"
 
+# my 26.04 install seemed to trigger a Chrome bug
+BUGFILE="$HOME/.BROWSER_BUG.html"
 
 # optional debug argument
 if [ -n "$1" ]
@@ -117,11 +119,11 @@ else
    run () { echo $1; }
 fi
 
-# first Chrome has start-up problems in 26.04
-if [ -n "$SACRIFICIAL_CHROME" ]
+# see if we need to start up a sacrificial browser
+if [[ -f "$BUGFILE" ]]
 then
-	echo "!!! starting sacrificial browser"
-	run "$BROWSER >>$LOG 2>>$LOG &"
+	echo "!!! starting sacrificial browser on $BUGFILE"
+	run "$BROWSER $BUGFILE >>$LOG 2>>$LOG &"
 fi
 
 # per every window commands
