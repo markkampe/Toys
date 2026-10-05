@@ -83,7 +83,7 @@ fi
 echo "    screens:  $L_WIDTH"x"$L_HEIGHT""$L_PRIMARY and $R_WIDTH"x"$R_HEIGHT""$R_PRIMARH"
 echo "    app bar:  $L_MARGIN wide"
 
-# compute x-term window sizes
+# compute x-term window sizes to 60-80% fill the window
 if [ $L_WIDTH -lt $R_WIDTH ]
 then
     XT_WIDTH=$((6 * $L_WIDTH / 10))
@@ -103,21 +103,34 @@ B_LEFT=2				# avoid app menu
 B_POS="--window-position=$B_LEFT,$B_DOWN"
 echo "    browsers: $B_WIDTH"x"$B_LENGTH@<$B_LEFT,$B_DOWN>"
 
-# if we are testing, don't actually start any processes
-if [ -n "$DEBUG" ]
-then
-    exit 0
-fi
+# generate a list of Workspace names
+NAME_PROP="org.gnome.desktop.wm.preferences workspace-names"
+WS_LIST=""
+for t in $WINDOWS
+do
+    if [ -n "$WS_LIST" ]
+	then
+		WS_LIST="$WS_LIST, '$t'"
+	else
+		WS_LIST="'$t'"
+	fi
+done
 
+# start up the requested processes
 date > $LOG
 WS=0
 
-if [ -z "$1" ]
+# if debug specified, don't actually run anything
+if [ -n "$DEBUG" ]
 then
-   run () { eval $1; }
+   echo "DEBUG ... no execution"
+   run () { echo "    run" $1; }
 else
-   run () { echo $1; }
+   run () { eval $1; }
 fi
+
+# set the workspace names
+run "gsettings set $NAME_PROP \"[$WS_LIST]\""
 
 # see if we need to start up a sacrificial browser
 if [[ -f "$BUGFILE" ]]
