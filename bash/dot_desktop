@@ -23,7 +23,7 @@ then
     echo "Setting up desktop: Sagredo"
 
     # Workspaces to be populated
-    WINDOWS="Home Project Games Fin Misc"
+    WINDOWS="Home Project Games Fin Espanol Misc"
 
     # special commands to run in Home workspace
     HOME_CMDS="diary thunderbird"
@@ -36,7 +36,7 @@ then
     echo "Setting up desktop: Binah"
 
     # Workspaces to be populated
-    WINDOWS="Home Project Fin Misc"
+    WINDOWS="Home Project Fin Espanol Misc LK"
 
     # special commands to run in Home workspace
     HOME_CMDS="gvim"
