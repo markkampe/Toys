@@ -23,7 +23,7 @@ then
     echo "Setting up desktop: Sagredo"
 
     # Workspaces to be populated
-    WINDOWS="Home Project Games Fin Espanol Misc"
+    WINDOWS="Home Project Games Fin Español Misc"
 
     # special commands to run in Home workspace
     HOME_CMDS="diary thunderbird"
@@ -36,13 +36,13 @@ then
     echo "Setting up desktop: Binah"
 
     # Workspaces to be populated
-    WINDOWS="Home Project Fin Espanol Misc LK"
+    WINDOWS="Home Project Fin Español Misc Lynnette"
 
     # special commands to run in Home workspace
     HOME_CMDS="gvim"
 
     # standard browser tabs for each workspace
-	Home_TABS="$CAL_TAB $MAIL_TAB $DRIVE_TAB $MSG_TAB"
+    Home_TABS="$CAL_TAB $MAIL_TAB $DRIVE_TAB $MSG_TAB"
     # if I want other mailboxes by default : https://mail.google.com/mail/u/1/#inbox"
 fi
 
