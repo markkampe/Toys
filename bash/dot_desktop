@@ -39,7 +39,7 @@ then
     WINDOWS="Home Project Fin Español Misc Lynnette"
 
     # special commands to run in Home workspace
-    HOME_CMDS="gvim"
+    HOME_CMDS="diary"		# a different version here
 
     # standard browser tabs for each workspace
     Home_TABS="$CAL_TAB $MAIL_TAB $DRIVE_TAB $MSG_TAB"
