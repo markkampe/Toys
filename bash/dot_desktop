@@ -9,13 +9,11 @@ CAL_TAB="https://calendar.google.com/calendar/u/0/r/month"
 DRIVE_TAB="https://drive.google.com/drive/u/0/my-drive"
 MAIL_TAB="https://mail.google.com/mail/u/0/#inbox"
 MSG_TAB="https://messages.google.com/web"
+
 # other regularly used websites
-CHASE_TAB="https://chase.com"
-FIDO_TAB="https://fidelity.com"
 GIT_TAB="https://github.com/markkampe"
+
 # Standard Google Drive Folders
-FOLDER_FIN="https://drive.google.com/drive/u/0/folders/0B8f2cujmXkYXaC1EODJfSllodVU?resourcekey=0-_u-wQi2F2GoBkHsIXlBprw"
-FOLDER_GAMES="https://drive.google.com/drive/u/0/folders/1BZkRxxjFh1DjSq5XotRznhE-wUi6nPFC"
 
 if [ `hostname` == "Sagredo" ]
 then
@@ -64,13 +62,28 @@ then
 else
     Fin_DIR="/home/markk"
 fi
+CHASE_TAB="https://chase.com"
+FIDO_TAB="https://fidelity.com"
+FOLDER_FIN="https://drive.google.com/drive/u/0/folders/0B8f2cujmXkYXaC1EODJfSllodVU?resourcekey=0-_u-wQi2F2GoBkHsIXlBprw"
 Fin_TABS="$FOLDER_FIN $FIDO_TAB $CHASE_TAB"
 
 Games_DIR="/home/markk/fun"
+FOLDER_GAMES="https://drive.google.com/drive/u/0/folders/1BZkRxxjFh1DjSq5XotRznhE-wUi6nPFC"
 Games_TABS="$FOLDER_GAMES"
 
 Misc_DIR="/home/markk"
 Misc_TABS="https://google.com"
+
+ANKI_TAB="https://ankiweb.net/decks"
+DUO_TAB="https://www.duolingo.com/learn"
+DEST_TAB="https://archive.org/details/destinos_pbs"
+Español_DIR="/home/markk/WIP"
+Español_Tabs="$ANKI_TAB $DUO_TAB $DEST_TAB"
+
+LK_MAIL_TAB="https://mail.google.com/mail/u/0/#inbox"	# FIX
+LK_DOCS_TAB="https://drive.google.com/drive/u/3/my-drive"	#FIX
+Lynnette_DIR="/home/markk"
+Lynnette_Tabs="$LK_MAIL_TAB $LK_DOCS_TAB"
 
 # (sadly) no longer using
 School_DIR="/home/git/CourseWare/Website"
