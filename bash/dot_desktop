@@ -21,7 +21,7 @@ then
     echo "Setting up desktop: Sagredo"
 
     # Workspaces to be populated
-    WINDOWS="Home Project Games Fin Español Misc"
+    WINDOWS="Home Project Games Fin Espanol Misc"
 
     # special commands to run in Home workspace
     HOME_CMDS="diary thunderbird"
@@ -34,7 +34,7 @@ then
     echo "Setting up desktop: Binah"
 
     # Workspaces to be populated
-    WINDOWS="Home Project Fin Español Misc Lynnette"
+    WINDOWS="Home Project Fin Espanol Misc Lynnette"
 
     # special commands to run in Home workspace
     HOME_CMDS="diary"		# a different version here
@@ -77,12 +77,12 @@ Misc_TABS="https://google.com"
 ANKI_TAB="https://ankiweb.net/decks"
 DUO_TAB="https://www.duolingo.com/learn"
 DEST_TAB="https://archive.org/details/destinos_pbs"
-Español_DIR="/home/markk/WIP"
-Español_Tabs="$ANKI_TAB $DUO_TAB $DEST_TAB"
+Espanol_DIR="/home/markk/WIP"
+Espanol_Tabs="$ANKI_TAB $DUO_TAB $DEST_TAB"
 
-LK_MAIL_TAB="https://mail.google.com/mail/u/0/#inbox"	# FIX
-LK_DOCS_TAB="https://drive.google.com/drive/u/3/my-drive"	#FIX
-Lynnette_DIR="/home/markk"
+LK_MAIL_TAB="https://mail.google.com/mail/u/1/#inbox"
+LK_DOCS_TAB="https://drive.google.com/drive/u/1/home"
+Lynnette_DIR="/home/markk/Downloads"
 Lynnette_Tabs="$LK_MAIL_TAB $LK_DOCS_TAB"
 
 # (sadly) no longer using
