@@ -150,9 +150,15 @@ do
     # figure out what tabs and directory to use
     TABS=`eval echo "$""$t""_TABS"`
     DIR=`eval echo "$""$t""_DIR"`
+	if [[ -d $DIR ]]
+	then
+		echo "... starting UXterms for $WS: $t in $DIR"
+		cd $DIR
+	else
+		echo "... starting UXterms for $WS: $t in $HOME"
+		cd $HOME
+	fi
     
-    echo "... starting UXterms for $WS: $t in $DIR"
-    cd $DIR
     if [ $WS -ne 0 ]
     then
     	# this was created manually in WS0
@@ -166,8 +172,8 @@ do
     # see if this window has defined browser tabs
     if [ -n "$TABS" ]
     then
-	echo "... starting Chrome window for $t"
-	run "$BROWSER $B_SIZE $B_POS $TABS >>$LOG 2>>$LOG &"
+		echo "... starting Chrome window for $t"
+		run "$BROWSER $B_SIZE $B_POS $TABS >>$LOG 2>>$LOG &"
     fi
 
     # ... placing and sizing XTERMs for $WS: $t
@@ -175,8 +181,8 @@ do
 
     if [ $WS -ne 0 ]
     then
-	# this was created manually in WS0
-	run "wmctrl -r $t-lhs -e 0,5,5,$XT_WIDTH,$XT_LHIGH"
+		# this was created manually in WS0
+		run "wmctrl -r $t-lhs -e 0,5,5,$XT_WIDTH,$XT_LHIGH"
     fi
     run "wmctrl -r $t-rhs -e 0,$L_WIDTH,5,$XT_WIDTH,$XT_RHIGH"
 
