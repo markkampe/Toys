@@ -78,12 +78,12 @@ ANKI_TAB="https://ankiweb.net/decks"
 DUO_TAB="https://www.duolingo.com/learn"
 DEST_TAB="https://archive.org/details/destinos_pbs"
 Espanol_DIR="/home/markk/WIP"
-Espanol_Tabs="$ANKI_TAB $DUO_TAB $DEST_TAB"
+Espanol_TABS="$ANKI_TAB $DUO_TAB $DEST_TAB"
 
 LK_MAIL_TAB="https://mail.google.com/mail/u/1/#inbox"
 LK_DOCS_TAB="https://drive.google.com/drive/u/1/home"
 Lynnette_DIR="/home/markk/Downloads"
-Lynnette_Tabs="$LK_MAIL_TAB $LK_DOCS_TAB"
+Lynnette_TABS="$LK_MAIL_TAB $LK_DOCS_TAB"
 
 # (sadly) no longer using
 School_DIR="/home/git/CourseWare/Website"
