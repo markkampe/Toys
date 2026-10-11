@@ -1,5 +1,12 @@
 /*
- * bmp - create bitmaps from simple ascii input
+ * bmp - analyze and create .bmp files
+ *
+ *	usage: bmp [-v] [--outfile=name] infile ...
+ *
+ *		if no outfile is specified, all input files are assumed
+ *		   to be bmp files, and their characteristics are dumped.
+ *		if an oufile is specified, it is assumed to be a file of
+ *		   text input lines to be convered into a bitmap.
  */
 #include <stdio.h>
 #include <getopt.h>
@@ -11,23 +18,23 @@
 # pragma pack(push, 1)	/* int on a short boundary	*/
 struct bmp_head {
 	char signature[2];	/* BM	*/
-	int fileSize;
+	int fileSize;		/* should be correct	*/
 	int reserved;
-	int datOffset;
+	int dataOffset;		/* offset of start of data	*/
 };
 #pragma pack(pop)
 
 struct bmp_info {
-	int hdrSize;
-	int width;	
-	int height;
-	short planes;
-	short bitsPer;
-	int compression;
-	int imageSize;
-	int x_per_m;
-	int y_per_m;
-	int colors_used;
+	int hdrSize;		/* length of this structure	*/
+	int width;			/* pixels per scan-line		*/
+	int height;			/* number of scan-lines		*/
+	short planes;		/* number of image planes	*/
+	short bitsPer;		/* number of bits per pixel	*/
+	int compression;	/* see below				*/
+	int imageSize;		/* number of bytes of image	*/
+	int x_per_m;		/* meters per pixel			*/
+	int y_per_m;		/* meters per pixel			*/
+	int colors_used;	/* total number of colors	*/
 	int colors_important;
 };
 
@@ -40,12 +47,12 @@ struct bmp_color {
 	unsigned char reserved;
 };
 
+char *usage = "[-v] [--oufile=file] input ...";
 int verbose = 0;
-char *usage = "[-v] infile [outfile]";
 
 #define S_RWALL S_IWUSR+S_IRUSR+S_IWGRP+S_IRGRP+S_IWOTH+S_IROTH
-#define MAXLINE 128	/* 1024 pixels	*/
-#define MAXROWS 128
+#define MAXLINE 128	/* max 1023 pixels	*/
+#define MAXROWS 128	/* max scan lines	*/
 
 /*
  * print out the header info
@@ -56,6 +63,8 @@ int bmp_dump(char *infile) {
 	struct bmp_color color;
 	int expected_size = 0;
 	char inbuf[MAXROWS][MAXLINE/8];
+	char *bit_on = "**";	/* two characters per horizontal pixel	*/
+	char *bit_off = "  ";
 
 	int infd = open(infile, O_RDONLY);
 	if (infd < 0) {
@@ -78,6 +87,7 @@ int bmp_dump(char *infile) {
 		return(-1);
 	}
 	printf("    file size:\t%d (bytes)\n", (int) header.fileSize);
+	printf("    data offset:\t%d\n", header.dataOffset);
 
 	/* all .bmp files have an image info header	*/
 	got = read(infd, &info, sizeof info);
@@ -106,8 +116,6 @@ int bmp_dump(char *infile) {
 	}
 
 	/* color definitions will only be present for <= 256 colors	*/
-	char *bit_on = "**";
-	char *bit_off = "  ";
 	if (info.bitsPer < 8) {
 		for(int i = 0; i < info.colors_used; i++) {
 			got = read(infd, &color, sizeof color);
@@ -135,8 +143,21 @@ int bmp_dump(char *infile) {
 
 	/* we can try to dump out simple monochrome images */
 	if (verbose && info.planes == 1 && info.bitsPer == 1) {
+		/* construct an attractive separator	*/
+		char *p = inbuf[0];
+		for(int i = 0; i < info.width; i++) {
+			*p++ = '='; *p++ = '=';
+		}
+		*p++ = '\n';	*p++ = 0;
+		p = &inbuf[0][4 + info.width/2];
+		for(char *s = " BITMAP "; *s; *p++ = *s++);
+		fputs(inbuf[0], stdout);
+
+		/* re-read every line			*/
 		for(int i = 0; i < scan_lines; i++)
 			got = read(infd, &inbuf[i][0], bytes_per);
+
+		/* print them in reverse order	*/
 		for(int i = scan_lines - 1; i >= 0; i--) {
 			for(int j = 0; j < info.width; j++) {
 				unsigned int byte = inbuf[i][j/8];
@@ -197,7 +218,7 @@ int new_bmp(char *infile, char *outfile) {
 	header.signature[0] = 'B'; header.signature[1] = 'M';
 	header.fileSize = expected_size;
 	header.reserved = 0;
-	header.datOffset = 0;
+	header.dataOffset = sizeof header + sizeof info + (2 * sizeof color);
 	write(outfd, &header, sizeof header);
 
 	/* bmp header */
@@ -265,30 +286,45 @@ int new_bmp(char *infile, char *outfile) {
 }
 
 int main(int argc, char *argv[]) {
-	int i;
-	while( (i = getopt_long(argc, argv, "v", NULL, NULL)) != -1) {
-		switch(i) {
+	struct option long_options[] = {
+		{"verbose", no_argument, 		NULL,	'v'},
+		{"help",	no_argument, 		NULL,	'h'},
+		{"outfile",	required_argument,	NULL,	'o'},
+		{NULL,		0,					NULL,	0 }
+	};
+	char *outfile = NULL;
+
+	int opt;
+	while((opt = getopt_long(argc, argv, "vho:", long_options, NULL)) != -1) {
+		switch(opt) {
 			case 'v':
 				verbose = 1;
 				break;
+			case 'o':
+				outfile = optarg;
+				break;
+
+			case 'h':
 			default:
 				fprintf(stderr, "Usage: %s %s\n", argv[0], usage);
 				exit(-1);
 		}
 	}
 
-	/* make sure we got at least one file name	*/
+	/* at least one input file is required */
 	if (optind >= argc) {
 		fprintf(stderr, "Usage: %s %s\n", argv[0], usage);
 		exit(-1);
 	}
 
-	/* get the input and output file names */
-	char *infile = argv[optind++];
-	if (optind < argc) {
-		int length, width;
-		char *outfile = argv[optind];
-		exit(new_bmp(infile, outfile));
-	} else
-		exit(bmp_dump(infile));
+	if (outfile) {	/* creade a new bmp */
+		exit(new_bmp(argv[optind], outfile));
+	} else {	/* dump a bunch of bmps */
+		int ret = 0;
+		while(optind < argc) {
+			ret += bmp_dump(argv[optind++]);
+			printf("\n");
+		}
+		exit(ret);
+	}
 }
