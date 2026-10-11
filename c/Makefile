@@ -1,4 +1,4 @@
-ALL=colsum choose check_access icalc linecount lptest roll xterm-title unixtime interpose.o
+ALL=colsum choose check_access icalc linecount lptest roll xterm-title unixtime bmp interpose.o
 DFLT=colsum icalc linecount roll unixtime
 CFLAGS= -Dwall -Dextra
 
@@ -8,6 +8,9 @@ all:	$(ALL)
 
 clean:
 	rm -f $(ALL)
+
+bmp: bmp.c
+	gcc -o $@ $(CFLAGS) $<
 
 choose: choose.c
 	gcc -o $@ $(CFLAGS) $<
