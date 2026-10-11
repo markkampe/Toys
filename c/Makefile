@@ -1,5 +1,5 @@
 ALL=colsum choose check_access icalc linecount lptest roll xterm-title unixtime bmp interpose.o
-DFLT=colsum icalc linecount roll unixtime
+DFLT=colsum icalc linecount roll unixtime bmp
 CFLAGS= -Dwall -Dextra
 
 default: $(DFLT)

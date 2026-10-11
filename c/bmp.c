@@ -45,6 +45,7 @@ char *usage = "[-v] infile [outfile]";
 
 #define S_RWALL S_IWUSR+S_IRUSR+S_IWGRP+S_IRGRP+S_IWOTH+S_IROTH
 #define MAXLINE 128	/* 1024 pixels	*/
+#define MAXROWS 128
 
 /*
  * print out the header info
@@ -54,7 +55,7 @@ int bmp_dump(char *infile) {
 	struct bmp_info info;
 	struct bmp_color color;
 	int expected_size = 0;
-	char inbuf[MAXLINE/8];
+	char inbuf[MAXROWS][MAXLINE/8];
 
 	int infd = open(infile, O_RDONLY);
 	if (infd < 0) {
@@ -134,10 +135,11 @@ int bmp_dump(char *infile) {
 
 	/* we can try to dump out simple monochrome images */
 	if (verbose && info.planes == 1 && info.bitsPer == 1) {
-		for(int i = 0; i < scan_lines; i++) {
-			got = read(infd, inbuf, bytes_per);
+		for(int i = 0; i < scan_lines; i++)
+			got = read(infd, &inbuf[i][0], bytes_per);
+		for(int i = scan_lines - 1; i >= 0; i--) {
 			for(int j = 0; j < info.width; j++) {
-				unsigned int byte = inbuf[j/8];
+				unsigned int byte = inbuf[i][j/8];
 				unsigned int bit = 0x80 >> (j%8);
 				fputs(byte & bit ? bit_on : bit_off, stdout);
 			}
