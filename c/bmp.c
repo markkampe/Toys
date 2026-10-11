@@ -44,7 +44,7 @@ int verbose = 0;
 char *usage = "[-v] infile [outfile]";
 
 #define S_RWALL S_IWUSR+S_IRUSR+S_IWGRP+S_IRGRP+S_IWOTH+S_IROTH
-#define MAXLINE 128
+#define MAXLINE 128	/* 1024 pixels	*/
 
 /*
  * print out the header info
@@ -54,6 +54,7 @@ int bmp_dump(char *infile) {
 	struct bmp_info info;
 	struct bmp_color color;
 	int expected_size = 0;
+	char inbuf[MAXLINE/8];
 
 	int infd = open(infile, O_RDONLY);
 	if (infd < 0) {
@@ -104,6 +105,8 @@ int bmp_dump(char *infile) {
 	}
 
 	/* color definitions will only be present for <= 256 colors	*/
+	char *bit_on = "**";
+	char *bit_off = "  ";
 	if (info.bitsPer < 8) {
 		for(int i = 0; i < info.colors_used; i++) {
 			got = read(infd, &color, sizeof color);
@@ -115,6 +118,13 @@ int bmp_dump(char *infile) {
 			if (verbose)
 				printf("        %d:\t<%d,%d,%d>\n",
 					   i, color.red, color.green, color.blue);
+
+			/* figure out whether ones are black or white	*/
+			unsigned int non_black = color.red + color.green + color.blue;
+			if (i == 0)
+				bit_off = (non_black > 0) ? "**" : "  ";
+			else
+				bit_on = (non_black > 0) ? "**" : "  ";
 		}
 	}
 
@@ -122,6 +132,18 @@ int bmp_dump(char *infile) {
 		fprintf(stderr, "WARNING: file size = %d vs %d expected\n",
 				header.fileSize, expected_size);
 
+	/* we can try to dump out simple monochrome images */
+	if (verbose && info.planes == 1 && info.bitsPer == 1) {
+		for(int i = 0; i < scan_lines; i++) {
+			got = read(infd, inbuf, bytes_per);
+			for(int j = 0; j < info.width; j++) {
+				unsigned int byte = inbuf[j/8];
+				unsigned int bit = 0x80 >> (j%8);
+				fputs(byte & bit ? bit_on : bit_off, stdout);
+			}
+			putc('\n', stdout);
+		}
+	}
 	close(infd);
 	return(0);
 }
@@ -213,14 +235,15 @@ int new_bmp(char *infile, char *outfile) {
 		/* turn each non-blank character into a black pixel */
 		int byte_offset, bit_value;
 		for( int i = 0; i < maxwid; i++ ) {
-			if (inbuf[i] == ' ')
-				continue;
 			if (inbuf[i] == '\n')
 				break;
-			byte_offset = i / 8;
-			bit_value = 0x80 >> (i%8);		/* 1st pixel is high bit */
-			outbuf[byte_offset] |= bit_value;
-			pixels++;
+			/* blank space is white	*/
+			if (inbuf[i] == ' ') {
+			    byte_offset = i / 8;
+			    bit_value = 0x80 >> (i%8);
+			    outbuf[byte_offset] |= bit_value;
+			    pixels++;
+			}
 		}
 
 		write(outfd, outbuf, bytes_wide);
