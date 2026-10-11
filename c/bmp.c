@@ -152,7 +152,7 @@ int bmp_dump(char *infile) {
 
 int new_bmp(char *infile, char *outfile) {
 	char inbuf[MAXLINE];	/* textinput	*/
-	char outbuf[MAXLINE/8];	/* BMP output	*/
+	char outbuf[MAXROWS][MAXLINE/8];
 	struct bmp_head header;
 	struct bmp_info info;
 	struct bmp_color color;
@@ -225,39 +225,42 @@ int new_bmp(char *infile, char *outfile) {
 	color.blue = 255;
 	write(outfd, &color, sizeof color);
 		
-	/* process the text input into BMP scan lines */
+	/* start with a completely blank image	*/
+	for(int i = 0; i < lines; i++)
+		for(int j = 0; j < MAXLINE/8; j++)
+			outbuf[i][j] = 0;
+
+	/* read each line of input and turn it into bits */
 	int pixels = 0;
 	int scanlines = 0;
 	rewind(textfile);
 	while(fgets(inbuf, sizeof inbuf, textfile) != NULL) {
-		/* start with a blank scan line	*/
-		for( int i = 0; i < MAXLINE/8; i++ )
-			outbuf[i] = 0;
-
 		/* turn each non-blank character into a black pixel */
 		int byte_offset, bit_value;
-		for( int i = 0; i < maxwid; i++ ) {
+		for(int i = 0; i < maxwid; i++) {
 			if (inbuf[i] == '\n')
 				break;
 			/* blank space is white	*/
 			if (inbuf[i] == ' ') {
 			    byte_offset = i / 8;
 			    bit_value = 0x80 >> (i%8);
-			    outbuf[byte_offset] |= bit_value;
+			    outbuf[scanlines][byte_offset] |= bit_value;
 			    pixels++;
 			}
 		}
-
-		write(outfd, outbuf, bytes_wide);
 		scanlines++;
 	}
-
 	fclose(textfile);
-	close(outfd);
+
+	/* write them out bottom to top */
+	for(int i = scanlines - 1; i >= 0; i--)
+		write(outfd, &outbuf[i][0], bytes_wide);
 
 	if (verbose)
 		printf("wrote %d %d-byte scan-lines, %d on-pixels\n",
 				scanlines, bytes_wide, pixels);
+	close(outfd);
+
 	return(0);
 }
 
