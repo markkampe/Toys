@@ -1,5 +1,5 @@
 # most of these were one-time, but a few are of ongoing use
-APPS = glucose logdump quiz
+APPS = glucose logdump arithmetic quiz 
 
 .PHONY: lint $(APPS)
 
