@@ -36,7 +36,7 @@ class Quiz:
     Read a file of quiz questions, and conduct a session of question promts
     and answer checking.
     """
-    # pylint: disable=too-many-instance-attributes
+    # pylint: disable=too-many-instance-attributes,too-many-branches
 
     def __init__(self, quizfile, topics_args, reverse=False):
         """
