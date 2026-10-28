@@ -5,6 +5,7 @@
     in the arithmetic library.
 """
 import sys
+import argparse
 import ast
 from arithmetic import (
     addition_with_carries, subtraction_with_borrows,
@@ -71,10 +72,28 @@ def evaluate(node):
 
 def main():
     """
-    read expressions from stdin and evaluate them
+    read expressions and evaluate them using the arithmetic library
     """
+
+    # expressions could be commandline or stdin
+    parser = argparse.ArgumentParser(
+             description="pedagogical arithemetic calculator")
+    parser.add_argument("-v", "--verbose", action='store_true')
+    parser.add_argument("expressions", nargs='*', type=str,
+                        help="expression to be evaluated")
+    args = parser.parse_args()
+
+    # see if we got expressions on the command line
+    if len(args.expressions) > 0:
+        for _i, expr in enumerate(args.expressions):
+            tree = ast.parse(expr, mode='eval')
+            result = evaluate(tree.body)
+            print("\n==================")
+            print(f"{expr} = {result}")
+        sys.exit(0)
+
+    # process expressions from stdin
     while True:
-        # read an input expression
         try:
             line = input("expression: ")
         except EOFError:

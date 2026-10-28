@@ -66,7 +66,7 @@ def subtraction_with_borrows(minuend, subtrahend):
     """
     if subtrahend > minuend:
         print("This script is optimized for positive results (Num1 >= Num2).")
-        return
+        return 0
 
     # Convert to strings and pad with leading zeros
     str1, str2 = str(minuend), str(subtrahend)
