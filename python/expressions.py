@@ -79,6 +79,7 @@ def main():
     parser = argparse.ArgumentParser(
              description="pedagogical arithemetic calculator")
     parser.add_argument("-v", "--verbose", action='store_true')
+    parser.add_argument("-s", "--step_by_step", action='store_true')
     parser.add_argument("expressions", nargs='*', type=str,
                         help="expression to be evaluated")
     args = parser.parse_args()
@@ -86,10 +87,13 @@ def main():
     # see if we got expressions on the command line
     if len(args.expressions) > 0:
         for _i, expr in enumerate(args.expressions):
+            print(f"Expression: {expr}")
             tree = ast.parse(expr, mode='eval')
             result = evaluate(tree.body)
-            print("\n==================")
-            print(f"{expr} = {result}")
+            if args.verbose:
+                print("\n==================")
+                print(f"{expr} = {result}\n")
+            print()
         sys.exit(0)
 
     # process expressions from stdin
@@ -107,8 +111,10 @@ def main():
         # parse and evaluate the expression
         tree = ast.parse(expr, mode='eval')
         result = evaluate(tree.body)
-        print("\n==================")
-        print(f"{expr} = {result}")
+        if args.verbose:
+            print("\n==================")
+            print(f"{expr} = {result}\n")
+        print()
 
 
 if __name__ == '__main__':
