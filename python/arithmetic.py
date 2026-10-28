@@ -54,6 +54,8 @@ def addition_with_carries(addend_1, addend_2):
     print(f"          {'-' * width}")
     print(f"Result:   {str(result).rjust(width)}")
 
+    return result
+
 
 # pylint: disable=too-many-locals
 def subtraction_with_borrows(minuend, subtrahend):
@@ -116,6 +118,8 @@ def subtraction_with_borrows(minuend, subtrahend):
     print(f"          {'-' * max_len}")
     print(f"Result:   {str(minuend - subtrahend).rjust(max_len).rjust(width)}")
 
+    return minuend - subtrahend
+
 
 def multiply_with_partial_products(multiplier, multiplicand):
     """
@@ -153,6 +157,8 @@ def multiply_with_partial_products(multiplier, multiplicand):
     # Print the final result line
     print("-" * max_len)
     print(f"{multiplier * multiplicand:>{max_len}}")
+
+    return multiplier * multiplicand
 
 
 def long_division(dividend: int, divisor: int):
@@ -223,10 +229,7 @@ def long_division(dividend: int, divisor: int):
 #
 # usage examples
 #
-def main():
-    """
-    usage examples for these arithmetic functions
-    """
+if __name__ == '__main__':
     print("EXAMPLE: addition with carries\n")
     addition_with_carries(789, 456)
     print("====================\n")
@@ -241,7 +244,3 @@ def main():
     print("====================\n")
     print("\nEXAMPLE: long division\n")
     _quotient, _remainder, _intermediate_steps = long_division(4812, 12)
-
-
-if __name__ == '__main__':
-    main()
