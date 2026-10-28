@@ -14,11 +14,13 @@ from arithmetic import (
 
 
 # pylint: disable=too-many-branches
-def evaluate(node):
+def evaluate(node: ast.Node) -> int:
     """
     Evaluate a term in an expression using arithmetic functions
-    @param node (ast.Node): expression to be evaluated
-    @return (int/float) numerical result
+    Parameters:
+        node (ast.Node): parsed expression to be evaluated
+    Returns:
+        (int/float) numerical result
     """
     if isinstance(node, ast.Constant):
         return node.value

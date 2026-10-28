@@ -6,11 +6,9 @@
 """
 
 
-def addition_with_carries(addend_1, addend_2):
+def addition_with_carries(addend_1: int, addend_2: int) -> int:
     """
     add two integers, showing the carries
-    : param (int) addend_1
-    : param (int) addend_2
     """
     # Convert inputs to strings to handle digit-by-digit operations
     str1 = str(addend_1)
@@ -58,7 +56,7 @@ def addition_with_carries(addend_1, addend_2):
 
 
 # pylint: disable=too-many-locals
-def subtraction_with_borrows(minuend, subtrahend):
+def subtraction_with_borrows(minuend: int, subtrahend: int) -> int:
     """
     subtract one integer from another, showing the borrows
     : parm (int) minuend: number being subtracted from
@@ -121,7 +119,7 @@ def subtraction_with_borrows(minuend, subtrahend):
     return minuend - subtrahend
 
 
-def multiply_with_partial_products(multiplier, multiplicand):
+def multiply_with_partial_products(multiplier: int, multiplicand: int) -> int:
     """
     multiply two numbers, showing the partial products
     : parm (int) multiplier
@@ -161,7 +159,7 @@ def multiply_with_partial_products(multiplier, multiplicand):
     return multiplier * multiplicand
 
 
-def long_division(dividend: int, divisor: int):
+def long_division(dividend: int, divisor: int) -> [int, int, int]:
     """
     perform a division operation, showing intermediate subtractions
     : parm (int) dividend: number to be divided
