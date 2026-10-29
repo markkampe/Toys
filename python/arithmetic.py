@@ -6,6 +6,17 @@
 """
 
 
+def decimal_places(string: str) -> int:
+    """
+    number of digits to the right of the decimal point
+    """
+    # see where the decimal point is
+    dot = string.find('.')
+    if dot <= 0:
+        return 0
+    return len(string) - (dot + 1)
+
+
 def decimal_align(num1, num2) -> (str, str):
     """
     ensure two strings have same number of digits after decimal
@@ -15,15 +26,11 @@ def decimal_align(num1, num2) -> (str, str):
     """
     # see if either number has a decimal fraction
     str1 = str(num1)
-    dot1 = str1.find('.')
     str2 = str(num2)
-    dot2 = str2.find('.')
-    if dot1 < 0 and dot2 < 0:   # both integers
+    scale1 = decimal_places(str1)
+    scale2 = decimal_places(str2)
+    if scale1 == 0 and scale2 == 0:
         return str1, str2
-
-    # figure out how many digits to right of decimal point
-    scale1 = 0 if dot1 < 0 else len(str1) - (dot1 + 1)
-    scale2 = 0 if dot2 < 0 else len(str2) - (dot2 + 1)
 
     # if they are different, zero-pad the shorter
     if scale1 > scale2:
@@ -54,11 +61,9 @@ def addition_with_carries(addend_1, addend_2) -> int:
     # Calculate carries from right to left
     carries = [0] * max_len
     current_carry = 0
-    decimal_places = -1
     for i in range(max_len - 1, -1, -1):
         if str1[i] == '.':
             carries[i] = 0
-            decimal_places = max_len - (i + 1)
             continue
 
         carries[i] = current_carry  # did I have a carry-in?
@@ -73,13 +78,13 @@ def addition_with_carries(addend_1, addend_2) -> int:
     # Calculate final result and align its decimal pint
     result = addend_1 + addend_2
     result_s = str(result)
-    result_decimal = result_s.find('.')
-    if decimal_places >= 0:
-        if result_decimal < 0:
-            result_s += '.' + decimal_places * '0'
+    addend_places = decimal_places(str1)
+    result_places = decimal_places(result_s)
+    if addend_places > 0:
+        if result_places == 0:
+            result_s += '.' + addend_places * '0'
         else:
-            result_places = len(result_s) - (result_decimal + 1)
-            result_s += (decimal_places - result_places) * '0'
+            result_s += (addend_places - result_places) * '0'
 
     # Determine the width needed for clean right-alignment
     width = max(max_len + 2, len(result_s) + 2)
