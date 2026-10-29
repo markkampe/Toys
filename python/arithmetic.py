@@ -5,52 +5,89 @@
        carries, borrows, partial products, long division
 """
 
-
-def addition_with_carries(addend_1: int, addend_2: int) -> int:
+def decimal_align(num1, num2) -> (str, str):
     """
-    add two integers, showing the carries
+    ensure two strings have same number of digits after decimal
+
+    Return:
+        two right numeric strings of equal precision
+    """
+    # see if either number has a decimal fraction
+    str1 = str(num1)
+    dot1 = str1.find('.')
+    str2 = str(num2)
+    dot2 = str2.find('.')
+    if dot1 < 0 and dot2 < 0:   # both integers
+        return str1, str2
+
+    # figure out how many digits to right of decimal point
+    scale1 = 0 if dot1 < 0 else len(str1) - (dot1 + 1)
+    scale2 = 0 if dot2 < 0 else len(str2) - (dot2 + 1)
+
+    # if they are different, zero-pad the shorter
+    if scale1 > scale2:
+        if scale2 == 0:
+            str2 += '.'
+        str2 += '0' * (scale1 - scale2)
+    elif scale2 > scale1:
+        if scale1 == 0:
+            str1 += '.'
+        str1 += '0' * (scale2 - scale1)
+
+    return str1, str2
+
+
+def addition_with_carries(addend_1, addend_2) -> int:
+    """
+    add two numbers, showing the total and carries
     """
     # Convert inputs to strings to handle digit-by-digit operations
-    str1 = str(addend_1)
-    str2 = str(addend_2)
+    str1, str2 = decimal_align(addend_1, addend_2)
 
-    # Pad strings with leading zeros to make them equal length
-    max_len = max(len(str1), len(str2))
-    str1 = str1.zfill(max_len)
-    str2 = str2.zfill(max_len)
-
-    carries = [0] * (max_len + 1)
-    current_carry = 0
+    # Pad strings with leading blanks to make them equal length
+    max_len = max(len(str1), len(str2)) + 1
+    str1 = str1.rjust(max_len)
+    str2 = str2.rjust(max_len)
 
     # Calculate carries from right to left
+    carries = [0] * max_len
+    current_carry = 0
+    decimal_places = -1
     for i in range(max_len - 1, -1, -1):
-        digit1 = int(str1[i])
-        digit2 = int(str2[i])
+        if str1[i] == '.':
+            carries[i] = 0
+            decimal_places = i
+            continue
 
+        carries[i] = current_carry  # did I have a carry-in?
+        digit1 = 0 if str1[i] == ' ' else int(str1[i])
+        digit2 = 0 if str2[i] == ' ' else int(str2[i])
         total = digit1 + digit2 + current_carry
         current_carry = total // 10
-        carries[i] = current_carry  # Store carry for the next column to left
 
-    # Format the carry line (shift left by 1 position visually)
     # If the carry is 0, we print a space; otherwise, print the carry digit
-    carry_line = "".join(str(c) if c > 0 else " " for c in carries[1:])
-    if carries[0] > 0:
-        carry_line = str(carries[0]) + carry_line
-    else:
-        carry_line = " " + carry_line
+    carry_line = "".join(str(c) if c > 0 else " " for c in carries)
 
-    # Calculate final result
+    # Calculate final result and align its decimal pint
     result = addend_1 + addend_2
+    result_s = str(result)
+    result_decimal = result_s.find('.')
+    if decimal_places >= 0:
+        if result_decimal < 0:
+            result_s += '.' + decimal_places * '0'
+        else:
+            result_places = len(result_s) - (result_decimal + 1)
+            result_s += (decimal_places - result_places) * '0'
 
     # Determine the width needed for clean right-alignment
-    width = max(max_len + 2, len(str(result)) + 2)
+    width = max(max_len + 2, len(result_s) + 2)
 
     # Print the formatted output
     print(f"Carries:  {carry_line.rjust(width)}")
-    print(f"          {str(addend_1).rjust(width)}")
-    print(f"        + {str(addend_2).rjust(width)}")
+    print(f"          {str1.rjust(width)}")
+    print(f"        + {str2.rjust(width)}")
     print(f"          {'-' * width}")
-    print(f"Result:   {str(result).rjust(width)}")
+    print(f"Result:   {result_s.rjust(width)}")
 
     return result
 
