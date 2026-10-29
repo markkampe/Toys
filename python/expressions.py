@@ -16,7 +16,9 @@ from arithmetic import (
 # pylint: disable=too-many-branches
 def evaluate(node: ast.Node) -> int:
     """
-    Evaluate a term in an expression using arithmetic functions
+    recursive descent Evaluate a term in an expression,
+        using the pedagogical arithmetic operations
+
     Parameters:
         node (ast.Node): parsed expression to be evaluated
     Returns:
@@ -25,50 +27,40 @@ def evaluate(node: ast.Node) -> int:
     if isinstance(node, ast.Constant):
         return node.value
 
+    # binary operations
     if isinstance(node, ast.BinOp):
         left = evaluate(node.left)
         right = evaluate(node.right)
         match type(node.op):
             case ast.Add:
-                correct = left + right
-                computed = addition_with_carries(left, right)
-                if correct != computed:
-                    sys.stderr.write(f"ERROR: {left}+{right}->{computed}\n")
+                return addition_with_carries(left, right)
 
             case ast.Sub:
-                correct = left - right
-                computed = subtraction_with_borrows(left, right)
-                if correct != computed:
-                    sys.stderr.write(f"ERROR: {left}-{right}->{computed}\n")
+                return subtraction_with_borrows(left, right)
 
             case ast.Mult:
-                correct = left * right
-                computed = multiply_with_partial_products(left, right)
-                if correct != computed:
-                    sys.stderr.write(f"ERROR: {left}*{right}->{computed}\n")
+                return multiply_with_partial_products(left, right)
 
             case ast.Div:
-                correct = left / right
                 quotient, remainder, _steps = long_division(left, right)
-                computed = quotient + remainder/right
-                if correct != computed:
-                    sys.stderr.write(f"ERROR: {left}/{right}->{computed}\n")
+                return quotient + remainder/right
 
             case '_':
                 raise TypeError(f"unsupported binary operator: {node.op}")
 
-        return correct
-
+    # unary operations
     if isinstance(node, ast.UnaryOp):
         match node.op:
             case ast.USub:
-                correct = - node.operand
-                return correct
+                return -node.operand
 
             case ast.UAdd:
-                correct = node.operand
-                return correct
+                return node.operand
 
+            case '_':
+                raise TypeError(f"unsupported unary operator: {node.op}")
+
+    # those are all the nodes we expect from an eval-parse
     raise TypeError(f"unsupported node type: {node.__class__.__name__}")
 
 
