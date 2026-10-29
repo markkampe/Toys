@@ -5,6 +5,7 @@
        carries, borrows, partial products, long division
 """
 
+
 def decimal_align(num1, num2) -> (str, str):
     """
     ensure two strings have same number of digits after decimal
@@ -37,6 +38,7 @@ def decimal_align(num1, num2) -> (str, str):
     return str1, str2
 
 
+# pylint: disable=too-many-locals
 def addition_with_carries(addend_1, addend_2) -> int:
     """
     add two numbers, showing the total and carries
@@ -56,7 +58,7 @@ def addition_with_carries(addend_1, addend_2) -> int:
     for i in range(max_len - 1, -1, -1):
         if str1[i] == '.':
             carries[i] = 0
-            decimal_places = i
+            decimal_places = max_len - (i + 1)
             continue
 
         carries[i] = current_carry  # did I have a carry-in?

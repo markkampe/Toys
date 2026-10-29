@@ -54,9 +54,6 @@ def evaluate(node: ast.Node) -> int:
             case ast.USub:
                 return -node.operand
 
-            case ast.UAdd:
-                return node.operand
-
             case '_':
                 raise TypeError(f"unsupported unary operator: {node.op}")
 
