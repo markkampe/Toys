@@ -100,7 +100,7 @@ def addition_with_carries(addend_1, addend_2) -> int:
 
 
 # pylint: disable=too-many-locals
-def subtraction_with_borrows(minuend: int, subtrahend: int) -> int:
+def subtraction_with_borrows(minuend, subtrahend):
     """
     subtract one integer from another, showing the borrows
     : parm (int) minuend: number being subtracted from
@@ -111,14 +111,25 @@ def subtraction_with_borrows(minuend: int, subtrahend: int) -> int:
         return 0
 
     # Convert to strings and pad with leading zeros
-    str1, str2 = str(minuend), str(subtrahend)
+    str1, str2 = decimal_align(minuend, subtrahend)
     max_len = max(len(str1), len(str2))
-    str1 = str1.zfill(max_len)
-    str2 = str2.zfill(max_len)
+    str1 = str1.rjust(max_len)
+    str2 = str2.rjust(max_len)
+    dp = decimal_places(str1)
 
     # Convert to mutable lists of digits for processing borrows
-    digits1 = [int(d) for d in str1]
-    digits2 = [int(d) for d in str2]
+    digits1 = [0] * max_len
+    j = max_len - 1
+    for i in range(max_len - 1, -1, -1):
+        if str1[i] != ' ' and str2[i] != '.':
+            digits1[j] = int(str1[i])
+            j -= 1
+    digits2 = [0] * max_len
+    j = max_len - 1
+    for i in range(max_len - 1, -1, -1):
+        if str2[i] != ' ' and str2[i] != '.':
+            digits2[j] = int(str2[i])
+            j -= 1
 
     borrows = [" "] * max_len
     slashes = [" "] * max_len
@@ -148,16 +159,21 @@ def subtraction_with_borrows(minuend: int, subtrahend: int) -> int:
 
     # Format lines for printing
     width = max_len + 4
-    borrow_line = "".join(borrows).rjust(width)
-    slash_line = "".join(slashes).rjust(width)
-    new_dig_line = "".join(new_digits).rjust(width)
+    index = max_len - dp
+    borrow_line = "".join(borrows[:index])
+    slash_line = "".join(slashes[:index])
+    new_dig_line = "".join(new_digits[:index])
+    if dp > 0:      # re-insert the decimal points
+        borrow_line += '.' + "".join(borrows[index:])
+        slash_line += '.' + "".join(slashes[index:])
+        new_dig_line += '.' + "".join(new_digits[index:])
 
-    print(f"Borrows:  {borrow_line}")
-    print(f"          {new_dig_line}")
-    print(f"          {slash_line}")
-    print(f"          {str(minuend).rjust(max_len).rjust(width)}")
-    print(f"        - {str(subtrahend).rjust(max_len).rjust(width)}")
-    print(f"          {'-' * max_len}")
+    print(f"Borrows:  {borrow_line.rjust(width)}")
+    print(f"          {new_dig_line.rjust(width)}")
+    print(f"          {slash_line.rjust(width)}")
+    print(f"          {str1.rjust(max_len).rjust(width)}")
+    print(f"        - {str2.rjust(max_len).rjust(width)}")
+    print(f"          {('-' * max_len).rjust(width)}")
     print(f"Result:   {str(minuend - subtrahend).rjust(max_len).rjust(width)}")
 
     return minuend - subtrahend
