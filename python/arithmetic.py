@@ -99,7 +99,7 @@ def addition_with_carries(addend_1, addend_2) -> int:
     return result
 
 
-# pylint: disable=too-many-locals
+# pylint: disable=too-many-locals,too-many-branches,too-many-statements
 def subtraction_with_borrows(minuend, subtrahend):
     """
     subtract one integer from another, showing the borrows
@@ -167,14 +167,21 @@ def subtraction_with_borrows(minuend, subtrahend):
         borrow_line += ' ' + "".join(borrows[index:])
         slash_line += ' ' + "".join(slashes[index:])
         new_dig_line += '.' + "".join(new_digits[index:])
+    rslt_line = str(minuend - subtrahend)
+    dr = decimal_places(rslt_line)
+    if dp > 0:
+        if dr == 0:
+            rslt_line += '.' + dp * '0'
+        else:
+            rslt_line += (dp - dr) * '0'
 
     print(f"Borrows:  {borrow_line.rjust(width)}")
     print(f"          {new_dig_line.rjust(width)}")
     print(f"          {slash_line.rjust(width)}")
-    print(f"          {str1.rjust(max_len).rjust(width)}")
-    print(f"        - {str2.rjust(max_len).rjust(width)}")
+    print(f"          {str1.rjust(width)}")
+    print(f"        - {str2.rjust(width)}")
     print(f"          {('-' * max_len).rjust(width)}")
-    print(f"Result:   {str(minuend - subtrahend).rjust(max_len).rjust(width)}")
+    print(f"Result:   {rslt_line.rjust(width)}")
 
     return minuend - subtrahend
 
