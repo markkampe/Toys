@@ -103,13 +103,9 @@ def addition_with_carries(addend_1, addend_2) -> int:
 def subtraction_with_borrows(minuend, subtrahend):
     """
     subtract one integer from another, showing the borrows
-    : parm (int) minuend: number being subtracted from
-    : parm (int) subtrahend: number being subtracted
+      parm (int) minuend: number being subtracted from
+      parm (int) subtrahend: number being subtracted
     """
-    if subtrahend > minuend:
-        print("This script is optimized for positive results (Num1 >= Num2).")
-        return 0
-
     # Convert to strings and pad with leading zeros
     str1, str2 = decimal_align(minuend, subtrahend)
     max_len = max(len(str1), len(str2))
@@ -117,18 +113,23 @@ def subtraction_with_borrows(minuend, subtrahend):
     str2 = str2.rjust(max_len)
     dp = decimal_places(str1)
 
+    # borrowing algorithm assumes positive difference
+    result = round(minuend - subtrahend, dp)
+    larger = str1 if result >= 0 else str2
+    smaller = str2 if result >= 0 else str1
+
     # Convert to mutable lists of digits for processing borrows
     digits1 = [0] * max_len
     j = max_len - 1
     for i in range(max_len - 1, -1, -1):
-        if str1[i] != ' ' and str2[i] != '.':
-            digits1[j] = int(str1[i])
+        if larger[i] != ' ' and larger[i] != '.':
+            digits1[j] = int(larger[i])
             j -= 1
     digits2 = [0] * max_len
     j = max_len - 1
     for i in range(max_len - 1, -1, -1):
-        if str2[i] != ' ' and str2[i] != '.':
-            digits2[j] = int(str2[i])
+        if smaller[i] != ' ' and smaller[i] != '.':
+            digits2[j] = int(smaller[i])
             j -= 1
 
     borrows = [" "] * max_len
@@ -168,8 +169,11 @@ def subtraction_with_borrows(minuend, subtrahend):
         slash_line += ' ' + "".join(slashes[index:])
         new_dig_line += '.' + "".join(new_digits[index:])
 
+    # figure out what signts to put on the minuend and subtrahend
+    sl = ' ' if result >= 0 else '-'
+    ss = '-' if result >= 0 else '+'
+
     # get result with the correct precision/alighment
-    result = round(minuend - subtrahend, dp)
     rslt_line = str(result)
     dr = decimal_places(rslt_line)
     if dp > 0:
@@ -181,8 +185,8 @@ def subtraction_with_borrows(minuend, subtrahend):
     print(f"Borrows:  {borrow_line.rjust(width)}")
     print(f"          {new_dig_line.rjust(width)}")
     print(f"          {slash_line.rjust(width)}")
-    print(f"          {str1.rjust(width)}")
-    print(f"        - {str2.rjust(width)}")
+    print(f"        {sl} {larger.rjust(width)}")
+    print(f"        {ss} {smaller.rjust(width)}")
     print(f"          {('-' * max_len).rjust(width)}")
     print(f"Result:   {rslt_line.rjust(width)}")
 
