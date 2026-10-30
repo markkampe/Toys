@@ -164,8 +164,8 @@ def subtraction_with_borrows(minuend, subtrahend):
     slash_line = "".join(slashes[:index])
     new_dig_line = "".join(new_digits[:index])
     if dp > 0:      # re-insert the decimal points
-        borrow_line += '.' + "".join(borrows[index:])
-        slash_line += '.' + "".join(slashes[index:])
+        borrow_line += ' ' + "".join(borrows[index:])
+        slash_line += ' ' + "".join(slashes[index:])
         new_dig_line += '.' + "".join(new_digits[index:])
 
     print(f"Borrows:  {borrow_line.rjust(width)}")
