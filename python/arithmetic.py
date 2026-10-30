@@ -22,7 +22,7 @@ def decimal_align(num1, num2) -> (str, str):
     ensure two strings have same number of digits after decimal
 
     Return:
-        two right numeric strings of equal precision
+        two numeric strings with equal decimal precision
     """
     # see if either number has a decimal fraction
     str1 = str(num1)
@@ -76,9 +76,9 @@ def addition_with_carries(addend_1, addend_2) -> int:
     carry_line = "".join(str(c) if c > 0 else " " for c in carries)
 
     # Calculate final result and align its decimal pint
-    result = addend_1 + addend_2
-    result_s = str(result)
     addend_places = decimal_places(str1)
+    result = round(addend_1 + addend_2, addend_places)
+    result_s = str(result)
     result_places = decimal_places(result_s)
     if addend_places > 0:
         if result_places == 0:
@@ -157,17 +157,20 @@ def subtraction_with_borrows(minuend, subtrahend):
             borrows[i] = "1"
             digits1[i] += 10
 
-    # Format lines for printing
+    # Format carry lines for printing
     width = max_len + 4
     index = max_len - dp
     borrow_line = "".join(borrows[:index])
     slash_line = "".join(slashes[:index])
     new_dig_line = "".join(new_digits[:index])
-    if dp > 0:      # re-insert the decimal points
+    if dp > 0:      # re-insert (space for) decimal points
         borrow_line += ' ' + "".join(borrows[index:])
         slash_line += ' ' + "".join(slashes[index:])
         new_dig_line += '.' + "".join(new_digits[index:])
-    rslt_line = str(minuend - subtrahend)
+
+    # get result with the correct precision/alighment
+    result = round(minuend - subtrahend, dp)
+    rslt_line = str(result)
     dr = decimal_places(rslt_line)
     if dp > 0:
         if dr == 0:
@@ -183,7 +186,7 @@ def subtraction_with_borrows(minuend, subtrahend):
     print(f"          {('-' * max_len).rjust(width)}")
     print(f"Result:   {rslt_line.rjust(width)}")
 
-    return minuend - subtrahend
+    return result
 
 
 def multiply_with_partial_products(multiplier, multiplicand):
