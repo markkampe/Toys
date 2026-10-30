@@ -186,7 +186,7 @@ def subtraction_with_borrows(minuend, subtrahend):
     return minuend - subtrahend
 
 
-def multiply_with_partial_products(multiplier: int, multiplicand: int) -> int:
+def multiply_with_partial_products(multiplier, multiplicand):
     """
     multiply two numbers, showing the partial products
     : parm (int) multiplier
@@ -197,18 +197,28 @@ def multiply_with_partial_products(multiplier: int, multiplicand: int) -> int:
     str2 = str(multiplicand)
 
     # Calculate the maximum width needed for clean alignment
-    max_len = len(str(multiplier * multiplicand)) + 2
+    dp = decimal_places(str1) + decimal_places(str2)
+    result = round(multiplier * multiplicand, dp)
+    max_len = len(str(result)) + 2
 
     # Print the setup
-    print(f"{str1:>{max_len}}")
-    print(f"x{str2:>{max_len-1}}")
+    print(f"{str2:>{max_len}}")
+    print(f"x{str1:>{max_len-1}}")
     print("-" * max_len)
 
-    # Iterate through digits of the second number from right to left
-    for i, digit in enumerate(reversed(str2)):
+    # scale multiplier/multiplicand into integers for computation
+    for _i in range(decimal_places(str1)):
+        multiplier *= 10
+    multiplier = round(multiplier)
+    for _i in range(decimal_places(str2)):
+        multiplicand *= 10
+    multiplicand = round(multiplicand)
+
+    # Iterate through digits of the multiplier from right to left
+    for i, digit in enumerate(reversed(str(multiplier))):
         digit_val = int(digit)
         # Calculate the partial product for this step
-        partial = multiplier * digit_val
+        partial = multiplicand * digit_val
 
         # Format output line w/trailing spaces to represent place value shifts
         if partial == 0 and i > 0:
@@ -221,9 +231,9 @@ def multiply_with_partial_products(multiplier: int, multiplicand: int) -> int:
 
     # Print the final result line
     print("-" * max_len)
-    print(f"{multiplier * multiplicand:>{max_len}}")
+    print(f"{result:>{max_len}}")
 
-    return multiplier * multiplicand
+    return result
 
 
 def long_division(dividend: int, divisor: int) -> [int, int, int]:
