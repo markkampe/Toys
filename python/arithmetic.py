@@ -88,6 +88,7 @@ def addition_with_carries(addend_1, addend_2) -> int:
         digit2 = 0 if str2[i] == ' ' else int(str2[i])
         total = digit1 + digit2 + current_carry
         current_carry = total // 10
+    # FIX: do the adds
 
     # If the carry is 0, we print a space; otherwise, print the carry digit
     carry_line = "".join(str(c) if c > 0 else " " for c in carries)
@@ -112,6 +113,7 @@ def addition_with_carries(addend_1, addend_2) -> int:
     print(f"        + {str2.rjust(width)}")
     print(f"          {'-' * width}")
     print(f"Result:   {result_s.rjust(width)}")
+    # FIX: compare computed result with correct result
 
     return result
 
@@ -162,6 +164,7 @@ def subtraction_with_borrows(minuend, subtrahend):
     new_digits = [" "] * max_len
 
     # Loop from right to left
+    # FIX compute difference with borrows
     for i in range(max_len - 1, -1, -1):
         if digits1[i] < digits2[i]:
             # Find the next available non-zero digit to borrow from
@@ -198,6 +201,7 @@ def subtraction_with_borrows(minuend, subtrahend):
     sl = ' ' if result >= 0 else '-'
     ss = '-' if result >= 0 else '+'
 
+    # FIX: compare computed result with correct result
     # get result with the correct precision/alighment
     rslt_line = str(result)
     dr = decimal_places(rslt_line)
@@ -218,6 +222,9 @@ def subtraction_with_borrows(minuend, subtrahend):
     return result
 
 
+# FIX: decimal points in partial products
+# FIX: do actual additions
+# FIX: compare results
 def multiply_with_partial_products(multiplier, multiplicand):
     """
     multiply two numbers, showing the partial products
@@ -294,7 +301,7 @@ def no_leading_zeroes(value: str) -> str:
     for i in range(length):
         # are we still in leading whitespace?
         if value[i] == ' ':
-            newstr[i] = value[i]
+            newstr += ' '
         # we are past any leading zeroes
         elif got_stuff or value[i] != '0':
             got_stuff = True
@@ -309,16 +316,19 @@ def no_leading_zeroes(value: str) -> str:
     return newstr
 
 
-def long_division(dividend, divisor) -> [int, int, int]:
+def long_division(dividend, divisor):
     """
     perform a division operation, showing intermediate subtractions
-      parm (int) dividend: number to be divided
-      parm (int) divisor: number to divide by
+      parm dividend: number to be divided
+      parm divisor: number to divide by
 
-    returns [quotient, remainder, steps]
+    returns [quotient, remainder]
     """
     if divisor == 0:
         raise ValueError("Cannot divide by zero.")
+
+    # compute the correct answer
+    correct = dividend/divisor
 
     # Handle negative numbers for the final result sign
     is_negative = (dividend < 0) ^ (divisor < 0)
@@ -329,7 +339,8 @@ def long_division(dividend, divisor) -> [int, int, int]:
     dividend_str = str(dividend)
     denom_width = len(divisor_str)
     numer_width = len(dividend_str)
-    extra_digits = numer_width      # digits beyond dividend
+    extra_digits = 1
+    right_column = numer_width + 4
 
     # form for the division problem
     obleus = " ) "
@@ -337,13 +348,22 @@ def long_division(dividend, divisor) -> [int, int, int]:
     obleus_line = ' ' * (denom_width + 1) + \
                   '_' * (obleus_width + numer_width + extra_digits)
 
+    # re-scale dividend for an integer divisor
+    dp = decimal_places(divisor_str)
+    div_str = dividend_str
+    if dp > 0:
+        for i in range(dp):
+            divisor *= 10
+            dividend *= 10
+        divisor = int(divisor)
+        div_str = str(dividend)
+
     # Process the dividend digit by digit
     quotient_str = ""
     current_buffer = 0
     indent = denom_width + obleus_width
     steps = []
-    # FIX correct for divisor decimal places
-    for i, digit in enumerate(dividend_str):
+    for i, digit in enumerate(div_str):
         # ignore decimal points in the dividend
         if digit == '.':
             quotient_str += '.'
@@ -370,7 +390,8 @@ def long_division(dividend, divisor) -> [int, int, int]:
             product_str = str(-product).rjust(cur_width)
         else:
             product_str = "-0".rjust(cur_width)
-        product_str += f" ... ({current_quotient_digit} x {divisor})"
+        padding = ' ' * (right_column - i)
+        product_str += f"{padding} ... ({current_quotient_digit} x {divisor})"
 
         # 4. calculate the new remainder
         dashes = ('-' * len(str(current_buffer))).rjust(cur_width)
@@ -390,40 +411,26 @@ def long_division(dividend, divisor) -> [int, int, int]:
     if is_negative and final_quotient != 0:
         final_quotient = -final_quotient
 
-    print(f"    {quotient_str.rjust(cur_width)}")
+    # check it for correctness
+    dp = decimal_places(dividend_str) - decimal_places(divisor_str)
+    correct = round(correct, dp)
+    if final_quotient == correct:
+        vs_corr = ""
+    else:
+        vs_corr = f" (vs {correct})"
+
+    # print out the entire computation
+
+    print(f"    {quotient_str.rjust(cur_width)}{vs_corr}")
     print(f"    {obleus_line}")
     print(f"    {divisor_str}{obleus}{dividend_str}")
 
-    for (_index, results) in enumerate(steps):
+    for (index, results) in enumerate(steps):
         print(f"    {results[0]}")  # bring-down
         print(f"    {results[1]}")  # digit * divisor
         print(f"    {results[2]}")  # dashes
-    print(    f"    {results[3]} ... final remainder")
+        if index < len(steps) - 1:
+            continue
+        print(f"    {results[3]}{padding} ... remainder")
 
-    print("-" * 30)
-    dp = decimal_places(dividend_str) + 1
-    correct = round(dividend/divisor, dp)
-    print(f"Final Quotient : {final_quotient} (vs {correct})")
-    print(f"Final Remainder: {current_buffer}")
-
-    return final_quotient, current_buffer
-
-
-#
-# usage examples
-#
-if __name__ == '__main__':
-    print("EXAMPLE: addition with carries\n")
-    addition_with_carries(789, 456)
-    print("====================\n")
-
-    print("\nEXAMPLE: subtraction with borrows\n")
-    subtraction_with_borrows(1002, 456)
-
-    print("====================\n")
-    print("\nEXAMPLE: multiplication with partial products\n")
-    multiply_with_partial_products(123, 45)
-
-    print("====================\n")
-    print("\nEXAMPLE: long division\n")
-    _quotient, _remainder = long_division(4812, 12)
+    return final_quotient, remainder
