@@ -42,7 +42,7 @@ def evaluate(node: ast.Node) -> int:
                 return multiply_with_partial_products(left, right)
 
             case ast.Div:
-                quotient, remainder, _steps = long_division(left, right)
+                quotient, remainder = long_division(left, right)
                 return quotient + remainder/right
 
             case '_':

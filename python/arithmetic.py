@@ -2,7 +2,17 @@
 """
  methods for elementary school arithmetic tutoring
    perform basic arithmetic operations, showing all the steps:
-       carries, borrows, partial products, long division
+       addition/subtraction: carries & borrows,
+       multiplication: partial products
+       long division: each product/subtraction
+
+   history:
+        I did a google search for pedagogical arithmetic
+          and AI gave me python that kind-of-worked for
+          integers.  I used this as a starting point,
+          did some refactoring, enhanced them to support
+          decimal quantities, and improve the readability
+          lf the long-division output.
 """
 
 
@@ -19,7 +29,7 @@ def decimal_places(string: str) -> int:
 
 def decimal_align(num1, num2) -> (str, str):
     """
-    ensure two strings have same number of digits after decimal
+    ensure two (numeric) strings have same number of digits after decimal
 
     Return:
         two numeric strings with equal decimal precision
@@ -29,6 +39,8 @@ def decimal_align(num1, num2) -> (str, str):
     str2 = str(num2)
     scale1 = decimal_places(str1)
     scale2 = decimal_places(str2)
+
+    # if two integers, they are fine as given
     if scale1 == 0 and scale2 == 0:
         return str1, str2
 
@@ -49,6 +61,11 @@ def decimal_align(num1, num2) -> (str, str):
 def addition_with_carries(addend_1, addend_2) -> int:
     """
     add two numbers, showing the total and carries
+    output: carries
+            addend 1
+            addend 2
+            --------
+            sum
     """
     # Convert inputs to strings to handle digit-by-digit operations
     str1, str2 = decimal_align(addend_1, addend_2)
@@ -105,6 +122,14 @@ def subtraction_with_borrows(minuend, subtrahend):
     subtract one integer from another, showing the borrows
       parm (int) minuend: number being subtracted from
       parm (int) subtrahend: number being subtracted
+
+      output:   additions from borrows
+                reductions from values
+                columns from which there have been borrows
+                minuend
+                subtrahend
+                -------
+                diference
     """
     # Convert to strings and pad with leading zeros
     str1, str2 = decimal_align(minuend, subtrahend)
@@ -198,6 +223,13 @@ def multiply_with_partial_products(multiplier, multiplicand):
     multiply two numbers, showing the partial products
     : parm (int) multiplier
     : parm (int) multiplicand
+    output: multiplicand
+            multiplier
+            ----------
+            partial sums (without decimals)
+            ----------
+            product
+
     """
     # Convert inputs to strings to handle formatting and digit iteration
     str1 = str(multiplier)
@@ -243,11 +275,47 @@ def multiply_with_partial_products(multiplier, multiplicand):
     return result
 
 
-def long_division(dividend: int, divisor: int) -> [int, int, int]:
+def no_leading_zeroes(value: str) -> str:
+    """ strip leading zeroes off of a quotient """
+
+    # string is only zero
+    stripped = value.lstrip()
+    if stripped == '0':
+        return value
+
+    # first non-blank is not zero
+    if stripped[0] != '0':
+        return value
+
+    # copy the string, skipping any leading zeroes
+    newstr = ""
+    length = len(value)
+    got_stuff = False
+    for i in range(length):
+        # are we still in leading whitespace?
+        if value[i] == ' ':
+            newstr[i] = value[i]
+        # we are past any leading zeroes
+        elif got_stuff or value[i] != '0':
+            got_stuff = True
+            newstr += value[i]
+        # is this a zero before a decimal point
+        elif i < length - 1 and value[i+1] == '.':
+            got_stuff = True
+            newstr += value[i]
+        # this is a leading zero
+        else:
+            newstr += ' '
+    return newstr
+
+
+def long_division(dividend, divisor) -> [int, int, int]:
     """
     perform a division operation, showing intermediate subtractions
-    : parm (int) dividend: number to be divided
-    : parm (int) divisor: number to divide by
+      parm (int) dividend: number to be divided
+      parm (int) divisor: number to divide by
+
+    returns [quotient, remainder, steps]
     """
     if divisor == 0:
         raise ValueError("Cannot divide by zero.")
@@ -256,56 +324,89 @@ def long_division(dividend: int, divisor: int) -> [int, int, int]:
     is_negative = (dividend < 0) ^ (divisor < 0)
     dividend, divisor = abs(dividend), abs(divisor)
 
+    # general layout parameters
+    divisor_str = str(divisor)
     dividend_str = str(dividend)
-    quotient_str = ""
-    current_buffer = 0
-    steps = []
+    denom_width = len(divisor_str)
+    numer_width = len(dividend_str)
+    extra_digits = numer_width      # digits beyond dividend
 
-    print(f"Dividing {dividend} by {divisor}:\n")
+    # form for the division problem
+    obleus = " ) "
+    obleus_width = len(obleus)
+    obleus_line = ' ' * (denom_width + 1) + \
+                  '_' * (obleus_width + numer_width + extra_digits)
 
     # Process the dividend digit by digit
+    quotient_str = ""
+    current_buffer = 0
+    indent = denom_width + obleus_width
+    steps = []
+    # FIX correct for divisor decimal places
     for i, digit in enumerate(dividend_str):
+        # ignore decimal points in the dividend
+        if digit == '.':
+            quotient_str += '.'
+            continue
+
+        # figure out where our indentation should be
+        cur_width = indent + i + 1
+
         # 1. Bring down the next digit
-        current_buffer = current_buffer * 10 + int(digit)
-        step_info = {"step": i + 1, "brought_down": current_buffer}
+        if i > 0 and current_buffer == 0:
+            current_buffer = int(digit)
+            bringdown_str = ('0'+digit).rjust(cur_width)
+        else:
+            current_buffer = current_buffer * 10 + int(digit)
+            bringdown_str = str(current_buffer).rjust(cur_width)
 
         # 2. Determine how many times the divisor goes into the current buffer
         current_quotient_digit = current_buffer // divisor
-        quotient_str += str(current_quotient_digit)
+        quotient_str += str(int(current_quotient_digit))
 
-        # 3. Calculate product and new intermediate remainder
-        product = current_quotient_digit * divisor
+        # 3. Calculate product
+        product = int(current_quotient_digit * divisor)
+        if product > 0:
+            product_str = str(-product).rjust(cur_width)
+        else:
+            product_str = "-0".rjust(cur_width)
+        product_str += f" ... ({current_quotient_digit} x {divisor})"
+
+        # 4. calculate the new remainder
+        dashes = ('-' * len(str(current_buffer))).rjust(cur_width)
         remainder = current_buffer - product
+        remain_str = str(remainder).rjust(cur_width)
 
-        step_info.update({
-            "digit_placed": current_quotient_digit,
-            "product": product,
-            "remainder": remainder
-        })
+        # record these results
+        step_info = (bringdown_str, product_str, dashes, remain_str)
         steps.append(step_info)
-
-        # Print the formatted step
-        print(f"Step {i+1}:")
-        print(f"  Current working value: {current_buffer}")
-        print(f"  {current_buffer} // {divisor} = {current_quotient_digit}")
-        print(f"  Multiply: {current_quotient_digit} * {divisor} = {product}")
-        print(f"  Subtract: {current_buffer} - {product} = {remainder}")
-        print("  Current accumulated quotient: " +
-              f"{quotient_str.lstrip('0') or '0'}\n")
 
         # The remainder becomes the base for the next iteration
         current_buffer = remainder
 
     # Final cleanup of results
-    final_quotient = int(quotient_str)
+    quotient_str = no_leading_zeroes(quotient_str)
+    final_quotient = float(quotient_str)
     if is_negative and final_quotient != 0:
         final_quotient = -final_quotient
 
+    print(f"    {quotient_str.rjust(cur_width)}")
+    print(f"    {obleus_line}")
+    print(f"    {divisor_str}{obleus}{dividend_str}")
+
+    for (_index, results) in enumerate(steps):
+        print(f"    {results[0]}")  # bring-down
+        print(f"    {results[1]}")  # digit * divisor
+        print(f"    {results[2]}")  # dashes
+    print(    f"    {results[3]} ... final remainder")
+
     print("-" * 30)
-    print(f"Final Quotient : {final_quotient}")
+    dp = decimal_places(dividend_str) + 1
+    correct = round(dividend/divisor, dp)
+    print(f"Final Quotient : {final_quotient} (vs {correct})")
     print(f"Final Remainder: {current_buffer}")
 
-    return final_quotient, current_buffer, steps
+    return final_quotient, current_buffer
 
 
 #
@@ -325,4 +426,4 @@ if __name__ == '__main__':
 
     print("====================\n")
     print("\nEXAMPLE: long division\n")
-    _quotient, _remainder, _intermediate_steps = long_division(4812, 12)
+    _quotient, _remainder = long_division(4812, 12)
