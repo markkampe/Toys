@@ -174,9 +174,9 @@ def subtraction_with_borrows(minuend, subtrahend):
     dp = decimal_places(str1)
 
     # borrowing algorithm assumes positive difference
-    result = round(minuend - subtrahend, dp)
-    larger = str1 if result >= 0 else str2
-    smaller = str2 if result >= 0 else str1
+    correct = round(minuend - subtrahend, dp)
+    larger = str1 if correct >= 0 else str2
+    smaller = str2 if correct >= 0 else str1
 
     # Convert to mutable lists of digits for processing borrows
     digits1 = [0] * max_len
@@ -192,12 +192,12 @@ def subtraction_with_borrows(minuend, subtrahend):
             digits2[j] = int(smaller[i])
             j -= 1
 
-    borrows = [" "] * max_len
-    slashes = [" "] * max_len
-    new_digits = [" "] * max_len
+    borrows = [" "] * max_len       # borrowed for this place
+    slashes = [" "] * max_len       # borrowed from this place
+    new_digits = [" "] * max_len    # reduced digit in this place
+    rslt_str = ""                   # accumulated difference
 
     # Loop from right to left
-    # FIX compute difference with borrows
     for i in range(max_len - 1, -1, -1):
         if digits1[i] < digits2[i]:
             # Find the next available non-zero digit to borrow from
@@ -218,31 +218,32 @@ def subtraction_with_borrows(minuend, subtrahend):
             # Apply the borrow to the current column
             borrows[i] = "1"
             digits1[i] += 10
+        rslt_str = str(digits1[i] - digits2[i]) + rslt_str
 
-    # Format carry lines for printing
+    # Format output lines for printing
     width = max_len + 4
     index = max_len - dp
     borrow_line = "".join(borrows[:index])
     slash_line = "".join(slashes[:index])
     new_dig_line = "".join(new_digits[:index])
+    rslt_line = "".join(rslt_str[:index])
     if dp > 0:      # re-insert (space for) decimal points
         borrow_line += ' ' + "".join(borrows[index:])
         slash_line += ' ' + "".join(slashes[index:])
         new_dig_line += '.' + "".join(new_digits[index:])
+        rslt_line += '.' + "".join(rslt_str[index:])
+    rslt_line = no_leading_zeroes(rslt_line)
+
+    # check our answer vs the correct one
+    result = float(rslt_line)
+    if result == correct:
+        vs_corr = ""
+    else:
+        vs_corr = f" (vs {correct})"
 
     # figure out what signts to put on the minuend and subtrahend
-    sl = ' ' if result >= 0 else '-'
-    ss = '-' if result >= 0 else '+'
-
-    # FIX: compare computed result with correct result
-    # get result with the correct precision/alighment
-    rslt_line = str(result)
-    dr = decimal_places(rslt_line)
-    if dp > 0:
-        if dr == 0:
-            rslt_line += '.' + dp * '0'
-        else:
-            rslt_line += (dp - dr) * '0'
+    sl = ' ' if correct >= 0 else '-'
+    ss = '-' if correct >= 0 else '+'
 
     print(f"Borrows:  {borrow_line.rjust(width)}")
     print(f"          {new_dig_line.rjust(width)}")
@@ -250,7 +251,7 @@ def subtraction_with_borrows(minuend, subtrahend):
     print(f"        {sl} {larger.rjust(width)}")
     print(f"        {ss} {smaller.rjust(width)}")
     print(f"          {('-' * max_len).rjust(width)}")
-    print(f"Result:   {rslt_line.rjust(width)}")
+    print(f"Diff:     {rslt_line.rjust(width)}{vs_corr}")
 
     return result
 
