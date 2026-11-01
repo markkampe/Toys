@@ -7,12 +7,14 @@
 import sys
 import argparse
 import ast
-from arithmetic import (
-    addition_with_carries, subtraction_with_borrows,
-    multiply_with_partial_products, long_division,
-    exponentiation
-)
+import pedarithmetic
 
+arith = pedarithmetic.Arithmetic()
+
+
+# FIX: try using tokenize instead of ast to give decimal floating point
+#      give up arbitrary expressions, just simple ones
+#      then change arithmetic routines to take string parameters
 
 # pylint: disable=too-many-branches, too-many-return-statements
 def evaluate(node: ast.Node) -> int:
@@ -34,20 +36,20 @@ def evaluate(node: ast.Node) -> int:
         right = evaluate(node.right)
         match type(node.op):
             case ast.Add:
-                return addition_with_carries(left, right)
+                return arith.addition_with_carries(left, right)
 
             case ast.Sub:
-                return subtraction_with_borrows(left, right)
+                return arith.subtraction_with_borrows(left, right)
 
             case ast.Mult:
-                return multiply_with_partial_products(left, right)
+                return arith.multiply_with_partial_products(left, right)
 
             case ast.Div:
-                quotient, remainder = long_division(left, right)
+                quotient, remainder = arith.long_division(left, right)
                 return quotient + remainder/right
 
             case ast.Pow:
-                return exponentiation(left, right)
+                return arith.exponentiation(left, right)
 
             case '_':
                 raise TypeError(f"unsupported binary operator: {node.op}")
