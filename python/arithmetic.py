@@ -57,6 +57,40 @@ def decimal_align(num1, num2) -> (str, str):
     return str1, str2
 
 
+def no_leading_zeroes(value: str) -> str:
+    """ strip leading zeroes off of a quotient """
+
+    # string is only zero
+    stripped = value.lstrip()
+    if stripped == '0':
+        return value
+
+    # first non-blank is not zero
+    if stripped[0] != '0':
+        return value
+
+    # copy the string, skipping any leading zeroes
+    newstr = ""
+    length = len(value)
+    got_stuff = False
+    for i in range(length):
+        # are we still in leading whitespace?
+        if value[i] == ' ':
+            newstr += ' '
+        # we are past any leading zeroes
+        elif got_stuff or value[i] != '0':
+            got_stuff = True
+            newstr += value[i]
+        # is this a zero before a decimal point
+        elif i < length - 1 and value[i+1] == '.':
+            got_stuff = True
+            newstr += value[i]
+        # this is a leading zero
+        else:
+            newstr += ' '
+    return newstr
+
+
 # pylint: disable=too-many-locals
 def addition_with_carries(addend_1, addend_2) -> int:
     """
@@ -78,8 +112,10 @@ def addition_with_carries(addend_1, addend_2) -> int:
     # Calculate carries from right to left
     carries = [0] * max_len
     current_carry = 0
+    result_s = ""
     for i in range(max_len - 1, -1, -1):
         if str1[i] == '.':
+            result_s = '.' + result_s
             carries[i] = 0
             continue
 
@@ -87,22 +123,20 @@ def addition_with_carries(addend_1, addend_2) -> int:
         digit1 = 0 if str1[i] == ' ' else int(str1[i])
         digit2 = 0 if str2[i] == ' ' else int(str2[i])
         total = digit1 + digit2 + current_carry
+        result_s = str(total % 10) + result_s
         current_carry = total // 10
-    # FIX: do the adds
 
     # If the carry is 0, we print a space; otherwise, print the carry digit
     carry_line = "".join(str(c) if c > 0 else " " for c in carries)
 
-    # Calculate final result and align its decimal pint
-    addend_places = decimal_places(str1)
-    result = round(addend_1 + addend_2, addend_places)
-    result_s = str(result)
-    result_places = decimal_places(result_s)
-    if addend_places > 0:
-        if result_places == 0:
-            result_s += '.' + addend_places * '0'
-        else:
-            result_s += (addend_places - result_places) * '0'
+    # check our result
+    result_s = no_leading_zeroes(result_s)
+    result = float(result_s)
+    correct = addend_1 + addend_2
+    if correct == result:
+        vs_corr = ""
+    else:
+        vs_corr = f" (vs {correct})"
 
     # Determine the width needed for clean right-alignment
     width = max(max_len + 2, len(result_s) + 2)
@@ -112,8 +146,7 @@ def addition_with_carries(addend_1, addend_2) -> int:
     print(f"          {str1.rjust(width)}")
     print(f"        + {str2.rjust(width)}")
     print(f"          {'-' * width}")
-    print(f"Result:   {result_s.rjust(width)}")
-    # FIX: compare computed result with correct result
+    print(f"Sum:      {result_s.rjust(width)}{vs_corr}")
 
     return result
 
@@ -280,40 +313,6 @@ def multiply_with_partial_products(multiplier, multiplicand):
     print(f"{result:>{max_len}}")
 
     return result
-
-
-def no_leading_zeroes(value: str) -> str:
-    """ strip leading zeroes off of a quotient """
-
-    # string is only zero
-    stripped = value.lstrip()
-    if stripped == '0':
-        return value
-
-    # first non-blank is not zero
-    if stripped[0] != '0':
-        return value
-
-    # copy the string, skipping any leading zeroes
-    newstr = ""
-    length = len(value)
-    got_stuff = False
-    for i in range(length):
-        # are we still in leading whitespace?
-        if value[i] == ' ':
-            newstr += ' '
-        # we are past any leading zeroes
-        elif got_stuff or value[i] != '0':
-            got_stuff = True
-            newstr += value[i]
-        # is this a zero before a decimal point
-        elif i < length - 1 and value[i+1] == '.':
-            got_stuff = True
-            newstr += value[i]
-        # this is a leading zero
-        else:
-            newstr += ' '
-    return newstr
 
 
 def long_division(dividend, divisor):
