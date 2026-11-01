@@ -292,6 +292,7 @@ def multiply_with_partial_products(multiplier, multiplicand):
     multiplicand = round(multiplicand)
 
     # Iterate through digits of the multiplier from right to left
+    calculated = 0
     for i, digit in enumerate(reversed(str(multiplier))):
         digit_val = int(digit)
         # Calculate the partial product for this step
@@ -303,6 +304,9 @@ def multiply_with_partial_products(multiplier, multiplicand):
             line = "0" + " " * i
         else:
             line = f"{partial}" + " " * i
+
+        # sum the partial products
+        calculated += int(line) * (10**i)
 
         # decimal points to the partial products
         if i < dp:
@@ -316,10 +320,9 @@ def multiply_with_partial_products(multiplier, multiplicand):
             line = line.rjust(max_len)
         print(line)
 
-        # FIX: do actual additions
-        calculated = correct
-
-    print("-" * max_len)
+    # re-insert the decimal point in the calculated total
+    for i in range(dp):
+        calculated /= 10
 
     # check for correct answer
     if calculated == correct:
@@ -329,6 +332,7 @@ def multiply_with_partial_products(multiplier, multiplicand):
 
     # Print the final result line
     calc_str = str(calculated)
+    print("-" * max_len)
     print(f"{calc_str.rjust(max_len)} {vs_corr}")
 
     return calculated
