@@ -256,9 +256,6 @@ def subtraction_with_borrows(minuend, subtrahend):
     return result
 
 
-# FIX: decimal points in partial products
-# FIX: do actual additions
-# FIX: compare results
 def multiply_with_partial_products(multiplier, multiplicand):
     """
     multiply two numbers, showing the partial products
@@ -278,8 +275,8 @@ def multiply_with_partial_products(multiplier, multiplicand):
 
     # Calculate the maximum width needed for clean alignment
     dp = decimal_places(str1) + decimal_places(str2)
-    result = round(multiplier * multiplicand, dp)
-    max_len = len(str(result)) + 2
+    correct = round(multiplier * multiplicand, dp)
+    max_len = len(str(correct)) + 2
 
     # Print the setup
     print(f"{str2:>{max_len}}")
@@ -307,13 +304,38 @@ def multiply_with_partial_products(multiplier, multiplicand):
         else:
             line = f"{partial}" + " " * i
 
-        print(f"{line:>{max_len}}")
+        # decimal points to the partial products
+        if i < dp:
+            end = len(line)
+            whole = line[:end-dp]
+            fract = line[end-dp:]
+            line = f"{whole}.{fract}".rjust(max_len)
+        elif dp > 0 and i == dp:
+            line = (line + ' ').rjust(max_len)
+        else:
+            line = line.rjust(max_len)
+        print(line)
+
+        # FIX: do actual additions
+        calculated = correct
+
+    print("-" * max_len)
+
+    # check for correct answer
+    if calculated == correct:
+        vs_corr = ""
+    else:
+        vs_corr = f" (vs {correct})"
 
     # Print the final result line
-    print("-" * max_len)
-    print(f"{result:>{max_len}}")
+    calc_str = str(calculated)
+    if dp > 0:
+        missing = dp - decimal_places(calc_str)
+        if missing > 0:
+            calc_str += missing * '0'
+    print(f"{calc_str.rjust(max_len)} {vs_corr}")
 
-    return result
+    return calculated
 
 
 def long_division(dividend, divisor):
