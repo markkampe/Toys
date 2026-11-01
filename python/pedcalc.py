@@ -9,11 +9,12 @@ import argparse
 import ast
 from arithmetic import (
     addition_with_carries, subtraction_with_borrows,
-    multiply_with_partial_products, long_division
+    multiply_with_partial_products, long_division,
+    exponentiation
 )
 
 
-# pylint: disable=too-many-branches
+# pylint: disable=too-many-branches, too-many-return-statements
 def evaluate(node: ast.Node) -> int:
     """
     recursive descent Evaluate a term in an expression,
@@ -44,6 +45,9 @@ def evaluate(node: ast.Node) -> int:
             case ast.Div:
                 quotient, remainder = long_division(left, right)
                 return quotient + remainder/right
+
+            case ast.Pow:
+                return exponentiation(left, right)
 
             case '_':
                 raise TypeError(f"unsupported binary operator: {node.op}")

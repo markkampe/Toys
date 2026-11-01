@@ -329,10 +329,6 @@ def multiply_with_partial_products(multiplier, multiplicand):
 
     # Print the final result line
     calc_str = str(calculated)
-    if dp > 0:
-        missing = dp - decimal_places(calc_str)
-        if missing > 0:
-            calc_str += missing * '0'
     print(f"{calc_str.rjust(max_len)} {vs_corr}")
 
     return calculated
@@ -456,3 +452,22 @@ def long_division(dividend, divisor):
         print(f"    {results[3]}{padding} ... remainder")
 
     return final_quotient, remainder
+
+
+def exponentiation(number, power):
+    """
+    raise a number to a specified (integer) power
+    """
+    result = 1
+    string = ""
+    for i in range(power):
+        result *= number
+        if i != 0:
+            string += " x "
+        string += str(number)
+
+    if power == 0:
+        print(f"    {result} ... (anything raised to the 0 power)")
+    else:
+        print(f"    {string} = {result}")
+    return result
