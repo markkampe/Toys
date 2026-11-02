@@ -2,81 +2,90 @@
 """
     This is a program to accept simple arithmetic expressions
     and evaluate them with the pedagogical/visual operations
-    in the arithmetic library.
+    in the pedarithmetic library.
 """
 import sys
 import argparse
-import ast
 import pedarithmetic
 
 arith = pedarithmetic.Arithmetic()
 
 
-# FIX: try using tokenize instead of ast to give decimal floating point
-#      give up arbitrary expressions, just simple ones
-#      then change arithmetic routines to take string parameters
-
 # pylint: disable=too-many-branches, too-many-return-statements
-def evaluate(node: ast.Node) -> int:
+def evaluate(tokens: [str]) -> int/float:
     """
-    recursive descent Evaluate a term in an expression,
-        using the pedagogical arithmetic operations
-
-    Parameters:
-        node (ast.Node): parsed expression to be evaluated
-    Returns:
-        (int/float) numerical result
+    evaluate an arithmetic expressions
     """
-    if isinstance(node, ast.Constant):
-        return node.value
+    count = len(tokens)
+    if count == 1:
+        return tokens[0]
+    if count != 3:
+        sys.stderr.write(f"Invalid expression: {tokens}\n")
+        return 0
 
-    # binary operations
-    if isinstance(node, ast.BinOp):
-        left = evaluate(node.left)
-        right = evaluate(node.right)
-        match type(node.op):
-            case ast.Add:
-                return arith.addition_with_carries(left, right)
+    # <num><op><num> or <op> <num> <num>
+    left = tokens[0]
+    middle = tokens[1]
+    right = tokens[2]
+    if left in ("lcm", "LCM"):
+        return arith.least_common_multiple(middle, right)
+    if left in ("gcf", "GCF"):
+        return arith.greatest_common_factor(middle, right)
 
-            case ast.Sub:
-                return arith.subtraction_with_borrows(left, right)
+    match middle:
+        case '+':
+            return arith.addition_with_carries(left, right)
+        case '-':
+            return arith.subtraction_with_borrows(left, right)
+        case '*':
+            return arith.multiply_with_partial_products(left, right)
+        case '/':
+            quotient, remainder = arith.long_division(left, right)
+            return quotient + remainder/float(right)
+        case '^':
+            return arith.exponentiation(left, right)
+        case '_':
+            raise TypeError(f"unsupported unary operator: {tokens[1]}")
 
-            case ast.Mult:
-                return arith.multiply_with_partial_products(left, right)
 
-            case ast.Div:
-                quotient, remainder = arith.long_division(left, right)
-                return quotient + remainder/right
+def lex(string: str) -> [str]:
+    """
+    simple lexer for arithmetic expressions
+        recognizes numbers, operators and other alphanumeric strings
+        blanks not required between operators and other strings
+    """
+    start = 0
+    in_token = False
+    tokens = []
+    for index, char in enumerate(string):
+        if char in " \t":
+            if in_token:
+                tokens.append(string[start:index])
+                in_token = False
+        elif char in "+-*/^":
+            if in_token:
+                tokens.append(string[start:index])
+                in_token = False
+            tokens.append(char)
+        else:   # likely a number or alphabetic
+            if not in_token:
+                start = index
+                in_token = True
 
-            case ast.Pow:
-                return arith.exponentiation(left, right)
-
-            case '_':
-                raise TypeError(f"unsupported binary operator: {node.op}")
-
-    # unary operations
-    if isinstance(node, ast.UnaryOp):
-        match node.op:
-            case ast.USub:
-                return -node.operand
-
-            case '_':
-                raise TypeError(f"unsupported unary operator: {node.op}")
-
-    # those are all the nodes we expect from an eval-parse
-    raise TypeError(f"unsupported node type: {node.__class__.__name__}")
+    # string probably ends immediately after last token
+    if in_token:
+        tokens.append(string[start:])
+    return tokens
 
 
 def main():
     """
     read expressions and evaluate them using the arithmetic library
     """
-
     # expressions could be commandline or stdin
     parser = argparse.ArgumentParser(
              description="pedagogical arithemetic calculator")
     parser.add_argument("-v", "--verbose", action='store_true')
-    parser.add_argument("-s", "--step_by_step", action='store_true')
     parser.add_argument("expressions", nargs='*', type=str,
                         help="expression to be evaluated")
     args = parser.parse_args()
@@ -85,8 +94,8 @@ def main():
     if len(args.expressions) > 0:
         for _i, expr in enumerate(args.expressions):
             print(f"Expression: {expr}")
-            tree = ast.parse(expr, mode='eval')
-            result = evaluate(tree.body)
+            tokens = lex(expr)
+            result = evaluate(tokens)
             if args.verbose:
                 print("\n==================")
                 print(f"{expr} = {result}\n")
@@ -101,16 +110,13 @@ def main():
             print("\n")
             sys.exit(0)
 
-        expr = line.strip()
-        if not expr:
-            sys.exit(0)
-
         # parse and evaluate the expression
-        tree = ast.parse(expr, mode='eval')
-        result = evaluate(tree.body)
-        if args.verbose:
-            print("\n==================")
-            print(f"{expr} = {result}\n")
+        tokens = lex(line)
+        if len(tokens) > 0:
+            result = evaluate(tokens)
+            if args.verbose:
+                print("\n==================")
+                print(f"{line} = {result}\n")
         print()
 
 

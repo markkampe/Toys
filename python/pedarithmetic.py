@@ -30,7 +30,7 @@ def decimal_places(string: str) -> int:
     return len(string) - (dot + 1)
 
 
-def decimal_align(num1, num2) -> (str, str):
+def decimal_align(num1: str, num2: str) -> (str, str):
     """
     ensure two (numeric) strings have same number of digits after decimal
 
@@ -38,26 +38,24 @@ def decimal_align(num1, num2) -> (str, str):
         two numeric strings with equal decimal precision
     """
     # see if either number has a decimal fraction
-    str1 = str(num1)
-    str2 = str(num2)
-    scale1 = decimal_places(str1)
-    scale2 = decimal_places(str2)
+    scale1 = decimal_places(num1)
+    scale2 = decimal_places(num2)
 
     # if two integers, they are fine as given
     if scale1 == 0 and scale2 == 0:
-        return str1, str2
+        return num1, num2
 
     # if they are different, zero-pad the shorter
     if scale1 > scale2:
         if scale2 == 0:
-            str2 += '.'
-        str2 += '0' * (scale1 - scale2)
+            num2 += '.'
+        num2 += '0' * (scale1 - scale2)
     elif scale2 > scale1:
         if scale1 == 0:
-            str1 += '.'
-        str1 += '0' * (scale2 - scale1)
+            num1 += '.'
+        num1 += '0' * (scale2 - scale1)
 
-    return str1, str2
+    return num1, num2
 
 
 def no_leading_zeroes(value: str) -> str:
@@ -104,7 +102,7 @@ class Arithmetic:
     """
 
     # pylint: disable=too-many-locals
-    def addition_with_carries(self, addend_1, addend_2) -> int:
+    def addition_with_carries(self, addend_1: str, addend_2: str) -> int/float:
         """
         add two numbers, showing the total and carries
         output: carries
@@ -144,7 +142,7 @@ class Arithmetic:
         # check our result
         result_s = no_leading_zeroes(result_s)
         result = float(result_s)
-        correct = addend_1 + addend_2
+        correct = float(addend_1) + float(addend_2)
         if correct == result:
             vs_corr = ""
         else:
@@ -166,8 +164,8 @@ class Arithmetic:
     def subtraction_with_borrows(self, minuend, subtrahend):
         """
         subtract one integer from another, showing the borrows
-          parm (int) minuend: number being subtracted from
-          parm (int) subtrahend: number being subtracted
+          parm (str) minuend: number being subtracted from
+          parm (str) subtrahend: number being subtracted
 
           output:   additions from borrows
                     reductions from values
@@ -185,7 +183,10 @@ class Arithmetic:
         dp = decimal_places(str1)
 
         # borrowing algorithm assumes positive difference
-        correct = round(minuend - subtrahend, dp)
+        if dp == 0:
+            correct = int(minuend) - int(subtrahend)
+        else:
+            correct = round(float(minuend) - float(subtrahend), dp)
         larger = str1 if correct >= 0 else str2
         smaller = str2 if correct >= 0 else str1
 
@@ -280,12 +281,18 @@ class Arithmetic:
 
         """
         # Convert inputs to strings to handle formatting and digit iteration
-        str1 = str(multiplier)
-        str2 = str(multiplicand)
+        str1 = multiplier
+        str2 = multiplicand
 
         # Calculate the maximum width needed for clean alignment
         dp = decimal_places(str1) + decimal_places(str2)
-        correct = round(multiplier * multiplicand, dp)
+        if dp == 0:
+            m1 = int(multiplier)
+            m2 = int(multiplicand)
+        else:
+            m1 = float(multiplier)
+            m2 = float(multiplicand)
+        correct = round(m1 * m2, dp)
         max_len = len(str(correct)) + 2
 
         # Print the setup
@@ -295,18 +302,18 @@ class Arithmetic:
 
         # scale multiplier/multiplicand into integers for computation
         for _i in range(decimal_places(str1)):
-            multiplier *= 10
-        multiplier = round(multiplier)
+            m1 *= 10
+        m1 = round(m1)
         for _i in range(decimal_places(str2)):
-            multiplicand *= 10
-        multiplicand = round(multiplicand)
+            m2 *= 10
+        m2 = round(m2)
 
         # Iterate through digits of the multiplier from right to left
         calculated = 0
-        for i, digit in enumerate(reversed(str(multiplier))):
+        for i, digit in enumerate(reversed(str(m1))):
             digit_val = int(digit)
             # Calculate the partial product for this step
-            partial = multiplicand * digit_val
+            partial = m2 * digit_val
 
             # Format output w/trailing spaces to represent place value shifts
             if partial == 0 and i > 0:
@@ -347,7 +354,7 @@ class Arithmetic:
 
         return calculated
 
-    def long_division(self, dividend, divisor):
+    def long_division(self, dividend_str: str, divisor_str: str):
         """
         perform a division operation, showing intermediate subtractions
           parm dividend: number to be divided
@@ -355,8 +362,13 @@ class Arithmetic:
 
         returns [quotient, remainder]
         """
+        # get numerical values for divisor and dividend
+        dp_d = decimal_places(divisor_str)
+        divisor = int(divisor_str) if dp_d == 0 else float(divisor_str)
         if divisor == 0:
             raise ValueError("Cannot divide by zero.")
+        dp_n = decimal_places(dividend_str)
+        dividend = int(dividend_str) if dp_d == 0 else float(dividend_str)
 
         # compute the correct answer
         correct = dividend/divisor
@@ -366,8 +378,6 @@ class Arithmetic:
         dividend, divisor = abs(dividend), abs(divisor)
 
         # general layout parameters
-        divisor_str = str(divisor)
-        dividend_str = str(dividend)
         denom_width = len(divisor_str)
         numer_width = len(dividend_str)
         extra_digits = 1
@@ -380,14 +390,19 @@ class Arithmetic:
                       '_' * (obleus_width + numer_width + extra_digits)
 
         # re-scale dividend for an integer divisor
-        dp = decimal_places(divisor_str)
         div_str = dividend_str
-        if dp > 0:
-            for i in range(dp):
+        if dp_d > 0:
+            for i in range(dp_d):
                 divisor *= 10
                 dividend *= 10
-            divisor = int(divisor)
-            div_str = str(dividend)
+        divisor = round(divisor)
+        if dp_n > dp_d:
+            dividend = round(dividend, dp_n - dp_d)
+        else:
+            dividend = round(dividend)
+        div_str = str(dividend)
+        print(f"rework to {dividend}/{divisor} = {correct}")    # FIX
+        # FIX how many zeroes to extend dividend
 
         # Process the dividend digit by digit
         quotient_str = ""
@@ -444,12 +459,11 @@ class Arithmetic:
             final_quotient = -final_quotient
 
         # check it for correctness
-        dp = decimal_places(dividend_str) - decimal_places(divisor_str)
-        correct = round(correct, dp)
-        if final_quotient == correct:
+        dp = max(dp_n - dp_d, 0)
+        if final_quotient == round(correct, dp):
             vs_corr = ""
         else:
-            vs_corr = f" (vs {correct})"
+            vs_corr = f" (vs {round(correct, dp+1)})"
 
         # print out the entire computation
 
@@ -471,16 +485,30 @@ class Arithmetic:
         """
         raise a number to a specified (integer) power
         """
+        p = int(power)
+        n = float(number) if '.' in number else int(number)
         result = 1
         string = ""
-        for i in range(power):
-            result *= number
+        for i in range(p):
+            result *= n
             if i != 0:
                 string += " x "
-            string += str(number)
+            string += number
 
-        if power == 0:
+        if p == 0:
             print(f"    {result} ... (anything raised to the 0 power)")
         else:
             print(f"    {string} = {result}")
         return result
+
+    def greatest_common_factor(self, num1, num2):
+        """
+        Greatest Common Factor
+        """
+        return f"GCF({num1}, {num2}"
+
+    def least_common_multiple(self, num1, num2):
+        """
+        Least Common Multiple
+        """
+        return f"LCM({num1}, {num2}"
