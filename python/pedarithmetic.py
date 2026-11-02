@@ -19,6 +19,69 @@
 #
 # utility routies to facilitate working with decimal fractions
 #
+def times_ten(number: str, power=1):
+    """
+    multiplication by a power of ten for numeric strings
+
+        done with numeric strings to avoid the inevitable
+        errors from floating point multiplication of binary
+        (vs decimal) numbers.
+
+    parm: number to be multiplied (string)
+    parm: power of ten (int)
+    Return:
+        string representing the desired product
+    """
+    for _i in range(power):
+        dp = number.find('.')
+        if dp < 0:          # integers are trivial
+            number += '0'
+            continue
+
+        # it depends where the decimal point is
+        tot_len = len(number)
+        if dp == 1 and number[0] == '0':    # 0.xxxx
+            if tot_len == 3:                # 0.x -> x
+                number = number[2]
+            else:                           # 0.xyz -> x.yz
+                number = number[2] + '.' + number[3:]
+        elif dp == tot_len - 2:             # xy.z -> xyz
+            number = number[:dp] + number[dp+1]
+        else:                               # x.yz -> xy.z
+            number = number[:dp] + number[dp+1] + '.' + number[dp+2:]
+    return number
+
+
+def divby_ten(number: str, power=1):
+    """
+    division by a power of ten for numeric strings
+
+        done with numeric strings to avoid the inevitable
+        errors from floating point division of binary
+        (vs decimal) numbers.
+
+    parm: number to be divided (string)
+    parm: power of ten (int)
+    Return:
+        string representing the desired product
+    """
+    for _i in range(power):
+        dp = number.find('.')
+        tot_len = len(number)
+        if dp < 0:
+            if tot_len == 1:                # x -> 0.x
+                number = "0." + number
+            else:                           # xy -> x.y
+                number = number[:-1] + '.' + number[-1]
+        elif dp == 1 and number[0] != '0':  # x.yz -> 0.xyz
+            number = "0." + number[0] + number[2:]
+        elif dp == 1 and number[0] == '0':  # 0.xyz = 0.0xyz
+            number = number[:2] + '0' + number[2:]
+        else:                               # xy.z -> x.yz
+            number = number[:dp-1] + '.' + number[dp-1] + number[dp+1:]
+    return number
+
+
 def decimal_places(string: str) -> int:
     """
     number of digits to the right of the decimal point
@@ -36,6 +99,12 @@ def decimal_align(num1: str, num2: str) -> (str, str):
 
     Return:
         two numeric strings with equal decimal precision
+
+    Note:
+        this is required for addition and subtraction,
+        but is wrong for division, where we want to
+        to turn the divisor into an integer, but don't
+        care about the precision of the dividend.
     """
     # see if either number has a decimal fraction
     scale1 = decimal_places(num1)
@@ -100,6 +169,7 @@ class Arithmetic:
            long division: each product/subtraction
            exponentiation with all the multiplies
     """
+    debug = True
 
     # pylint: disable=too-many-locals
     def addition_with_carries(self, addend_1: str, addend_2: str) -> int/float:
@@ -301,16 +371,12 @@ class Arithmetic:
         print("-" * max_len)
 
         # scale multiplier/multiplicand into integers for computation
-        for _i in range(decimal_places(str1)):
-            m1 *= 10
-        m1 = round(m1)
-        for _i in range(decimal_places(str2)):
-            m2 *= 10
-        m2 = round(m2)
+        str1 = times_ten(str1, decimal_places(str1))
+        m2 = int(times_ten(str2, decimal_places(str2)))
 
         # Iterate through digits of the multiplier from right to left
         calculated = 0
-        for i, digit in enumerate(reversed(str(m1))):
+        for i, digit in enumerate(reversed(str1)):
             digit_val = int(digit)
             # Calculate the partial product for this step
             partial = m2 * digit_val
@@ -338,8 +404,10 @@ class Arithmetic:
             print(line)
 
         # re-insert the decimal point in the calculated total
-        for i in range(dp):
-            calculated /= 10
+        calc_str = str(calculated)  # a correct integer
+        if dp > 0:
+            calc_str = divby_ten(calc_str, dp)
+            calculated = float(calc_str)
 
         # check for correct answer
         if calculated == correct:
@@ -348,7 +416,6 @@ class Arithmetic:
             vs_corr = f" (vs {correct})"
 
         # Print the final result line
-        calc_str = str(round(calculated, dp))
         print("-" * max_len)
         print(f"{calc_str.rjust(max_len)} {vs_corr}")
 
@@ -380,7 +447,7 @@ class Arithmetic:
         # general layout parameters
         denom_width = len(divisor_str)
         numer_width = len(dividend_str)
-        extra_digits = 1
+        extra_digits = 1 if dp_n > dp_d else 1 + dp_d - dp_n
         right_column = numer_width + 4
 
         # form for the division problem
@@ -389,20 +456,16 @@ class Arithmetic:
         obleus_line = ' ' * (denom_width + 1) + \
                       '_' * (obleus_width + numer_width + extra_digits)
 
-        # re-scale dividend for an integer divisor
         div_str = dividend_str
-        if dp_d > 0:
-            for i in range(dp_d):
-                divisor *= 10
-                dividend *= 10
-        divisor = round(divisor)
-        if dp_n > dp_d:
-            dividend = round(dividend, dp_n - dp_d)
-        else:
-            dividend = round(dividend)
-        div_str = str(dividend)
-        print(f"rework to {dividend}/{divisor} = {correct}")    # FIX
-        # FIX how many zeroes to extend dividend
+        if dp_d > 0:        # rescale dividend for an integer divider
+            divisor = int(times_ten(divisor_str, dp_d))
+            div_str = times_ten(dividend_str, dp_d)
+        if dp_d > dp_n:     # guess at how much precision we want
+            if '.' not in div_str:
+                div_str += '.'
+            div_str += '0' * (dp_d - dp_n)
+        if self.debug:  # the above took a lot of tuning
+            print(f"DBG: rework to {div_str}/{divisor}" + f" = {correct}")
 
         # Process the dividend digit by digit
         quotient_str = ""
@@ -459,7 +522,7 @@ class Arithmetic:
             final_quotient = -final_quotient
 
         # check it for correctness
-        dp = max(dp_n - dp_d, 0)
+        dp = max(dp_d - dp_n, 0)
         if final_quotient == round(correct, dp):
             vs_corr = ""
         else:
