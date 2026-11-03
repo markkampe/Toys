@@ -7,8 +7,15 @@
 import sys
 import argparse
 import pedarithmetic
+import factors
 
+# pylint: disable=fixme
+# TODO
+#   If I need more debugging, I could add a --debug flag to main,
+#      and pass it to the Arithmetic constructor, which would then
+#      (from the CLI) enable the debug option
 arith = pedarithmetic.Arithmetic()
+fact = factors.Factors()
 
 
 # pylint: disable=too-many-branches, too-many-return-statements
@@ -19,19 +26,31 @@ def evaluate(tokens: [str]) -> int/float:
     count = len(tokens)
     if count == 1:
         return tokens[0]
-    if count != 3:
+    if count > 3:
         sys.stderr.write(f"Invalid expression: {tokens}\n")
         return 0
 
-    # <num><op><num> or <op> <num> <num>
+    # <op><num> | <op><num><num> | <num><op><num>
     left = tokens[0]
     middle = tokens[1]
+    if count == 2:      # <op> <num>
+        if left in ("factor", "fact", "FACTOR", "FACT"):
+            facts = fact.factors(int(middle))
+            print(f"factors({middle}): {facts}")
+            return 0
+        raise TypeError(f"unrecognized operation: {left}")
     right = tokens[2]
+    # <op> <num> <num> ?
     if left in ("lcm", "LCM"):
-        return arith.least_common_multiple(middle, right)
+        n = fact.least_common_multiple(int(middle), int(right))
+        print(f"LCM({middle}, {right}) = {n}")
+        return n
     if left in ("gcf", "GCF"):
-        return arith.greatest_common_factor(middle, right)
+        n = fact.greatest_common_factor(int(middle), int(right))
+        print(f"GCF({middle}, {right}) = {n}")
+        return n
 
+    # <num> <op> <num>
     match middle:
         case '+':
             return arith.addition_with_carries(left, right)
@@ -45,7 +64,7 @@ def evaluate(tokens: [str]) -> int/float:
         case '^':
             return arith.exponentiation(left, right)
         case '_':
-            raise TypeError(f"unsupported unary operator: {tokens[1]}")
+            raise TypeError(f"unsupported binary operator: {middle}")
 
 
 def lex(string: str) -> [str]:
