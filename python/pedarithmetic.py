@@ -435,7 +435,7 @@ class Arithmetic:
         if divisor == 0:
             raise ValueError("Cannot divide by zero.")
         dp_n = decimal_places(dividend_str)
-        dividend = int(dividend_str) if dp_d == 0 else float(dividend_str)
+        dividend = int(dividend_str) if dp_n == 0 else float(dividend_str)
 
         # compute the correct answer
         correct = dividend/divisor
@@ -522,7 +522,7 @@ class Arithmetic:
             final_quotient = -final_quotient
 
         # check it for correctness
-        dp = max(dp_d - dp_n, 0)
+        dp = decimal_places(quotient_str)
         if final_quotient == round(correct, dp):
             vs_corr = ""
         else:
