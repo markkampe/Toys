@@ -318,7 +318,7 @@ class Arithmetic:
 
         # check our answer vs the correct one
         result = float(rslt_line)
-        if result == correct:
+        if result == abs(correct):
             vs_corr = ""
         else:
             vs_corr = f" (vs {correct})"
