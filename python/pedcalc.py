@@ -14,12 +14,11 @@ import factors
 #   If I need more debugging, I could add a --debug flag to main,
 #      and pass it to the Arithmetic constructor, which would then
 #      (from the CLI) enable the debug option
-arith = pedarithmetic.Arithmetic()
 fact = factors.Factors()
 
 
 # pylint: disable=too-many-branches, too-many-return-statements
-def evaluate(tokens: [str]) -> int/float:
+def evaluate(tokens: [str], arith) -> int/float:
     """
     evaluate an arithmetic expressions
     """
@@ -103,18 +102,32 @@ def main():
     """
     # expressions could be commandline or stdin
     parser = argparse.ArgumentParser(
-             description="pedagogical arithemetic calculator")
-    parser.add_argument("-v", "--verbose", action='store_true')
-    parser.add_argument("expressions", nargs='*', type=str,
+             description="pedagogical arithemetic calculator, " +
+                         "showing carries, borows, partial products, " +
+                         "and details of long division")
+    parser.add_argument("-v", "--verbose", action='store_true',
+                        help="more than merely the calculations")
+    parser.add_argument("-D", "--debug", action='store_true',
+                        help="show intermediate calculations")
+    parser.add_argument("-d", "--decimals", type=int, default=0,
+                        metavar="int",
+                        help="quotient decimal places")
+    parser.add_argument("expressions", nargs='?', type=str,
                         help="expression to be evaluated")
     args = parser.parse_args()
 
+    arith = pedarithmetic.Arithmetic(debug=args.debug,
+                                     quotient_dp=args.decimals)
+
+    if args.verbose:
+        print(f"debug={args.debug}, decimals={args.decimals}")
+
     # see if we got expressions on the command line
-    if len(args.expressions) > 0:
+    if args.expressions is not None:
         for _i, expr in enumerate(args.expressions):
             print(f"Expression: {expr}")
             tokens = lex(expr)
-            result = evaluate(tokens)
+            result = evaluate(tokens, arith)
             if args.verbose:
                 print("\n==================")
                 print(f"{expr} = {result}\n")
@@ -132,7 +145,7 @@ def main():
         # parse and evaluate the expression
         tokens = lex(line)
         if len(tokens) > 0:
-            result = evaluate(tokens)
+            result = evaluate(tokens, arith)
             if args.verbose:
                 print("\n==================")
                 print(f"{line} = {result}\n")

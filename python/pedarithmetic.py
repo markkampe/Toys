@@ -169,7 +169,10 @@ class Arithmetic:
            long division: each product/subtraction
            exponentiation with all the multiplies
     """
-    debug = False
+    def __init__(self, verbose=False, debug=False, quotient_dp=0):
+        self.verbose = verbose              # descriptive output
+        self.debug = debug                  # intermediate computations
+        self.quotient_dp = quotient_dp      # min decimal places
 
     # pylint: disable=too-many-locals
     def addition_with_carries(self, addend_1: str, addend_2: str) -> int/float:
@@ -456,14 +459,21 @@ class Arithmetic:
         obleus_line = ' ' * (denom_width + 1) + \
                       '_' * (obleus_width + numer_width + extra_digits)
 
+        # long division treats divisor as an integer
         div_str = dividend_str
         if dp_d > 0:        # rescale dividend for an integer divider
             divisor = int(times_ten(divisor_str, dp_d))
             div_str = times_ten(dividend_str, dp_d)
-        if dp_d > dp_n:     # guess at how much precision we want
+
+        # figure out how many decimal places we want for the quotient
+        dp = decimal_places(div_str)
+        wanted = self.quotient_dp
+        if self.debug:
+            print(f"DBG: {dp_n}/{dp_d}->{dp}, vs decimals={wanted}")
+        if wanted > dp:
             if '.' not in div_str:
                 div_str += '.'
-            div_str += '0' * (dp_d - dp_n)
+            div_str += '0' * (wanted - dp)
         if self.debug:  # the above took a lot of tuning
             print(f"DBG: rework to {div_str}/{divisor}" + f" = {correct}")
 
