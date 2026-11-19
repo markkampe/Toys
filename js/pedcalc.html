@@ -1,5 +1,9 @@
 <!DOCTYPE html>
 <!-- TODO: implement arith parser -->
+<!-- TODO: add -->
+<!-- TODO: subtract -->
+<!-- TODO: multiply -->
+<!-- TODO: divide -->
 <!-- TODO: local import for testing -->
 <!-- TODO: import { fn } from "URL" -->
 <html lang="en">
@@ -16,10 +20,12 @@
 
 <body>
   <h2>Pedagogical Arithmetic Calculator</h2>
+
   <!-- Input Widgets -->
   <div class="row">
     <input type="text" id="eqn", placeholder="equation" />
-    <button id="calcBtn">Calc</button>
+    <button id="calcBtn">Calculate</button>
+    <button id="clrBtn">Clear</button>
   </div>
   <div class="row">
     <input type="text" id="num1", placeholder="number" />
@@ -27,17 +33,19 @@
     <button id="gcfBtn">GCF</button>
     <button id="lcmBtn">LCM</button>
   </div>
-  <!-- Output Display -->
+
+  <!-- Output Display (pre-formatted) -->
   <div>
     <h3>Results</h3>
-    <p><pre id="result">0</pre></p>
+    <p><pre id="result"> </pre></p>
   </div>
 
-  <!-- Primary Processing -->
+  <!-- Primary Input Processing -->
   <script>
     const resultDisplay = document.getElementById('result');
     const eqnInput = document.getElementById('eqn');
     const calcBtn = document.getElementById('calcBtn');
+	const clrBtn = document.getElementById('clrBtn');
     const num1Input = document.getElementById('num1');
     const num2Input = document.getElementById('num2');
     const gcfBtn = document.getElementById('gcfBtn');
@@ -55,7 +63,7 @@
       resultDisplay.textContent = output;
     });
 
-	// Enter presxed in equation field
+	// Enter pressed in equation field
     eqnInput.addEventListener('keydown', (event) => {
       if (event.key === "Enter") {
 		  input = eqnInput.value.trim();
@@ -94,15 +102,30 @@
       resultDisplay.textContent = output;
     });
 
+	// Clear button pressed
+    clrBtn.addEventListener('click', () => {
+        resultDisplay.textContent = "";
+		eqnInput.value = "";
+		num1Input.value = "";
+		num2Input.value = "";
+      	return;
+    });
+
+	// parse an equation and call appropriate operation
 	function arithmetic(expr) {
+		// FIX parse into operator and operands
+		// error dialog for bad expressions
+		// call add/subtract/multiply/divide
 		return(expr + "\n  addend_1\n+ addend_2\n ---------\n    ####\n");
 	}
 
+	// least common multiple of two numbers
 	function lcm(num1, num2) {
 		result = "666";
 		return("lcm(" + num1 + ", " + num2 + ") = " + result + "\n");
 	}
 
+	// greatest common factor of two numbers
 	function gcf(num1, num2) {
 		result = "777";
 		return("gcf(" + num1 + ", " + num2 + ") = " + result + "\n");
