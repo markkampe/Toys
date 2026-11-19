@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-<!-- TODO: implement arith parser -->
 <!-- TODO: add -->
 <!-- TODO: subtract -->
 <!-- TODO: multiply -->
@@ -59,8 +58,7 @@
         resultDisplay.textContent = "";
       	return;
       }
-	  output = arithmetic(input);
-      resultDisplay.textContent = output;
+      resultDisplay.textContent = arithmetic(input);
     });
 
 	// Enter pressed in equation field
@@ -71,8 +69,7 @@
 				resultDisplay.textContent = "";
 				return;
 		  }
-		  output = arithmetic(input);
-		  resultDisplay.textContent = output;
+          resultDisplay.textContent = arithmetic(input);
       }
     });
 
@@ -81,12 +78,11 @@
       // gather input and make sure it is non-null
       num1 = num1Input.value.trim();
       num2 = num2Input.value.trim();
-      if (num1.length == 0 || num2.length == 0) {
-        resultDisplay.textContent = "";
-      	return;
-      }
-	  output = gcf(num1, num2);
-      resultDisplay.textContent = output;
+	  output = twoNumbers(num1, num2, true);
+	  if (output !== "")
+		  resultDisplay.textContent = output;
+	  else
+		  resultDisplay.textContent = gcf(num1, num2);
     });
 
 	// LCM button pressed
@@ -94,12 +90,11 @@
       // gather input and make sure it is non-null
       num1 = num1Input.value.trim();
       num2 = num2Input.value.trim();
-      if (num1.length == 0 || num2.length == 0) {
-        resultDisplay.textContent = "";
-      	return;
-      }
-	  output = lcm(num1, num2);
-      resultDisplay.textContent = output;
+	  output = twoNumbers(num1, num2, true);
+	  if (output !== "")
+		  resultDisplay.textContent = output;
+	  else
+		  resultDisplay.textContent = lcm(num1, num2);
     });
 
 	// Clear button pressed
@@ -111,26 +106,207 @@
       	return;
     });
 
-	// parse an equation and call appropriate operation
+	/**
+	 * validate that we have two numeric parameters
+	 *
+	 * @param {string} num1 - first operand
+	 * @parma {string} num2 - second operand
+	 * @parm {boolean} integer - required to be integers
+	 * @return {string} error, empty if both parameters correct
+	 */
+	function twoNumbers(num1, num2, integers) {
+		// confirm both are non-null
+		if (num1 == "" || num2 == "")
+			return "TWO OPERANDS REQUIRED";
+		// confirm first is valid numeric string
+		val1 = Number(num1);
+		if (!Number.isFinite(val1))
+			return "NON-NUMERIC OPERAND: " + num1;
+		if (integers && !Number.isInteger(val1))
+			return "NON-INTEGER OPERAND: " + num1;
+		// confirm second is valid numeric string
+		val2 = Number(num2);
+		if (!Number.isFinite(val2))
+			return "NON-NUMERIC OPERAND: " + num2;
+		if (integers && !Number.isInteger(val2))
+			return "NON-INTEGER OPERAND: " + num2;
+
+		// no errors
+		return "";
+	}
+
+	/**
+	 * lex and evaluate an arithmetic expression
+	 *
+	 * @param {string} expr - expression to be evaluated
+	 *		<number> <operator> <number> ... blanks ignored
+	 * @return {string} - error or evaluation of that expression
+	 */
 	function arithmetic(expr) {
-		// FIX parse into operator and operands
-		// error dialog for bad expressions
-		// call add/subtract/multiply/divide
-		return(expr + "\n  addend_1\n+ addend_2\n ---------\n    ####\n");
+		len = expr.length;
+
+		// find the operator and operands
+		const operators = ["+", "-", "*", "/"];
+		for (const op of operators) {
+			x = expr.indexOf(op);
+			if (x >= 0) {
+				// confirm we have two numeric operands
+				num1 = expr.substring(0,x).trim();
+				num2 = expr.substring(x+1,len).trim();
+				output = twoNumbers(num1, num2, false);
+				if (output !== "")
+					return output;
+
+				// perform the requested operation
+				switch (op) {
+				  case "+":
+					return add(num1, num2);
+				  case "-":
+					return subtract(num1, num2);
+				  case "*":
+					return multiply(num1, num2);
+				  case "/":
+					return divide(num1, num2);
+				}
+			}
+		}
+		// did not find any supported operator
+		return "NO OPERATOR IN EXPRESSION";
 	}
 
-	// least common multiple of two numbers
+	/**
+	 * list of primes
+	 *
+	 * @param {int} n - maximum desired number
+	 * @return {int Array} all primes up to n
+	 */
+	function eratosthanes(n) {
+		// allocate an array of the appropriate size
+		is_prime = new Array(n).fill(true);
+		is_prime[0] = false;
+		is_prime[1] = false;
+
+		// all multiples of primes are non-prime
+		max = n ** 0.5;
+		for (let i = 0; i <= max; i++) {
+			if (is_prime[i])
+				for (let j = 2; i * j < n; j++)
+					is_prime[i*j] = false;
+		}
+
+		// make a list of those primes
+		num_primes = 0;
+		for (let i = 0; i < n; i++)
+			if (is_prime[i])
+				num_primes++;
+		primes = new Array(num_primes);
+		next_spot = 0;
+		for (let i = 0; i < n; i++) {
+			if (is_prime[i])
+				primes[next_spot++] = i;
+		}
+		return primes;
+	}
+
+	/**
+	 * all the factors of an integer
+	 *
+	 * @param {int} n - number to be factored
+	 * @return {int Array} - array of factors
+	 *		   one factor may appear multiple times
+	 */
+	function factors(n) {
+		primes = eratosthanes(n+1);
+		num_primes = primes.length;
+
+		// prime numbers are trivial
+		for (let i = 0; i < num_primes; i++)
+			if (primes[i] == n)
+				return new Array(1).fill(n);
+
+		// divide by primes until we come down to one
+		max_factors = n;
+		factor_list = new Array(max_factors);
+		next_spot = 0;
+		for (let i = 0; n > 1 && i < num_primes; i++)
+			while (n % primes[i] == 0) {
+				factor_list[next_spot++] = primes[i];
+				n /= primes[i];
+			}
+
+		// reduce the size of the array
+		short_list = new Array(next_spot);
+		for (let i = 0; i < next_spot; i++)
+			short_list[i] = factor_list[i];
+		return short_list;
+	}
+
+	/**
+	 * Least Common Multiple of two integers
+	 * @param {string} num1
+	 * @param {string} num2
+	 * @return {string} representing the LCM
+	 */
 	function lcm(num1, num2) {
-		result = "666";
-		return("lcm(" + num1 + ", " + num2 + ") = " + result + "\n");
+		/*
+		 * x * y = (x/gcf * gcf)*(y/gcf * gcf)
+         *       = (x/gcf)*(y/gcf) * gcf^2
+         *   but we don't need to square gcf to get a CM
+         *       we can factor out 1/gcf
+         * LCM(x,y) = (x*y)/gcf
+		 */
+		product = Number(num1) * Number(num2);
+		common_factor = gcf(num1, num2);
+		return String(product / common_factor);
 	}
 
-	// greatest common factor of two numbers
+	/**
+	 * Greatest common factor of two integers
+	 * @param {string} num1
+	 * @param {string} num2
+	 * @return {string} representing the GCF
+	 */
 	function gcf(num1, num2) {
-		result = "777";
-		return("gcf(" + num1 + ", " + num2 + ") = " + result + "\n");
+		n1 = Number(num1);
+		f1 = factors(n1);
+		n2 = Number(num2);
+		f2 = factors(n2);
+
+		best = 1;
+		// for every factor of n1
+		for( let i = 0; i < f1.length; i++ ) {
+			f = f1[i];
+			// see if it is a factor of n2
+			for( let j = 0; j < f2.length; j++ ) {
+				if (f2[j] == f) {
+					// divde by that as many times as possible
+					while(n1%f == 0 && n2%f == 0) {
+						best *= f;
+						n1 /= f;
+						n2 /= f;
+					}
+					continue;
+				}
+			}
+		}
+		return String(best);
 	}
 
+	function add(num1, num2) {
+		return num1 + " + " + num2;
+	}
+
+	function subtract(num1, num2) {
+		return num1 + " - " + num2;
+	}
+
+	function multiply(num1, num2) {
+		return num1 + " x " + num2;
+	}
+
+	function divide(num1, num2) {
+		return num1 + " / " + num2;
+	}
 </script>
 
 </body>
