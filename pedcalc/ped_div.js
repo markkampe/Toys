@@ -18,7 +18,7 @@ function divide(num1, num2) {
 	// FIX: bring-downs
 	var computations = "";
 	computations += ' '.repeat(indent) + num1[0] + "\n";
-	computations += ' '.repeat(indent-1) + "-" + "0" + "      (" + "0"+"*" + num2 + ")\n";
+	computations += ' '.repeat(indent-1) + "-" + "0" + "      ... (" + "0"+"*" + num2 + ")\n";
 	computations += ' '.repeat(indent-1) + "--" + "\n";
 	computations += ' '.repeat(indent) + num1[0] + "\n";
 
