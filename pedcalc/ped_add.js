@@ -29,6 +29,7 @@ function add(num1, num2) {
 		if (pad1[i] == '.') {		// skip over (aligned) decimal point
 			result = '.' + result;
 			carries[i] = 0;
+			carry_line = ' ' + carry_line;
 			continue;
 		}
 
@@ -38,7 +39,8 @@ function add(num1, num2) {
 		let digit2 = (pad2[i] == ' ') ? 0 : Number(pad2[i]);
 		let total = digit1 + digit2 + current_carry;
 
-		carry_line = String(current_carry) + carry_line;
+		carry_line = ((current_carry > 0) ? String(current_carry) : ' ') + 
+					carry_line;
 		result = String(total % 10) + result;
 		current_carry = Math.trunc(total/10);
 	}
