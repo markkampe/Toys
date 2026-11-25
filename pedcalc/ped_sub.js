@@ -88,30 +88,30 @@ function subtract(num1, num2) {
 			ok = "    (should be " + String(sb) + ")\n";
 	}
 
-	// capture the borrows
-	borrow_10s = "";
-	borrow_01s = "";
-	for( let i = 0; i < width; i++ ) {
-		original = pad1[i];
-		if (original == ' ' || original == '.') {
-			borrow_10s += ' ';
-			borrow_01s += ' ';
-			continue;
-		}
-		if (Number(original) == digits1[i]) {
-			borrow_10s += ' ';
-			borrow_01s += ' ';
-			continue;
-		}
-		borrow_10s += (digits1[i] >= 10) ? '1' : ' ';
-		borrow_01s += String(digits1[i] % 10)
-	}
-	// generate the output
+	// capture and print the borrows
 	var output = "";
 	if (borrows) {
+		borrow_10s = "";
+		borrow_01s = "";
+		for( let i = 0; i < width; i++ ) {
+			original = pad1[i];
+			if (original == ' ' || original == '.') {
+				borrow_10s += ' ';
+				borrow_01s += ' ';
+				continue;
+			}
+			if (Number(original) == digits1[i]) {
+				borrow_10s += ' ';
+				borrow_01s += ' ';
+				continue;
+			}
+			borrow_10s += (digits1[i] >= 10) ? '1' : ' ';
+			borrow_01s += String(digits1[i] % 10)
+		}
 		output += "(" + borrow_10s + "    10s borrows)\n";
 		output += "(" + borrow_01s + "     1s borrows)\n";
 	}
+	// generate the regular output
 	output += " " + pad1 + "\n";
 	output += "-" + pad2 + "\n";
 	output += line + "\n";
